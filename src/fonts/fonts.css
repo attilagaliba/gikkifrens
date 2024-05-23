@@ -1,0 +1,8 @@
+/* src/fonts/fonts.css */
+
+@font-face {
+    font-family: 'DegenFont';
+    src: url('./DegenFont.otf') format('opentype');
+    /* You might need to adjust the path in the url() based on your project structure */
+  }
+  
