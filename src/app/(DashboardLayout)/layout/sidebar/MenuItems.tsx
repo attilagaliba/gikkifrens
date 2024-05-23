@@ -47,36 +47,14 @@ const Menuitems = [
   },
   {
     navlabel: true,
-    subheader: "Auth",
-  },
-  {
-    id: uniqueId(),
-    title: "Login",
-    icon: IconLogin,
-    href: "/authentication/login",
-  },
-  {
-    id: uniqueId(),
-    title: "Register",
-    icon: IconUserPlus,
-    href: "/authentication/register",
-  },
-  {
-    navlabel: true,
-    subheader: "Detailed",
+    subheader: "idk",
   },
   {
     id: uniqueId(),
     title: "Ai Fren",
     icon: IconMoodHappy,
     href: "/ai",
-  },
-  {
-    id: uniqueId(),
-    title: "Sample Page",
-    icon: IconAperture,
-    href: "/sample-page",
-  },
+  }
 ];
 
 export default Menuitems;

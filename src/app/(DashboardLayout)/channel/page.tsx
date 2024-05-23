@@ -175,28 +175,28 @@ const Dashboard = () => {
           <Grid item xs={12} lg={3}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <ChannelStats userChannel={userChannel} title={'Subs'} userData={userData} degenPrice={degenPrice} />
+                <ChannelStats userChannel={userChannel} title={'Subs'} userData={userData} degenPrice={degenPrice} image={"https://c.tenor.com/71rFa0hBgU4AAAAC/tenor.gif"} />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} lg={3}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <ChannelStats userChannel={userChannel}  title={'Stakers'} userData={userData} degenPrice={degenPrice} />
+                <ChannelStats userChannel={userChannel}  title={'Stakers'} userData={userData} degenPrice={degenPrice} image={"https://media.tenor.com/Xq6Ij1fSSqMAAAAM/pepe-money.gif"} />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} lg={3}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <ChannelStats  userChannel={userChannel} title={'Reward'} userData={userData} degenPrice={degenPrice} />
+                <ChannelStats  userChannel={userChannel} title={'Reward'} userData={userData} degenPrice={degenPrice} image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"} />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} lg={3}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <ChannelStats userChannel={userChannel}  title={'Stakes'} userData={userData} degenPrice={degenPrice} />
+                <ChannelStats userChannel={userChannel}  title={'Stakes'} userData={userData} degenPrice={degenPrice} image={"https://c.tenor.com/KudEsy5UPSoAAAAd/tenor.gif"}  />
               </Grid>
             </Grid>
           </Grid>

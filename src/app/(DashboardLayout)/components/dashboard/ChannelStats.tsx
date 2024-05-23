@@ -15,6 +15,7 @@ interface Props {
   title: string;
   userData: any;
   degenPrice: any;
+  image: string;
 }
 
 const MonthlyEarnings: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const MonthlyEarnings: React.FC<Props> = ({
   title,
   userData,
   degenPrice,
+  image,
 }) => {
   const [getUserData, setUserData] = useState(userData);
 
@@ -90,12 +92,7 @@ const MonthlyEarnings: React.FC<Props> = ({
     <DashboardCard
       title={title}
       action={
-        <Fab color="secondary" size="medium" sx={{ color: "#ffffff" }}>
-          <img
-            width={30}
-            src="https://assets.coingecko.com/coins/images/34515/standard/android-chrome-512x512.png?1706198225"
-          />
-        </Fab>
+        <img style={{ borderRadius: "50%", width: "50px" }} src={image} />
       }
     >
       <>

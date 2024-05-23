@@ -10,8 +10,15 @@ import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/Pro
 import StakePerformance from "@/app/(DashboardLayout)/components/dashboard/StakePerformance";
 import Blog from "@/app/(DashboardLayout)/components/dashboard/Blog";
 import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings";
+import { useProfile } from "@farcaster/auth-kit";
 
 const Dashboard = () => {
+  const profile = useProfile();
+  const {
+    isAuthenticated,
+    profile: { fid, displayName, custody },
+  } = profile;
+
   const [degenPrice, setDegenPrice] = useState(0.01);
 
   useEffect(() => {
@@ -131,8 +138,7 @@ const Dashboard = () => {
     },
     {
       userDisplayName: "Hitendra 🇮🇳🎩🔵☔",
-      userPfp:
-        "https://i.imgur.com/c7kXEdT.jpeg",
+      userPfp: "https://i.imgur.com/c7kXEdT.jpeg",
       userChannelAlfa: 150.6,
       userChannelCost: 500,
     },
@@ -153,10 +159,18 @@ const Dashboard = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} lg={8}>
-            <ProductPerformance userSubs={userSubs} limit={5} degenPrice={degenPrice} />
+            <ProductPerformance
+              userSubs={userSubs}
+              limit={5}
+              degenPrice={degenPrice}
+            />
           </Grid>
           <Grid item xs={12} lg={8}>
-            <StakePerformance userSubs={userStakes} limit={5} degenPrice={degenPrice} />
+            <StakePerformance
+              userSubs={userStakes}
+              limit={5}
+              degenPrice={degenPrice}
+            />
           </Grid>
           <Grid item xs={12} lg={4}>
             <RecentTransactions

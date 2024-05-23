@@ -23,6 +23,80 @@ const SamplePage = () => {
   const apiKey = "AIzaSyAmeJjqu5K5ty7ZyEr2JDg9v30PCna01Us";
   const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://min-api.cryptocompare.com/data/price?fsym=DEGEN&tsyms=USD"
+        );
+        const result = await response.json();
+        setDegenPrice(result.USD);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const creatingMessage = [
+    "I'm on it, dude.",
+    "Doing it right now.",
+    "Got it covered, man.",
+    "Working on it, bro.",
+    "Just handling it, chill.",
+    "Creating it, hold tight.",
+    "Making it happen.",
+    "I'm all over it.",
+    "Sorting it out.",
+    "Piecing it together.",
+    "Putting it together, mate.",
+    "Doing my thing.",
+    "Hustling on it.",
+    "Knocking it out.",
+    "Cranking it out.",
+    "Cooking it up.",
+    "Whipping it up.",
+    "Fixin' it up.",
+    "Pulling it together.",
+    "Knocking this out.",
+    "On the job, don't worry.",
+    "Smashing it out.",
+    "Gonna make it.",
+    "Crafting it now.",
+    "Building it up.",
+    "Doing my best, hold on.",
+    "Jamming on it.",
+    "Handling business.",
+    "Putting in work.",
+    "Getting it done.",
+    "Tackling it now.",
+    "Handling it, no sweat.",
+    "Doing the thing.",
+    "Making magic happen.",
+    "Just getting started.",
+    "Pushing through it.",
+    "Rolling it out.",
+    "Bringing it together.",
+    "Putting in the effort.",
+    "Giving it my all.",
+    "Crafting it, don't stress.",
+    "Piecing it, bit by bit.",
+    "Forming it up.",
+    "Making it, one sec.",
+    "Kicking it off.",
+    "Handling this, bro.",
+    "Crushing it.",
+    "Spinning it up.",
+    "Setting it up.",
+    "Working through it.",
+  ];
+
+  function getRandomMessage() {
+    const randomIndex = Math.floor(Math.random() * creatingMessage.length);
+    return creatingMessage[randomIndex];
+  }
+
   const systemDescription = `
 System:
 - You can subscribe monthly by paying "Degen" as a user, and in return, you earn "Alfa" monthly.
@@ -38,17 +112,17 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
     userFid: 474817,
     userDisplayName: `attilagaliba`,
     userPfp: `https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original`,
-    userBalance: 1840.124,
+    userBalance: 1951.121474,
     userAlfaBalance: 0,
-    userAlfaClaimable: 28.602736,
-    userSubs: 327,
-    userSubsCost: 18000,
-    userDailyAlfa: 218.23,
+    userAlfaClaimable: 91.584147,
+    userSubs: 26,
+    userSubsCost: 17500,
+    userDailyAlfa: 192.6,
     userStakes: 8,
-    userStakedAlfa: 2699.23,
-    userStakeCashback: 18374,
-    userChannelSubs: 51,
-    userChannelEarnings: 6375,
+    userStakedAlfa: 3048,
+    userStakeCashback: 17917,
+    userChannelSubs: 44,
+    userChannelEarnings: 5500,
   };
 
   const aiData = {
@@ -80,13 +154,14 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
   };
 
   const generateContent = async () => {
+    setGeneratedContent(getRandomMessage());
     setIsGenerating(true);
     const requestData = {
       contents: [
         {
           parts: [
             {
-              text: `* Response should return with html codes. * ${systemDescription} * Response should return with html codes. * Can you analyse that data? I want recommendations for the user's daily earnings and earning more. Also advice on how many subscribers you should have to double your earnings, how much alpha stake you should make, and what you should do without reducing your expenses. * Response should return with html codes. I want to speak in urban language. Sometimes you can make fun of it. Data: ${JSON.stringify(
+              text: `* Response should return with html codes and modern colored (purple palette) text. * ${systemDescription} * Response should return with html codes and modern colored (purple palette) text. * Can you analyse that data? I want recommendations for the user's daily earnings and earning more. Also advice on how many subscribers you should have to double your earnings, how much alpha stake you should make, and what you should do without reducing your expenses. * Response should return with html codes and modern colored (purple palette) text. I want to speak in urban language. Sometimes you can make fun of it. * Degen Price: 1 DEGEN = ${degenPrice} USD | ALFA has no financial equivalent. * Data: ${JSON.stringify(
                 userData
               )} *  Data's Descriptions: ${JSON.stringify(aiData)}`,
             },
@@ -95,25 +170,46 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
       ],
     };
 
-    try {
-      const response = await fetch(requestUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
+    const makeRequest = async (retryCount = 0) => {
+      try {
+        const response = await fetch(requestUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const storyText = data.candidates[0].content.parts[0].text;
+
+        if (!storyText.startsWith("```html")) {
+          throw new Error("Response did not start with ```html");
+        }
+
+        const cleanHtml = storyText.replace(/^```html\n|```$/g, "");
+        setGeneratedContent(cleanHtml);
+      } catch (error) {
+        console.error("Error:", error);
+        if (retryCount < 10) {
+          setGeneratedContent(getRandomMessage());
+          console.log(`Retrying... Attempt ${retryCount + 1}`);
+          await makeRequest(retryCount + 1);
+        } else {
+          console.error("Max retry limit reached.");
+          setGeneratedContent(
+            "Failed to generate content after multiple attempts."
+          );
+        }
       }
+    };
 
-      const data = await response.json();
-      const storyText = data.candidates[0].content.parts[0].text;
-      const cleanHtml = storyText.replace(/^```html\n|```$/g, "");
-      setGeneratedContent(cleanHtml);
-    } catch (error) {
-      console.error("Error:", error);
+    try {
+      await makeRequest();
     } finally {
       setIsGenerating(false);
     }

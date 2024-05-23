@@ -84,7 +84,7 @@ const YearlyBreakup: React.FC<Props> = ({ userData, degenPrice }) => {
 
   const dailyProfit = (totalProfit / 30).toFixed(2);
 
-  const getDegenPrice = degenPrice?.degenPrice ?? 1;
+  const getDegenPrice = degenPrice ?? 1;
   const earningMo = totalProfit * getDegenPrice;
 
   const dailyAlfa = getUserData?.userDailyAlfa ?? 0;
