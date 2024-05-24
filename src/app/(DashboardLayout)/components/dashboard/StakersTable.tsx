@@ -47,10 +47,12 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
   const exportToCSV = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      userSubs.map((sub) => {
-        delete sub.userPfp; // Remove userPfp from the subscription object
-        return Object.values(sub).join(",");
-      }).join("\n");
+      userSubs
+        .map((sub) => {
+          delete sub.userPfp; // Remove userPfp from the subscription object
+          return Object.values(sub).join(",");
+        })
+        .join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -60,7 +62,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
   };
 
   return (
-    <DashboardCard title={`Stakes (${userSubs.length})`}>
+    <DashboardCard title={`Stakers (${userSubs.length})`}>
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
         <Table aria-label="simple table" sx={{ whiteSpace: "nowrap", mt: 2 }}>
           <TableHead>
@@ -68,7 +70,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
               <TableCell></TableCell>
               <TableCell>
                 <Typography variant="subtitle2" fontWeight={600}>
-                  Channel
+                  User
                 </Typography>
               </TableCell>
 
@@ -87,27 +89,26 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                 <TableRow key={index}>
                   <TableCell>
                     <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
-                      <img
+                      {/* <img
                         style={{ borderRadius: "50%" }}
                         src={sub.userPfp}
                         width={40}
                         height={40}
                         alt="pfp"
-                      />
+                      /> */}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
                         <Typography variant="subtitle2" fontWeight={600}>
-                          {sub.userDisplayName}
+                          {sub.fid}
                         </Typography>
                       </Box>
                     </Box>
                   </TableCell>
-
                   <TableCell align="right">
-                    <Typography variant="h6">{sub.userChannelCost}</Typography>{" "}
+                    <Typography variant="h6">{sub.currentStaked}</Typography>{" "}
                     <Typography>ALFA</Typography>
                   </TableCell>
                 </TableRow>

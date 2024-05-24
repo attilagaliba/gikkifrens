@@ -1,54 +1,67 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import ProductPerformance from "../components/dashboard/ProductPerformance";
+import axios from "axios";
+import { useProfile } from "@farcaster/auth-kit";
 
 const SamplePage = () => {
-  const userSubs = [
-    {
-      userDisplayName: "Chef 🎩",
-      userPfp: "https://i.imgur.com/zpASdSb.png",
-      userChannelAlfa: 256.23,
-      userChannelCost: 1000,
-    },
-    {
-      userDisplayName: "mingbada🎩",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/c1d1b67a-b386-4452-51ef-c57c7c510700/rectcrop3",
-      userChannelAlfa: 165,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "🃏agusti 🔷🐘",
-      userPfp: "https://i.imgur.com/HRs0nGc.jpeg",
-      userChannelAlfa: 430,
-      userChannelCost: 1500,
-    },
-    {
-      userDisplayName: "hoshino🎩⚪️🔵🟡🃏",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/b8994e49-6170-4d0a-de86-843e7327fb00/original",
-      userChannelAlfa: 138.65,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "ggang",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/463b50d3-600b-4802-d8f1-336c4838b300/rectcrop3",
-      userChannelAlfa: 201,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "Hitendra 🇮🇳🎩🔵☔",
-      userPfp: "https://i.imgur.com/c7kXEdT.jpeg",
-      userChannelAlfa: 150.6,
-      userChannelCost: 500,
-    },
-  ];
+  const [userMinData, setUserMinData] = useState([]);
+  const [userGetSubs, setUserGetSubs] = useState([]);
+  const [userSubs, setUserSubs] = useState([]);
+
+  const profile = useProfile();
+  const {
+    isAuthenticated,
+    profile: { fid, displayName, custody },
+  } = profile;
+  useEffect(() => {
+    const fetchAllData = async () => {
+      let skip = 0;
+      let hasMore = true;
+      let allChannels = [];
+
+      while (hasMore) {
+        try {
+          const response = await axios.get(
+            `/api/getSubsRew/${fid}?first=${skip}`
+          );
+          const channels = response.data.data.map((item) => ({
+            lastUpdated: item.subTs,
+            userDisplayName: item.channelName,
+            userPfp: item.channelPfp,
+            userChannelAlfa: (item.channelApD * item.channelCost).toFixed(2),
+            userChannelCost: item.channelCost,
+            channelId: item.channelAddress,
+          }));
+
+          allChannels = [...allChannels, ...channels];
+          hasMore = response.data.hasMore;
+          skip += 50;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          hasMore = false;
+        }
+      }
+      console.log(allChannels);
+      setUserSubs(allChannels);
+    };
+
+    if (fid > 0) {
+      fetchAllData();
+    }
+  }, [fid]);
+  const lastUpdateMessage = `${Math.floor(
+    (Date.now() -
+      new Date(userSubs[0]?.lastUpdated ?? "2024-05-19T08:11:45Z").getTime()) /
+      60000
+  )} min ago`;
 
   return (
-    <PageContainer title="YOUR STAKES" description="this is Sample page">
+    <PageContainer title="YOUR SUBSCRIPTIONS" description="this is Sample page">
+      Last Update: {lastUpdateMessage}
       <ProductPerformance userSubs={userSubs} limit={5000} />
     </PageContainer>
   );

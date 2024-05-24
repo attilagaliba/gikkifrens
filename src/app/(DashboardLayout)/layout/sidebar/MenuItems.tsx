@@ -54,6 +54,16 @@ const Menuitems = [
     title: "Ai Fren",
     icon: IconMoodHappy,
     href: "/ai",
+  },
+  {
+    navlabel: true,
+    subheader: "test",
+  },
+  {
+    id: uniqueId(),
+    title: "test",
+    icon: IconMoodHappy,
+    href: "/test",
   }
 ];
 

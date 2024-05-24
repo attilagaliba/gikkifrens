@@ -13,9 +13,14 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 interface Props {
   userData: any;
   degenPrice: any;
+  balanceArea: any;
 }
 
-const MonthlyEarnings: React.FC<Props> = ({ userData, degenPrice }) => {
+const MonthlyEarnings: React.FC<Props> = ({
+  userData,
+  degenPrice,
+  balanceArea,
+}) => {
   const [getUserData, setUserData] = useState(userData);
 
   useEffect(() => {
@@ -90,7 +95,7 @@ const MonthlyEarnings: React.FC<Props> = ({ userData, degenPrice }) => {
     >
       <>
         <Typography variant="h3" fontWeight="700" mt="-20px">
-          {getUserData?.userBalance}
+          {balanceArea ? balanceArea : null}
         </Typography>
         <Stack direction="row" spacing={1} my={1} alignItems="center">
           <Avatar sx={{ bgcolor: errorlight, width: 27, height: 27 }}>

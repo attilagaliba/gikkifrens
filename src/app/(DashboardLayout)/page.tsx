@@ -2,41 +2,101 @@
 import { useEffect, useState } from "react";
 import { Grid, Box } from "@mui/material";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
+import axios from "axios";
 // components
 import SalesOverview from "@/app/(DashboardLayout)/components/dashboard/SalesOverview";
 import YearlyBreakup from "@/app/(DashboardLayout)/components/dashboard/YearlyBreakup";
 import RecentTransactions from "@/app/(DashboardLayout)/components/dashboard/RecentTransactions";
 import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/ProductPerformance";
 import StakePerformance from "@/app/(DashboardLayout)/components/dashboard/StakePerformance";
-import Blog from "@/app/(DashboardLayout)/components/dashboard/Blog";
+import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings";
 import { useProfile } from "@farcaster/auth-kit";
 
 const Dashboard = () => {
+  const [userSubs, setUserSubs] = useState([]);
+
   const profile = useProfile();
   const {
     isAuthenticated,
     profile: { fid, displayName, custody },
   } = profile;
 
-  const [degenPrice, setDegenPrice] = useState(0.01);
-
+  const [userMinData, setUserMinData] = useState([]);
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (fid) => {
       try {
-        const response = await fetch(
-          "https://min-api.cryptocompare.com/data/price?fsym=DEGEN&tsyms=USD,EUR,CNY,JPY,GBP"
-        );
-        const result = await response.json();
-        setDegenPrice(result.USD);
+        const response = await axios.get(`/api/getUserByFid/${fid}/`);
+        setUserMinData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-    fetchData();
-    const intervalId = setInterval(fetchData, 5000);
-    return () => clearInterval(intervalId);
-  }, []);
+    if (fid > 0) {
+      fetchData(fid);
+    }
+  }, [fid]);
+
+  const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null); // Hesap verilerini saklamak için state tanımı
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `/api/getUserBalance/${userMinData.userAddress}`
+        );
+        setUserBalanceFunc(
+          response.data.account.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[0]
+        );
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    if (fid > 0) {
+      fetchData();
+    }
+  }, [userMinData]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      let skip = 0;
+      let hasMore = true;
+      let allChannels = [];
+
+      while (hasMore) {
+        try {
+          const response = await axios.get(
+            `/api/getSubsRew/${fid}?first=${skip}`
+          );
+          const channels = response.data.data.map((item) => ({
+            lastUpdated: item.subTs,
+            userDisplayName: item.channelName,
+            userPfp: item.channelPfp,
+            userChannelAlfa: (item.channelApD * item.channelCost).toFixed(2),
+            userChannelCost: item.channelCost,
+            channelId: item.channelAddress,
+          }));
+
+          allChannels = [...allChannels, ...channels];
+          hasMore = response.data.hasMore;
+          skip += 50;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          hasMore = false;
+        }
+      }
+      setUserSubs(allChannels);
+    };
+
+    if (fid > 0) {
+      fetchAllData();
+    }
+  }, [fid]);
+
+  const [degenPrice, setDegenPrice] = useState(0.016);
+
 
   const userRecentTransactions = [
     { action: "withdraw", value: 1000, date: "1716325903" },
@@ -102,48 +162,6 @@ const Dashboard = () => {
     },
   ];
 
-  const userSubs = [
-    {
-      userDisplayName: "Chef 🎩",
-      userPfp: "https://i.imgur.com/zpASdSb.png",
-      userChannelAlfa: 256.23,
-      userChannelCost: 1000,
-    },
-    {
-      userDisplayName: "mingbada🎩",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/c1d1b67a-b386-4452-51ef-c57c7c510700/rectcrop3",
-      userChannelAlfa: 165,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "🃏agusti 🔷🐘",
-      userPfp: "https://i.imgur.com/HRs0nGc.jpeg",
-      userChannelAlfa: 430,
-      userChannelCost: 1500,
-    },
-    {
-      userDisplayName: "hoshino🎩⚪️🔵🟡🃏",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/b8994e49-6170-4d0a-de86-843e7327fb00/original",
-      userChannelAlfa: 138.65,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "ggang",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/463b50d3-600b-4802-d8f1-336c4838b300/rectcrop3",
-      userChannelAlfa: 201,
-      userChannelCost: 500,
-    },
-    {
-      userDisplayName: "Hitendra 🇮🇳🎩🔵☔",
-      userPfp: "https://i.imgur.com/c7kXEdT.jpeg",
-      userChannelAlfa: 150.6,
-      userChannelCost: 500,
-    },
-  ];
-
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
@@ -151,7 +169,21 @@ const Dashboard = () => {
           <Grid item xs={12} lg={4}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <MonthlyEarnings userData={userData} degenPrice={degenPrice} />
+                <MonthlyEarnings
+                  balanceArea={
+                    userBalanceFunc && userBalanceFunc.balance > 0 ? (
+                      <FlowingBalance
+                        startingBalance={BigInt(userBalanceFunc.balance)}
+                        startingBalanceDate={userBalanceFunc.timestamp}
+                        flowRate={BigInt(-userBalanceFunc.totalNetFlowRate)}
+                      />
+                    ) : (
+                      <>0000.00000</>
+                    )
+                  }
+                  userData={userData}
+                  degenPrice={degenPrice}
+                />
               </Grid>
               <Grid item xs={12}>
                 <YearlyBreakup userData={userData} degenPrice={degenPrice} />

@@ -29,7 +29,7 @@ interface ProductPerformanceProps {
 
 const ProductPerformance: React.FC<ProductPerformanceProps> = ({
   userSubs,
-  limit
+  limit,
 }) => {
   function setColorAlfa(userChannelCost: number, userChannelAlfa: number) {
     const degenPerFif = userChannelCost / 500;
@@ -51,15 +51,16 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
               <TableCell>
                 <Typography variant="subtitle2" fontWeight={600}>
                   {limit !== 5000 ? (
-                  <Link
-                    href={"/subs"}
-                    sx={{
-                      color: "blue",
-                      textDecoration: "none",
-                    }}
-                  >
-                    Show All
-                  </Link>) : null }
+                    <Link
+                      href={"/subs"}
+                      sx={{
+                        color: "blue",
+                        textDecoration: "none",
+                      }}
+                    >
+                      Show All
+                    </Link>
+                  ) : null}
                 </Typography>
               </TableCell>
               <TableCell>
@@ -100,7 +101,13 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
                         <Typography variant="subtitle2" fontWeight={600}>
-                          {sub.userDisplayName}
+                          <Link
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            href={`https://www.alfafrens.com/channel/${sub.channelId}`}
+                          >
+                            {sub.userDisplayName}
+                          </Link>
                         </Typography>
                       </Box>
                     </Box>
@@ -116,7 +123,11 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                         color: "#fff",
                       }}
                       size="small"
-                      label={`${sub.userChannelAlfa} ALFA`} // Updated label
+                      label={
+                        sub.userChannelAlfa > 0
+                          ? `${sub.userChannelAlfa} ALFA`
+                          : `Sub degenfans for see Reward cuz its 0`
+                      }
                     />
                   </TableCell>
                   <TableCell align="right">
