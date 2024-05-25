@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
+import { getUserAddress } from "../func/galiba";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import {
@@ -17,8 +18,10 @@ const SamplePage = () => {
   const [generatedContent, setGeneratedContent] =
     useState<string>("Waiting af...");
 
-  const [degenPrice, setDegenPrice] = useState(0.01);
+  const [degenPrice, setDegenPrice] = useState(0.02);
   const [isGenerating, setIsGenerating] = useState<boolean>(false); // Yeni state ekledik
+  const [bleuBalance, setBleuBalance] = useState(0);
+  const [userWallet, setUserWallet] = useState("0x");
 
   const apiKey = "AIzaSyAmeJjqu5K5ty7ZyEr2JDg9v30PCna01Us";
   const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
@@ -26,11 +29,12 @@ const SamplePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "https://min-api.cryptocompare.com/data/price?fsym=DEGEN&tsyms=USD"
-        );
-        const result = await response.json();
-        setDegenPrice(result.USD);
+        const response = await getUserAddress(474817);
+        if (response.Socials.Social[0].connectedAddresses[0].address) {
+          setUserWallet(
+            response.Socials.Social[0].connectedAddresses[0].address
+          );
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -38,6 +42,25 @@ const SamplePage = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/getBleuBalance/${userWallet}`);
+        // const response = await fetch(`/api/getBleuBalance/0xB730500032a3CCc7F4770235CA62eD40d473Df75`);
+        const result = await response.json();
+        const formattedBalance = (result.result / 1000000000000000000).toFixed(
+          2
+        );
+        setBleuBalance(parseFloat(formattedBalance));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userWallet !== "0x") {
+      fetchData();
+    }
+  }, [userWallet]);
 
   const creatingMessage = [
     "I'm on it, dude.",
@@ -161,7 +184,7 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
         {
           parts: [
             {
-              text: `* Response should return with html codes and modern colored (purple palette) text. * ${systemDescription} * Response should return with html codes and modern colored (purple palette) text. * Can you analyse that data? I want recommendations for the user's daily earnings and earning more. Also advice on how many subscribers you should have to double your earnings, how much alpha stake you should make, and what you should do without reducing your expenses. * Response should return with html codes and modern colored (purple palette) text. I want to speak in urban language. Sometimes you can make fun of it. * Degen Price: 1 DEGEN = ${degenPrice} USD | ALFA has no financial equivalent. * Data: ${JSON.stringify(
+              text: `* Response should return with html codes and modern colored (purple palette) text. * ${systemDescription} * Response should return with html codes and modern colored (purple palette) text. * Can you analyse that data? I want recommendations for the user's daily earnings and earning more. Also advice on how many subscribers you should have to double your earnings, how much alpha stake you should make, and what you should do without reducing your expenses. * Response should return with html codes and modern colored (purple palette) text. I want to speak in urban language. Sometimes you can make fun of it. * Degen Price: 1 DEGEN = ${degenPrice} USD | ALFA has no financial equivalent. * and congratulate me for holding ${bleuBalance} $BLEU * Data: ${JSON.stringify(
                 userData
               )} *  Data's Descriptions: ${JSON.stringify(aiData)}`,
             },
@@ -197,7 +220,6 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
         console.error("Error:", error);
         if (retryCount < 10) {
           setGeneratedContent(getRandomMessage());
-          console.log(`Retrying... Attempt ${retryCount + 1}`);
           await makeRequest(retryCount + 1);
         } else {
           console.error("Max retry limit reached.");
@@ -216,35 +238,49 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
   };
 
   return (
-    <PageContainer title="YOUR SUBSCRIPTIONS" description="this is Sample page">
-      <DashboardCard>
-        {/* Butonun durumu göre render edilmesi */}
-        {isGenerating ? (
-          <Button
-            variant="contained"
-            disableElevation
-            color="secondary"
-            disabled
-          >
-            Asking...
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            disableElevation
-            color="primary"
-            onClick={generateContent}
-          >
-            Generate Analyse
-          </Button>
-        )}
-        <div>
-          <h2>Ai Fren:</h2>
-          <DashboardCard>
-            <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
-          </DashboardCard>
-        </div>
-      </DashboardCard>
+    <PageContainer title="Bleu AI" description="this is Sample page">
+      <>
+        <DashboardCard>
+          <>
+            <h3>Your Wallet: {userWallet} </h3>
+            <h3>You have {bleuBalance} $BLEU</h3>
+            {bleuBalance > 100 ? (
+              isGenerating ? (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  color="secondary"
+                  disabled
+                >
+                  Asking...
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  color="primary"
+                  onClick={generateContent}
+                >
+                  Generate Analyse
+                </Button>
+              )
+            ) : (
+              <Button
+                variant="contained"
+                disableElevation
+                color="secondary"
+                disabled
+              >
+                You need hold more than 100 $BLEU for Bleu Ai
+              </Button>
+            )}
+            <div>
+              <h2>Ai Fren:</h2>
+              <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
+            </div>
+          </>
+        </DashboardCard>
+      </>
     </PageContainer>
   );
 };

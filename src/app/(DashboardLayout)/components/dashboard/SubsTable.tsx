@@ -15,6 +15,7 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 import Link from "next/link";
 
 interface Subscription {
+  totalSubscriptionOutflowAmount: number;
   index: number;
   userDisplayName: string;
   pbg: string;
@@ -50,7 +51,6 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       "data:text/csv;charset=utf-8," +
       userSubs
         .map((sub) => {
-          delete sub.userPfp; // Remove userPfp from the subscription object
           return Object.values(sub).join(",");
         })
         .join("\n");
@@ -61,6 +61,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
     document.body.appendChild(link);
     link.click();
   };
+
   return (
     <DashboardCard title={`Subscribers (${userSubs.length})`}>
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
@@ -108,7 +109,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
 
                   <TableCell align="right">
                     <Typography variant="h6">
-                      {sub.userChannelCost} Degen
+                      {(sub.totalSubscriptionOutflowAmount/1000000000000000000).toFixed(2)} Degen
                     </Typography>
                   </TableCell>
                 </TableRow>

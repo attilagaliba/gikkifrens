@@ -25,11 +25,6 @@ const MonthlyEarnings: React.FC<Props> = ({
   degenPrice,
   image,
 }) => {
-  const [getUserData, setUserData] = useState(userData);
-
-  useEffect(() => {
-    setUserData(userData);
-  }, [userData]);
 
   // chart color
   const theme = useTheme();

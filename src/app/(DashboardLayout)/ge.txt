@@ -1,0 +1,11 @@
+query ($id: ID = "") {
+  account(id: $id) {
+    poolMemberships(where: {isConnected: true}) {
+      pool {
+        admin {
+          id
+        }
+      }
+    }
+  }
+}

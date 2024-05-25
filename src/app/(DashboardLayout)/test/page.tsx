@@ -4,9 +4,7 @@ import dynamic from "next/dynamic";
 import axios from "axios";
 
 // FlowingBalance bileşenini dinamik olarak yükleyin ve istemci tarafında çalışmasını sağlayın
-const FlowingBalance = dynamic(() => import("./FlowingBalance"), {
-  ssr: false,
-});
+
 
 const App: React.FC = () => {
   const [accountData, setAccountData] = useState<any>(null); // Hesap verilerini saklamak için state tanımı
@@ -51,7 +49,7 @@ const App: React.FC = () => {
         // Axios ile alınan veriyi state'e kaydet
         setAccountData(response.data.data.account);
       } catch (error) {
-        console.error("Error:", error.message);
+        
       }
     };
 
@@ -70,17 +68,7 @@ const App: React.FC = () => {
       }}
     >
       <div style={{ width: "135px", margin: "auto" }}>
-        {accountData ? (
-          <>
-            <FlowingBalance
-              startingBalance={BigInt(accountData.accountTokenSnapshots[0].accountTokenSnapshotLogs[0].balance)}
-              startingBalanceDate={accountData.accountTokenSnapshots[0].accountTokenSnapshotLogs[0].timestamp}
-              flowRate={BigInt(-accountData.accountTokenSnapshots[0].accountTokenSnapshotLogs[0].totalNetFlowRate)}
-            />
-          </>
-        ) : (
-          <>loading</>
-        )}
+test
       </div>
     </div>
   );

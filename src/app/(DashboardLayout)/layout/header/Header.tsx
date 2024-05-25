@@ -59,8 +59,8 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
     color: theme.palette.text.secondary,
   }));
 
-  const [degenPrice, setDegenPrice] = useState(0.016445613061035641);
-  const [gasFee, setGasFee] = useState(1);
+  const [degenPrice, setDegenPrice] = useState(0.69);
+  const [gasFee, setGasFee] = useState(69);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +72,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
         console.error("Error fetching data:", error);
       }
     };
+    fetchData();
     const interval = setInterval(() => {
       fetchData();
     }, 60000); // 60 saniye
@@ -87,11 +88,12 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
           "https://li.quest/v1/token?chain=8453&token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"
         );
         const result = await response.json();
-        setDegenPrice(parseFloat(result.priceUSD).toFixed(4));
+        setDegenPrice(parseFloat(parseFloat(result.priceUSD).toFixed(4)));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+    fetchData();
     const interval = setInterval(() => {
       fetchData();
     }, 60000); // 60 saniye

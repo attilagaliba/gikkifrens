@@ -82,24 +82,25 @@ const useFlowingBalance = (
         ANIMATION_MINIMUM_STEP_TIME
       ) {
         const currentTime = Date.now();
-        const trimmedTime = currentTime.toString().slice(0, -3);
-
+        const trimmedTime = Number(currentTime.toString().slice(0, -3));
+        const startingBalanceTimeNumber = Number(startingBalanceTime);
+    
         const elapsedTimeInMilliseconds =
-          trimmedTime * 111 - startingBalanceTime * 111;
-
-        // BigInt olarak dönüştürme (isteğe bağlı)
+          trimmedTime * 111 - startingBalanceTimeNumber * 111;
+    
         const elapsedTimeBigInt = BigInt(elapsedTimeInMilliseconds);
-
+    
         const flowingBalance_ =
           startingBalance + (flowRate * elapsedTimeBigInt) / BigInt(1000);
-
+    
         setFlowingBalance(flowingBalance_);
-
+    
         lastAnimationTimestamp = currentAnimationTimestamp;
       }
-
+    
       return () => window.cancelAnimationFrame(animationFrameId);
     };
+    
 
     let animationFrameId = window.requestAnimationFrame(animationStep);
 

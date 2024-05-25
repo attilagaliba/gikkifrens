@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Link from "next/link";
 import {
   Typography,
@@ -14,6 +14,7 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Subscription {
+  currentStaked: ReactNode;
   index: number;
   userDisplayName: string;
   pbg: string;
@@ -49,7 +50,6 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       "data:text/csv;charset=utf-8," +
       userSubs
         .map((sub) => {
-          delete sub.userPfp; // Remove userPfp from the subscription object
           return Object.values(sub).join(",");
         })
         .join("\n");
@@ -63,71 +63,73 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
 
   return (
     <DashboardCard title={`Stakers (${userSubs.length})`}>
-      <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
-        <Table aria-label="simple table" sx={{ whiteSpace: "nowrap", mt: 2 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  User
-                </Typography>
-              </TableCell>
+      <>
+        <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
+          <Table aria-label="simple table" sx={{ whiteSpace: "nowrap", mt: 2 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    User
+                  </Typography>
+                </TableCell>
 
-              <TableCell align="right">
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Staked
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {userSubs
-              ?.sort((a, b) => b.userChannelAlfa - a.userChannelAlfa)
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((sub, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
-                      {/* <img
-                        style={{ borderRadius: "50%" }}
-                        src={sub.userPfp}
-                        width={40}
-                        height={40}
-                        alt="pfp"
-                      /> */}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {sub.fid}
-                        </Typography>
+                <TableCell align="right">
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Staked
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {userSubs
+                ?.sort((a, b) => b.userChannelAlfa - a.userChannelAlfa)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((sub, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
+                        <img
+                          style={{ borderRadius: "50%" }}
+                          src={sub.userPfp}
+                          width={40}
+                          height={40}
+                          alt="pfp"
+                        />
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight={600}>
+                            {sub.userDisplayName}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography variant="h6">{sub.currentStaked}</Typography>{" "}
-                    <Typography>ALFA</Typography>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={userSubs.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Box>
-      <Button onClick={exportToCSV} variant="contained" color="primary">
-        Export as CSV
-      </Button>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="h6">{sub.currentStaked}</Typography>
+                      <Typography>ALFA</Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={userSubs.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
+        <Button onClick={exportToCSV} variant="contained" color="primary">
+          Export as CSV
+        </Button>
+      </>
     </DashboardCard>
   );
 };

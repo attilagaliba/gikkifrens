@@ -1,4 +1,6 @@
-import React from "react";
+// components/dashboard/ProductPerformance.tsx
+
+import React, { ReactNode } from "react";
 import {
   Typography,
   Box,
@@ -13,8 +15,9 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 import Link from "next/link";
 
 interface Subscription {
+  channelId: any;
+  userDisplayName: ReactNode;
   index: number;
-  userDisplayName: string;
   pbg: string;
   priority: string;
   userChannelCost: number;
@@ -22,16 +25,19 @@ interface Subscription {
   userPfp: string;
 }
 
+
 interface ProductPerformanceProps {
   userSubs: Subscription[];
   limit: number;
+  degenPrice?: number; 
+
 }
 
 const ProductPerformance: React.FC<ProductPerformanceProps> = ({
   userSubs,
   limit,
 }) => {
-  function setColorAlfa(userChannelCost: number, userChannelAlfa: number) {
+  function setColorAlfa(userChannelAlfa: number, userChannelCost: number) {
     const degenPerFif = userChannelCost / 500;
     const fifPerAlfa = userChannelAlfa / degenPerFif;
     if (fifPerAlfa <= 145) {
@@ -42,6 +48,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       return "#7ABA78";
     }
   }
+  
   return (
     <DashboardCard title={`Subscriptions (${userSubs.length})`}>
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
@@ -53,8 +60,8 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                   {limit !== 5000 ? (
                     <Link
                       href={"/subs"}
-                      sx={{
-                        color: "blue",
+                      style={{
+                        color: "black",
                         textDecoration: "none",
                       }}
                     >
@@ -117,8 +124,9 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                       sx={{
                         px: "4px",
                         backgroundColor: setColorAlfa(
-                          sub.userChannelCost,
-                          sub.userChannelAlfa
+                          sub.userChannelAlfa,
+                          sub.userChannelCost
+                          
                         ),
                         color: "#fff",
                       }}

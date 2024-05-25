@@ -13,10 +13,11 @@ import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/Monthl
 import ChannelStats from "@/app/(DashboardLayout)/components/dashboard/ChannelStats";
 import { useProfile } from "@farcaster/auth-kit";
 import axios from "axios";
+import { getUserByFidFFC } from "../func/galiba";
 
 const Dashboard = () => {
   const [degenPrice, setDegenPrice] = useState(0.01);
-  const [userChannelData, setUserChannelData] = useState([]);
+  const [userChannelData, setUserChannelData] = useState<any[]>([]);
 
   const [userChannel, setUserChannel] = useState({
     channelName: "@attilagaliba.eth",
@@ -46,6 +47,7 @@ const Dashboard = () => {
     totalStakers: 57615,
     totalSubscribers: 361796,
     date: "1969-05-23T14:15:00Z",
+    channeladdress: []
   });
 
   const profile = useProfile();
@@ -54,7 +56,8 @@ const Dashboard = () => {
     profile: { fid, displayName, custody },
   } = profile;
 
-  const [userMinData, setUserMinData] = useState([]);
+  const [userMinData, setUserMinData] = useState<{ channeladdress?: string[] }>({});
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,7 +73,7 @@ const Dashboard = () => {
   }, [fid]);
 
   useEffect(() => {
-    async function getChaRew(fid) {
+    async function getChaRew(fid: number | undefined) {
       try {
         const response = await axios.get(`/api/getChaRew/${fid}`);
         const getReward =
@@ -81,7 +84,7 @@ const Dashboard = () => {
         throw new Error("Error fetching data");
       }
     }
-    const fetchData = async (getChannelAddress) => {
+    const fetchData = async (getChannelAddress: any) => {
       try {
         const response = await axios.get(
           `/api/getChannel/${getChannelAddress}`
@@ -93,11 +96,9 @@ const Dashboard = () => {
           channelName: response.data.title,
           subscribers: response.data.numberOfSubscribers,
           stakers: response.data.numberOfStakers,
-          reward: chaReward ?? "Sub degenfans for Reward ",
-          stake: (response.data.currentStaked / 1e14).toFixed(0),
-          cost: (
-            response.data.totalSubscriptionFlowRate / 380517503805
-          ).toFixed(0),
+          reward: typeof chaReward === 'number' ? chaReward : (parseFloat(chaReward) || 0),
+          stake: Number((response.data.currentStaked / 1e14).toFixed(0)),
+          cost: Number((response.data.totalSubscriptionFlowRate / 380517503805).toFixed(0)),
           date: new Date(
             parseInt(response.data.lastUpdatedTimestamp) * 1000
           ).toISOString(),
@@ -113,26 +114,48 @@ const Dashboard = () => {
 
   const [userChannelSubList, setUserChannelSubList] = useState([]);
   const [userChannelStakerList, setUserChannelStakerList] = useState([]);
+
   useEffect(() => {
-    const fetchAllData = async (getChannelAddress) => {
+    async function getUserPfPName(fid: number) {
+      const userDataGetApi = await getUserByFidFFC(fid);
+      return userDataGetApi;
+    }
+    const fetchAllData = async (getChannelAddress: any) => {
       let skip = 0;
       let hasMore = true;
-      let allList = [];
+      let allList: any[] = [];
       while (hasMore) {
         try {
           const response = await axios.get(
             `/api/getChannelSubscribersAndStakes/${getChannelAddress}?skip=${skip}`
           );
-
-          const channels = response.data.members.map((item) => ({
-            fid: item.fid,
-            totalSubscriptionOutflowAmount: item.totalSubscriptionOutflowAmount,
-            totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
-            currentStaked: (item.currentStaked / 100000000000000).toFixed(2),
-            isStaked: item.isStaked,
-            isSubscribed: item.isSubscribed,
-            subscriber: item.subscriber.id,
-          }));
+          const channels = await Promise.all(
+            response.data.members.map(async (item: { fid: number; totalSubscriptionOutflowAmount: any; totalSubscriptionOutflowRate: any; currentStaked: number; isStaked: any; isSubscribed: any; subscriber: { id: any; }; }) => {
+              const userProfileData = await getUserPfPName(item.fid);
+              const userProfilePfp = userProfileData.find(
+                (data: { type: string; }) => data.type === "USER_DATA_TYPE_PFP"
+              );
+              const userProfileDisplay = userProfileData.find(
+                (data: { type: string; }) => data.type === "USER_DATA_TYPE_DISPLAY"
+              );
+              return {
+                fid: item.fid,
+                totalSubscriptionOutflowAmount:
+                  item.totalSubscriptionOutflowAmount,
+                totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
+                currentStaked: (item.currentStaked / 100000000000000).toFixed(
+                  2
+                ),
+                isStaked: item.isStaked,
+                isSubscribed: item.isSubscribed,
+                subscriber: item.subscriber.id,
+                userPfp: userProfilePfp ? userProfilePfp.value : "", // Eğer profil resmi varsa değerini al, yoksa boş string
+                userDisplayName: userProfileDisplay
+                  ? userProfileDisplay.value
+                  : "", // Eğer görüntülenen ad varsa değerini al, yoksa boş string
+              };
+            })
+          );
 
           allList = [...allList, ...channels];
           hasMore = response.data.hasMore;
@@ -230,18 +253,26 @@ const Dashboard = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} lg={6}>
-            <SubsTable
-              userSubs={userChannelSubList}
-              limit={5}
-              degenPrice={degenPrice}
-            />
+            {userChannelSubList.length > 0 ? (
+              <SubsTable
+                userSubs={userChannelSubList}
+                limit={5}
+                degenPrice={degenPrice}
+              />
+            ) : (
+              <>Loading Subs List</>
+            )}
           </Grid>
           <Grid item xs={12} lg={6}>
+          {userChannelSubList.length > 0 ? (
             <StakersTable
               userSubs={userChannelStakerList}
               limit={5}
               degenPrice={degenPrice}
             />
+          ) : (
+            <>Loading Stakers List</>
+          )}
           </Grid>
         </Grid>
       </Box>

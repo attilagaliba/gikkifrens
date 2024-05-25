@@ -10,13 +10,19 @@ import {
   timelineOppositeContentClasses,
 } from "@mui/lab";
 import { Link, Typography } from "@mui/material";
+import { Key } from "react";
 
 interface Props {
   userRecentTransactions: any;
   limit: number;
 }
 
-const getColorAndLabel = (action) => {
+interface ColorAndLabel {
+  color: "success" | "error" | "secondary" | "grey" | "inherit" | "primary" | "info" | "warning";
+  label: string;
+}
+
+const getColorAndLabel = (action: any): ColorAndLabel => {
   switch (action) {
     case "withdraw":
       return { color: "success", label: "Withdraw" };
@@ -30,14 +36,14 @@ const getColorAndLabel = (action) => {
 };
 
 const RecentTransactions: React.FC<Props> = ({ userRecentTransactions, limit }) => {
-  const getTimeDifferenceInMinutes = (timestamp) => {
+  const getTimeDifferenceInMinutes = (timestamp: string) => {
     const now = Date.now() / 1000; // current time in seconds
     const differenceInSeconds = now - parseInt(timestamp);
     const differenceInMinutes = Math.floor(differenceInSeconds / 60);
     return differenceInMinutes;
   };
 
-  const getTimeDifferenceFormatted = (differenceInMinutes) => {
+  const getTimeDifferenceFormatted = (differenceInMinutes: number) => {
     if (differenceInMinutes < 60) {
       return `${differenceInMinutes}m`;
     } else if (differenceInMinutes < 24 * 60) {
@@ -74,12 +80,12 @@ const RecentTransactions: React.FC<Props> = ({ userRecentTransactions, limit }) 
             },
           }}
         >
-          {userRecentTransactions.slice(0, limit).map((transaction, index) => {
+
+          {userRecentTransactions.slice(0, limit).map((transaction: { action: any; value: any; date: any; }, index: Key | null | undefined) => {
             const { action, value, date } = transaction;
             const { color, label } = getColorAndLabel(action);
             const timeDifference = getTimeDifferenceInMinutes(date);
-            const formattedTimeDifference =
-              getTimeDifferenceFormatted(timeDifference);
+            const formattedTimeDifference = getTimeDifferenceFormatted(timeDifference);
 
             return (
               <TimelineItem key={index}>

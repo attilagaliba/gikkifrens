@@ -1,3 +1,5 @@
+// app/page.tsx
+
 "use client";
 import { useEffect, useState } from "react";
 import { Grid, Box } from "@mui/material";
@@ -11,10 +13,25 @@ import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/Pro
 import StakePerformance from "@/app/(DashboardLayout)/components/dashboard/StakePerformance";
 import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings";
+
+import {
+  getUserTrasfers,
+  getUserByFid,
+  getUserBalance,
+  getSubsRew,
+} from "./func/galiba";
+
 import { useProfile } from "@farcaster/auth-kit";
 
 const Dashboard = () => {
-  const [userSubs, setUserSubs] = useState([]);
+  const [userMinData, setUserMinData] = useState<any>([]);
+  const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
+  const [userSubs, setUserSubs] = useState<any[]>([]);
+  const [degenPrice, setDegenPrice] = useState<number | undefined>(0.016);
+
+  const [userRecentTransactions, setUserRecentTransactions] = useState<any[]>(
+    []
+  );
 
   const profile = useProfile();
   const {
@@ -22,91 +39,83 @@ const Dashboard = () => {
     profile: { fid, displayName, custody },
   } = profile;
 
-  const [userMinData, setUserMinData] = useState([]);
   useEffect(() => {
-    const fetchData = async (fid) => {
-      try {
-        const response = await axios.get(`/api/getUserByFid/${fid}/`);
-        setUserMinData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+    const fetchData = async (fid: number) => {
+      const userData = await getUserByFid(fid);
+      setUserMinData(userData);
     };
-    if (fid > 0) {
+
+    if (fid && fid > 0) {
       fetchData(fid);
     }
   }, [fid]);
 
-  const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null); // Hesap verilerini saklamak için state tanımı
-
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `/api/getUserBalance/${userMinData.userAddress}`
-        );
-        setUserBalanceFunc(
-          response.data.account.accountTokenSnapshots[0]
-            .accountTokenSnapshotLogs[0]
-        );
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+      if (userMinData && userMinData.userAddress) {
+        const userBalance = await getUserBalance(userMinData.userAddress);
+        setUserBalanceFunc(userBalance);
       }
     };
 
-    if (fid > 0) {
-      fetchData();
-    }
+    fetchData();
+  }, [userMinData]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userMinData && userMinData.userAddress) {
+        const userTransfers = await getUserTrasfers(userMinData.userAddress);
+        const accountData = userTransfers.data.account;
+        const mergedTransfers = [
+          ...accountData.receivedTransferEvents.map((event: { value: string; timestamp: any; }) => ({
+            action: "deposit",
+            value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+            date: event.timestamp || null, // Eğer timestamp yoksa null
+          })),
+          ...accountData.sentTransferEvents
+            .filter(
+              (event: { to: { id: string; }; }) =>
+                event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852" ||
+                event.to.id === "0x0000000000000000000000000000000000000000"
+            )
+            .map((event: { to: { id: string; }; value: string; timestamp: any; }) => ({
+              action:
+                event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852"
+                  ? "gas"
+                  : "withdraw",
+              value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+              date: event.timestamp || null, // Eğer timestamp yoksa null
+            })),
+        ];
+        const sortedTransfers = mergedTransfers.sort(
+          (a, b) => (b.date || 0) - (a.date || 0)
+        );
+
+        setUserRecentTransactions(sortedTransfers);
+      }
+    };
+
+    fetchData();
   }, [userMinData]);
 
   useEffect(() => {
     const fetchAllData = async () => {
-      let skip = 0;
-      let hasMore = true;
-      let allChannels = [];
-
-      while (hasMore) {
-        try {
-          const response = await axios.get(
-            `/api/getSubsRew/${fid}?first=${skip}`
-          );
-          const channels = response.data.data.map((item) => ({
-            lastUpdated: item.subTs,
-            userDisplayName: item.channelName,
-            userPfp: item.channelPfp,
-            userChannelAlfa: (item.channelApD * item.channelCost).toFixed(2),
-            userChannelCost: item.channelCost,
-            channelId: item.channelAddress,
-          }));
-
-          allChannels = [...allChannels, ...channels];
-          hasMore = response.data.hasMore;
-          skip += 50;
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          hasMore = false;
+      if (fid && fid > 0) {
+        const allChannels = await getSubsRew(fid);
+        if (typeof allChannels === "number") {
+          // getSubsRew fonksiyonundan dönen değer uygun değilse, hata işleme alınabilir
+          console.error("getSubsRew fonksiyonundan beklenen türde bir değer dönmedi.");
+        } else {
+          // allChannels değişkeni uygun bir değer döndüğünde setUserSubs ile güncelleme yapılır
+          setUserSubs(allChannels);
         }
       }
-      setUserSubs(allChannels);
     };
-
-    if (fid > 0) {
+    
+    if (fid && fid > 0) {
       fetchAllData();
     }
   }, [fid]);
-
-  const [degenPrice, setDegenPrice] = useState(0.016);
-
-
-  const userRecentTransactions = [
-    { action: "withdraw", value: 1000, date: "1716325903" },
-    { action: "gas", value: 18, date: "1716325889" },
-    { action: "gas", value: 24, date: "1716325697" },
-    { action: "deposit", value: 300, date: "1716290639" },
-    { action: "gas", value: 17, date: "1716283489" },
-    { action: "gas", value: 18, date: "1716220631" },
-    { action: "gas", value: 21, date: "1716199015" },
-  ];
 
   const userData = {
     userFid: 474817,
@@ -191,11 +200,15 @@ const Dashboard = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} lg={8}>
-            <ProductPerformance
-              userSubs={userSubs}
-              limit={5}
-              degenPrice={degenPrice}
-            />
+            {userSubs.length > 0 ? (
+              <ProductPerformance
+                userSubs={userSubs}
+                limit={5}
+                degenPrice={degenPrice}
+              />
+            ) : (
+              <>Loading Your Sub List</>
+            )}
           </Grid>
           <Grid item xs={12} lg={8}>
             <StakePerformance
@@ -204,12 +217,18 @@ const Dashboard = () => {
               degenPrice={degenPrice}
             />
           </Grid>
-          <Grid item xs={12} lg={4}>
-            <RecentTransactions
-              userRecentTransactions={userRecentTransactions}
-              limit={7}
-            />
-          </Grid>
+          {userRecentTransactions.length > 0 ? (
+            <Grid item xs={12} lg={4}>
+              <RecentTransactions
+                userRecentTransactions={userRecentTransactions}
+                limit={10}
+              />
+            </Grid>
+          ) : (
+            <Grid item xs={12} lg={4}>
+              Loading
+            </Grid>
+          )}
         </Grid>
       </Box>
     </PageContainer>

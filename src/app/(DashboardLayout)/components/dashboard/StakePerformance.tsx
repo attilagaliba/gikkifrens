@@ -1,4 +1,6 @@
-import React from "react";
+// components/dashboard/StakePerformance.tsx
+
+import React, { ReactNode } from "react";
 import Link from "next/link";
 import {
   Typography,
@@ -13,18 +15,18 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Subscription {
-  index: number;
-  userDisplayName: string;
-  pbg: string;
-  priority: string;
+  userDisplayName: ReactNode;
   userChannelCost: number;
   userChannelAlfa: number;
   userPfp: string;
 }
 
+
 interface ProductPerformanceProps {
   userSubs: Subscription[];
   limit: number;
+  degenPrice?: number;
+
 }
 
 const ProductPerformance: React.FC<ProductPerformanceProps> = ({
@@ -50,10 +52,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                 <Typography variant="subtitle2" fontWeight={600}>
                 {limit !== 5000 ? ( <Link
                     href={"/stakes"}
-                    sx={{
-                      color: "blue",
-                      textDecoration: "none",
-                    }}
+                    style={{ color: "black", textDecoration: "none" }}
                   >
                     Show All
                   </Link>) : null }
