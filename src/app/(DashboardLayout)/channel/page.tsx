@@ -73,7 +73,9 @@ const Dashboard = () => {
     async function getChaRew(fid) {
       try {
         const response = await axios.get(`/api/getChaRew/${fid}`);
-        return response.data.data.monthlyDpA;
+        const getReward =
+          response.data.data.monthlyApD * response.data.data.cost;
+        return getReward.toFixed(2);
       } catch (error) {
         console.error("Error fetching data:", error);
         throw new Error("Error fetching data");

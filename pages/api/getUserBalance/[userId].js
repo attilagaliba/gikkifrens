@@ -23,7 +23,7 @@ export default async function handler(req, res) {
                 updatedAtBlockNumber
                 updatedAtTimestamp
                 accountTokenSnapshots {
-                  accountTokenSnapshotLogs(orderBy: timestamp, orderDirection: desc, first: 1) {
+                  accountTokenSnapshotLogs(orderBy: timestamp, orderDirection: desc, first: 7) {
                     balance
                     totalNetFlowRate
                     timestamp
