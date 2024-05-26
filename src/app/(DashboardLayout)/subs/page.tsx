@@ -32,15 +32,8 @@ const SamplePage = () => {
   }, [fid]);
 
 
-  const lastUpdateMessage = `${Math.floor(
-    (Date.now() -
-      new Date(userSubs[0]?.lastUpdated ?? "2024-05-19T08:11:45Z").getTime()) /
-      60000
-  )} min ago`;
-
   return (
     <PageContainer title="YOUR SUBSCRIPTIONS" description="this is Sample page">
-      Last Update: {lastUpdateMessage}
       <ProductPerformance userSubs={userSubs} limit={5000} />
     </PageContainer>
   );
