@@ -13,7 +13,7 @@ import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/Monthl
 import ChannelStats from "@/app/(DashboardLayout)/components/dashboard/ChannelStats";
 import { useProfile } from "@farcaster/auth-kit";
 import axios from "axios";
-import { getUserByFidFFC } from "../func/galiba";
+import { getUserByFidFFC, getChaRew } from "../func/galiba";
 
 const Dashboard = () => {
   const [degenPrice, setDegenPrice] = useState(0.01);
@@ -73,17 +73,6 @@ const Dashboard = () => {
   }, [fid]);
 
   useEffect(() => {
-    async function getChaRew(fid: number | undefined) {
-      try {
-        const response = await axios.get(`/api/getChaRew/${fid}`);
-        const getReward =
-          response.data.data.monthlyApD * response.data.data.cost;
-        return getReward.toFixed(2);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        throw new Error("Error fetching data");
-      }
-    }
     const fetchData = async (getChannelAddress: any) => {
       try {
         const response = await axios.get(
