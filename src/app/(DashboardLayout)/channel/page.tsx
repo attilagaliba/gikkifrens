@@ -13,42 +13,21 @@ import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/Monthl
 import ChannelStats from "@/app/(DashboardLayout)/components/dashboard/ChannelStats";
 import { useProfile } from "@farcaster/auth-kit";
 import axios from "axios";
-import { getUserByFidFFC, getChaRew } from "../func/galiba";
+import {
+  getUserByFid,
+  getUserByFidFFC,
+  getChaRew,
+  getChannelAlfafren,
+} from "../func/galiba";
 
 const Dashboard = () => {
   const [degenPrice, setDegenPrice] = useState(0.01);
-  const [userChannelData, setUserChannelData] = useState<any[]>([]);
-
-  const [userChannel, setUserChannel] = useState({
-    channelName: "@attilagaliba.eth",
-    subscribers: 69,
-    stakers: 69,
-    stake: 6969,
-    cost: 500,
-    reward: 169.69,
-    alfaDEGENX: {
-      rank: 1923,
-      alfa: 0.29989,
-      degenx: 0.27071,
-    },
-    degenxAlfa: {
-      rank: 3374,
-      alfa: 5.503,
-      degenx: 26077.173,
-    },
-    averageDEGENxAlfa: {
-      rank: 1735,
-      alfa: 2236,
-      degenx: 2076,
-    },
-    averageAlfaStake: 475,
-    totalChannels: 5418,
-    totalUsers: 9266,
-    totalStakers: 57615,
-    totalSubscribers: 361796,
-    date: "1969-05-23T14:15:00Z",
-    channeladdress: []
-  });
+  const [userMinData, setUserMinData] = useState<{ channeladdress?: string[] }>(
+    {}
+  );
+  const [userChannel, setUserChannel] = useState({});
+  const [userChannelSubList, setUserChannelSubList] = useState([]);
+  const [userChannelStakerList, setUserChannelStakerList] = useState([]);
 
   const profile = useProfile();
   const {
@@ -56,53 +35,28 @@ const Dashboard = () => {
     profile: { fid, displayName, custody },
   } = profile;
 
-  const [userMinData, setUserMinData] = useState<{ channeladdress?: string[] }>({});
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/api/getUserByFid/${fid}/`);
-        setUserMinData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+    const fetchData = async (fid: number) => {
+      const userData = await getUserByFid(fid);
+      setUserMinData(userData);
     };
-    if (fid) {
-      fetchData();
+
+    if (fid && fid > 0) {
+      fetchData(fid);
     }
   }, [fid]);
 
   useEffect(() => {
-    const fetchData = async (getChannelAddress: any) => {
-      try {
-        const response = await axios.get(
-          `/api/getChannel/${getChannelAddress}`
-        );
-        setUserChannelData(response.data);
-        const chaReward = await getChaRew(fid);
-        setUserChannel((prevUserChannel) => ({
-          ...prevUserChannel,
-          channelName: response.data.title,
-          subscribers: response.data.numberOfSubscribers,
-          stakers: response.data.numberOfStakers,
-          reward: typeof chaReward === 'number' ? chaReward : (parseFloat(chaReward) || 0),
-          stake: Number((response.data.currentStaked / 1e14).toFixed(0)),
-          cost: Number((response.data.totalSubscriptionFlowRate / 380517503805).toFixed(0)),
-          date: new Date(
-            parseInt(response.data.lastUpdatedTimestamp) * 1000
-          ).toISOString(),
-        }));
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
+    const fetchAllData = async (channeladdress: number) => {
+      const userData = await getChannelAlfafren(channeladdress, fid);
+      console.log(userData);
+      setUserChannel(userData);
     };
+
     if (userMinData.channeladdress) {
-      fetchData(userMinData.channeladdress);
+      fetchAllData(userMinData.channeladdress);
     }
   }, [userMinData]);
-
-  const [userChannelSubList, setUserChannelSubList] = useState([]);
-  const [userChannelStakerList, setUserChannelStakerList] = useState([]);
 
   useEffect(() => {
     async function getUserPfPName(fid: number) {
@@ -119,31 +73,43 @@ const Dashboard = () => {
             `/api/getChannelSubscribersAndStakes/${getChannelAddress}?skip=${skip}`
           );
           const channels = await Promise.all(
-            response.data.members.map(async (item: { fid: number; totalSubscriptionOutflowAmount: any; totalSubscriptionOutflowRate: any; currentStaked: number; isStaked: any; isSubscribed: any; subscriber: { id: any; }; }) => {
-              const userProfileData = await getUserPfPName(item.fid);
-              const userProfilePfp = userProfileData.find(
-                (data: { type: string; }) => data.type === "USER_DATA_TYPE_PFP"
-              );
-              const userProfileDisplay = userProfileData.find(
-                (data: { type: string; }) => data.type === "USER_DATA_TYPE_DISPLAY"
-              );
-              return {
-                fid: item.fid,
-                totalSubscriptionOutflowAmount:
-                  item.totalSubscriptionOutflowAmount,
-                totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
-                currentStaked: (item.currentStaked / 100000000000000).toFixed(
-                  2
-                ),
-                isStaked: item.isStaked,
-                isSubscribed: item.isSubscribed,
-                subscriber: item.subscriber.id,
-                userPfp: userProfilePfp ? userProfilePfp.value : "", // Eğer profil resmi varsa değerini al, yoksa boş string
-                userDisplayName: userProfileDisplay
-                  ? userProfileDisplay.value
-                  : "", // Eğer görüntülenen ad varsa değerini al, yoksa boş string
-              };
-            })
+            response.data.members.map(
+              async (item: {
+                fid: number;
+                totalSubscriptionOutflowAmount: any;
+                totalSubscriptionOutflowRate: any;
+                currentStaked: number;
+                isStaked: any;
+                isSubscribed: any;
+                subscriber: { id: any };
+              }) => {
+                const userProfileData = await getUserPfPName(item.fid);
+                const userProfilePfp = userProfileData.find(
+                  (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
+                );
+                const userProfileDisplay = userProfileData.find(
+                  (data: { type: string }) =>
+                    data.type === "USER_DATA_TYPE_DISPLAY"
+                );
+                return {
+                  fid: item.fid,
+                  totalSubscriptionOutflowAmount:
+                    item.totalSubscriptionOutflowAmount,
+                  totalSubscriptionOutflowRate:
+                    item.totalSubscriptionOutflowRate,
+                  currentStaked: (item.currentStaked / 100000000000000).toFixed(
+                    2
+                  ),
+                  isStaked: item.isStaked,
+                  isSubscribed: item.isSubscribed,
+                  subscriber: item.subscriber.id,
+                  userPfp: userProfilePfp ? userProfilePfp.value : "", // Eğer profil resmi varsa değerini al, yoksa boş string
+                  userDisplayName: userProfileDisplay
+                    ? userProfileDisplay.value
+                    : "", // Eğer görüntülenen ad varsa değerini al, yoksa boş string
+                };
+              }
+            )
           );
 
           allList = [...allList, ...channels];
@@ -253,15 +219,15 @@ const Dashboard = () => {
             )}
           </Grid>
           <Grid item xs={12} lg={6}>
-          {userChannelSubList.length > 0 ? (
-            <StakersTable
-              userSubs={userChannelStakerList}
-              limit={5}
-              degenPrice={degenPrice}
-            />
-          ) : (
-            <>Loading Stakers List</>
-          )}
+            {userChannelSubList.length > 0 ? (
+              <StakersTable
+                userSubs={userChannelStakerList}
+                limit={5}
+                degenPrice={degenPrice}
+              />
+            ) : (
+              <>Loading Stakers List</>
+            )}
           </Grid>
         </Grid>
       </Box>

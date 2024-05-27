@@ -1,5 +1,5 @@
 import axios from "axios";
-
+////Get User API ALFA
 export const getUserByFid = async (fid: number) => {
   try {
     const response = await axios.get(`/api/getUserByFid/${fid}/`);
@@ -9,7 +9,7 @@ export const getUserByFid = async (fid: number) => {
     return null;
   }
 };
-
+////Get User API Farcaster
 export const getUserByFidFFC = async (fid: number) => {
   try {
     const response = await axios.get(`/api/getUserByFidFFC/${fid}/`);
@@ -19,7 +19,7 @@ export const getUserByFidFFC = async (fid: number) => {
     return null;
   }
 };
-
+////Get User Address Airstack
 export const getUserAddress = async (fid: number) => {
   try {
     const response = await axios.get(`/api/getUserAddress/${fid}/`);
@@ -29,7 +29,7 @@ export const getUserAddress = async (fid: number) => {
     return null;
   }
 };
-
+////Get User Balance Superfluid
 export const getUserBalance = async (userAddress: string) => {
   try {
     const response = await axios.get(`/api/getUserBalance/${userAddress}`);
@@ -40,7 +40,7 @@ export const getUserBalance = async (userAddress: string) => {
     return null;
   }
 };
-
+////Get User Transfers Superfluid
 export const getUserTrasfers = async (userAddress: string) => {
   try {
     const response = await axios.get(`/api/getUserTrasfers/${userAddress}`);
@@ -50,7 +50,7 @@ export const getUserTrasfers = async (userAddress: string) => {
     return null;
   }
 };
-
+////Get User Subs DegenFans
 export const getSubsRew = async (fid: number) => {
   let skip = 0;
   let hasMore = true;
@@ -78,7 +78,7 @@ export const getSubsRew = async (fid: number) => {
   }
   return allChannels;
 };
-
+////Get User Channel Degenfans
 export const getChaRew = async (fid: number) => {
   try {
     const response = await axios.get(`/api/getChaRew/${fid}`);
@@ -87,5 +87,51 @@ export const getChaRew = async (fid: number) => {
   } catch (error) {
     console.error("Error fetching data:", error);
     throw new Error("Error fetching data");
+  }
+};
+/////Get Channel Alfafren
+const fetchChannelData = async (getChannelAddress) => {
+  try {
+    const response = await axios.get(`/api/getChannel/${getChannelAddress}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching channel data:", error);
+    throw error;
+  }
+};
+
+// Function to fetch channel reward
+const fetchChannelReward = async (fid) => {
+  try {
+    const chaReward = await getChaRew(fid);
+    return typeof chaReward === "number" ? chaReward : parseFloat(chaReward) || 0;
+  } catch (error) {
+    console.error("Error fetching channel reward:", error);
+    return "Sub";
+  }
+};
+
+// Function to process and return channel details
+const processChannelData = (channelData, chaReward) => {
+  return {
+    channelName: channelData.title,
+    subscribers: channelData.numberOfSubscribers,
+    stakers: channelData.numberOfStakers,
+    reward: chaReward,
+    stake: Number((channelData.currentStaked / 1e14).toFixed(0)),
+    cost: Number((channelData.totalSubscriptionFlowRate / 380517503805).toFixed(0)),
+    date: new Date(parseInt(channelData.lastUpdatedTimestamp) * 1000).toISOString(),
+  };
+};
+
+// Main function to get channel details
+export const getChannelAlfafren = async (getChannelAddress, fid) => {
+  try {
+    const channelData = await fetchChannelData(getChannelAddress);
+    const chaReward = await fetchChannelReward(fid);
+    return processChannelData(channelData, chaReward);
+  } catch (error) {
+    console.error("Error getting channel details:", error);
+    throw error;
   }
 };

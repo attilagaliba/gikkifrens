@@ -61,6 +61,8 @@ const Dashboard = () => {
     fetchData();
   }, [userMinData]);
 
+
+  ///Transfers
   useEffect(() => {
     const fetchData = async () => {
       if (userMinData && userMinData.userAddress) {
@@ -104,7 +106,6 @@ const Dashboard = () => {
         const allChannels = await getSubsRew(fid);
         if (typeof allChannels === "number") {
           // getSubsRew fonksiyonundan dönen değer uygun değilse, hata işleme alınabilir
-          console.error("getSubsRew fonksiyonundan beklenen türde bir değer dönmedi.");
         } else {
           // allChannels değişkeni uygun bir değer döndüğünde setUserSubs ile güncelleme yapılır
           setUserSubs(allChannels);
