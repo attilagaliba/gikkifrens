@@ -222,7 +222,7 @@ const Dashboard = () => {
             <Grid item xs={12} lg={4}>
               <RecentTransactions
                 userRecentTransactions={userRecentTransactions}
-                limit={10}
+                limit={7}
               />
             </Grid>
           ) : (

@@ -21,6 +21,8 @@ interface Props {
 const MonthlyEarnings: React.FC<Props> = ({
   userChannel,
   title,
+  number,
+  unit,
   userData,
   degenPrice,
   image,
@@ -71,18 +73,6 @@ const MonthlyEarnings: React.FC<Props> = ({
     },
   ];
 
-  function getData(title: string) {
-    if (title === "Subs") {
-      return userChannel.subscribers;
-    } else if (title === "Stakers") {
-      return `${userChannel.stakers}`;
-    } else if (title === "Reward") {
-      return `${userChannel.reward} ALFA`;
-    } else if (title === "Stakes") {
-      return `${userChannel.stake} DEGEN`;
-    }
-  }
-
   return (
     <DashboardCard
       title={title}
@@ -92,7 +82,7 @@ const MonthlyEarnings: React.FC<Props> = ({
     >
       <>
         <Typography variant="h3" fontWeight="700" mt="-20px">
-          {getData(title)}
+          {number} {unit}
         </Typography>
       </>
     </DashboardCard>

@@ -9,6 +9,16 @@ export const getUserByFid = async (fid: number) => {
     return null;
   }
 };
+////Chack User Sub me User API ALFA
+export const checkUser = async (fid: number) => {
+  try {
+    const response = await axios.get(`/api/checkUser/${fid}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+};
 ////Get User API Farcaster
 export const getUserByFidFFC = async (fid: number) => {
   try {
@@ -90,7 +100,7 @@ export const getChaRew = async (fid: number) => {
   }
 };
 /////Get Channel Alfafren
-const fetchChannelData = async (getChannelAddress) => {
+export const fetchChannelData = async (getChannelAddress) => {
   try {
     const response = await axios.get(`/api/getChannel/${getChannelAddress}`);
     return response.data;

@@ -16,192 +16,238 @@ import axios from "axios";
 import {
   getUserByFid,
   getUserByFidFFC,
-  getChaRew,
-  getChannelAlfafren,
+  fetchChannelData,
 } from "../func/galiba";
 
 const Dashboard = () => {
   const [degenPrice, setDegenPrice] = useState(0.01);
-  const [userMinData, setUserMinData] = useState<{ channeladdress?: string[] }>(
+  const [userMinData, setUserMinData] = useState<{ channelAddress?: string[] }>(
     {}
   );
-  const [userChannel, setUserChannel] = useState({});
   const [userChannelSubList, setUserChannelSubList] = useState([]);
   const [userChannelStakerList, setUserChannelStakerList] = useState([]);
+  const [channelData, setChannelData] = useState<any>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0); // Track loading progress
 
   const profile = useProfile();
   const {
     isAuthenticated,
-    profile: { fid, displayName, custody },
+    profile: { fid },
   } = profile;
 
   useEffect(() => {
-    const fetchData = async (fid: number) => {
-      const userData = await getUserByFid(fid);
-      setUserMinData(userData);
+    const fetchData = async () => {
+      if (fid && fid > 0) {
+        const userData = await getUserByFid(fid);
+        setUserMinData(userData);
+      }
     };
-
-    if (fid && fid > 0) {
-      fetchData(fid);
-    }
+    fetchData();
   }, [fid]);
 
-  useEffect(() => {
-    const fetchAllData = async (channeladdress: number) => {
-      const userData = await getChannelAlfafren(channeladdress, fid);
-      console.log(userData);
-      setUserChannel(userData);
-    };
-
-    if (userMinData.channeladdress) {
-      fetchAllData(userMinData.channeladdress);
-    }
-  }, [userMinData]);
-
-  useEffect(() => {
-    async function getUserPfPName(fid: number) {
-      const userDataGetApi = await getUserByFidFFC(fid);
-      return userDataGetApi;
-    }
-    const fetchAllData = async (getChannelAddress: any) => {
-      let skip = 0;
-      let hasMore = true;
-      let allList: any[] = [];
-      while (hasMore) {
-        try {
-          const response = await axios.get(
-            `/api/getChannelSubscribersAndStakes/${getChannelAddress}?skip=${skip}`
-          );
-          const channels = await Promise.all(
-            response.data.members.map(
-              async (item: {
-                fid: number;
-                totalSubscriptionOutflowAmount: any;
-                totalSubscriptionOutflowRate: any;
-                currentStaked: number;
-                isStaked: any;
-                isSubscribed: any;
-                subscriber: { id: any };
-              }) => {
-                const userProfileData = await getUserPfPName(item.fid);
-                const userProfilePfp = userProfileData.find(
-                  (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
-                );
-                const userProfileDisplay = userProfileData.find(
-                  (data: { type: string }) =>
-                    data.type === "USER_DATA_TYPE_DISPLAY"
-                );
-                return {
-                  fid: item.fid,
-                  totalSubscriptionOutflowAmount:
-                    item.totalSubscriptionOutflowAmount,
-                  totalSubscriptionOutflowRate:
-                    item.totalSubscriptionOutflowRate,
-                  currentStaked: (item.currentStaked / 100000000000000).toFixed(
-                    2
-                  ),
-                  isStaked: item.isStaked,
-                  isSubscribed: item.isSubscribed,
-                  subscriber: item.subscriber.id,
-                  userPfp: userProfilePfp ? userProfilePfp.value : "", // Eğer profil resmi varsa değerini al, yoksa boş string
-                  userDisplayName: userProfileDisplay
-                    ? userProfileDisplay.value
-                    : "", // Eğer görüntülenen ad varsa değerini al, yoksa boş string
-                };
-              }
-            )
-          );
-
-          allList = [...allList, ...channels];
-          hasMore = response.data.hasMore;
-          skip += 50;
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          hasMore = false;
-        }
-      }
-      const chaStakerList = allList.filter((item) => item.isStaked);
-      setUserChannelStakerList(chaStakerList);
-
-      const chaSubsList = allList.filter((item) => item.isSubscribed);
-      setUserChannelSubList(chaSubsList);
-    };
-
-    if (userMinData.channeladdress) {
-      fetchAllData(userMinData.channeladdress);
-    }
-  }, [userMinData]);
-
-  const userData = {
-    userFid: 474817,
-    userDisplayName: `attilagaliba`,
-    userPfp: `https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original`,
-    userBalance: 1840.124,
-    userAlfaBalance: 0,
-    userAlfaClaimable: 28.602736,
-    userSubs: 327,
-    userSubsCost: 18000,
-    userDailyAlfa: 218.23,
-    userStakes: 8,
-    userStakedAlfa: 2699.23,
-    userStakeCashback: 18374,
-    userChannelSubs: 51,
-    userChannelEarnings: 6375,
+  const getUserProfileData = async (fid: number) => {
+    const userData = await getUserByFidFFC(fid);
+    return userData;
   };
+
+  const fetchChannelSubscribersAndStakes = async (channelAddress: string) => {
+    let skip = 0;
+    let hasMore = true;
+    let allList: any[] = [];
+    let totalMembers = 0;
+
+    try {
+      const initialResponse = await axios.get(
+        `/api/getChannelSubscribersAndStakes/${channelAddress}?skip=0`
+      );
+      totalMembers = initialResponse.data.totalMembers || 0;
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      return;
+    }
+
+    while (hasMore) {
+      try {
+        const response = await axios.get(
+          `/api/getChannelSubscribersAndStakes/${channelAddress}?skip=${skip}`
+        );
+        const channels = await Promise.all(
+          response.data.members.map(async (item) => {
+            const userProfileData = await getUserProfileData(item.fid);
+            const userProfilePfp = userProfileData.find(
+              (data) => data.type === "USER_DATA_TYPE_PFP"
+            );
+            const userProfileDisplay = userProfileData.find(
+              (data) => data.type === "USER_DATA_TYPE_DISPLAY"
+            );
+
+            return {
+              fid: item.fid,
+              totalSubscriptionOutflowAmount:
+                item.totalSubscriptionOutflowAmount,
+              totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
+              currentStaked: (item.currentStaked / 100000000000000).toFixed(2),
+              isStaked: item.isStaked,
+              isSubscribed: item.isSubscribed,
+              subscriber: item.subscriber.id,
+              userPfp: userProfilePfp ? userProfilePfp.value : "",
+              userDisplayName: userProfileDisplay
+                ? userProfileDisplay.value
+                : "",
+            };
+          })
+        );
+
+        allList = [...allList, ...channels];
+        hasMore = response.data.hasMore;
+        skip += 50;
+
+        // Update loading progress
+        setLoadingProgress((prevProgress) =>
+          Math.min(prevProgress + (channels.length / totalMembers) * 100, 100)
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        hasMore = false;
+      }
+    }
+    setUserChannelStakerList(allList.filter((item) => item.isStaked));
+    setUserChannelSubList(allList.filter((item) => item.isSubscribed));
+  };
+
+  useEffect(() => {
+    if (userMinData.channeladdress) {
+      fetchChannelSubscribersAndStakes(userMinData.channeladdress);
+    }
+  }, [userMinData.channeladdress]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchChannelData(userMinData.channeladdress);
+        setChannelData(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userMinData.channeladdress) {
+      console.log(userMinData.channeladdress);
+      fetchData();
+    }
+  }, [userMinData.channeladdress]);
+
+  const calculateStakeIncome = () => {
+    if (!channelData) return "N/A";
+    const income =
+      ((channelData.totalSubscriptionFlowRate /
+        380517503805.174 /
+        channelData.numberOfSubscribers /
+        500) *
+        channelData.stakeToIncomeRatio *
+        60 *
+        60 *
+        24 *
+        30) /
+      1000000000000;
+    return income.toFixed(2);
+  };
+
+  const calculateStakeForOneAlfa = () => {
+    if (!channelData) return "N/A";
+    const stake =
+      (channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
+      10000000000;
+    return stake.toFixed(2);
+  };
+
+  const calculateChannelCost = () => {
+    if (!channelData) return "N/A";
+    const cost =
+      channelData.totalSubscriptionFlowRate /
+      380517503805.174 /
+      channelData.numberOfSubscribers;
+    return cost.toFixed(0);
+  };
+
+  console.log(channelData);
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
         <Grid container spacing={3}>
-          <Grid item xs={12} lg={3}>
+          <Grid item xs={12} lg={2}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <ChannelStats
-                  userChannel={userChannel}
                   title={"Subs"}
-                  userData={userData}
-                  degenPrice={degenPrice}
-                  image={"https://c.tenor.com/71rFa0hBgU4AAAAC/tenor.gif"}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} lg={3}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <ChannelStats
-                  userChannel={userChannel}
-                  title={"Stakers"}
-                  userData={userData}
-                  degenPrice={degenPrice}
+                  number={channelData?.numberOfSubscribers}
+                  unit={""}
                   image={
-                    "https://media.tenor.com/Xq6Ij1fSSqMAAAAM/pepe-money.gif"
+                    "https://media.tenor.com/N8PjzW2fyIcAAAAM/peepogiggle.gif"
                   }
                 />
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} lg={3}>
+          <Grid item xs={12} lg={2}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <ChannelStats
-                  userChannel={userChannel}
+                  title={"Stakers"}
+                  number={channelData?.numberOfStakers}
+                  unit={""}
+                  image={
+                    "https://media.tenor.com/hVRzRZnx-YsAAAAM/pepe-the-frog-sitting-chillin.gif"
+                  }
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} lg={2}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <ChannelStats
+                  title={"Stake Ratio"}
+                  number={calculateStakeForOneAlfa()}
+                  unit={"Degen"}
+                  image={"https://c.tenor.com/71rFa0hBgU4AAAAC/tenor.gif"}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} lg={2}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <ChannelStats
+                  title={"Channel Cost"}
+                  number={calculateChannelCost()}
+                  unit={"Degen"}
+                  image={"https://media.tenor.com/Xq6Ij1fSSqMAAAAM/pepe-money.gif"}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} lg={2}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <ChannelStats
                   title={"Reward"}
-                  userData={userData}
-                  degenPrice={degenPrice}
+                  number={calculateStakeIncome()}
+                  unit={"Alfa"}
                   image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"}
                 />
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} lg={3}>
+          <Grid item xs={12} lg={2}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <ChannelStats
-                  userChannel={userChannel}
                   title={"Stakes"}
-                  userData={userData}
-                  degenPrice={degenPrice}
+                  number={(channelData?.currentStaked / 100000000000000).toFixed(
+                    2
+                  )}
+                  unit={"Alfa"}
                   image={"https://c.tenor.com/KudEsy5UPSoAAAAd/tenor.gif"}
                 />
               </Grid>
@@ -215,18 +261,18 @@ const Dashboard = () => {
                 degenPrice={degenPrice}
               />
             ) : (
-              <>Loading Subs List</>
+              <>Loading Subs List (This processing time may take longer depending on your number of subs. Please do not close the page.)</>
             )}
           </Grid>
           <Grid item xs={12} lg={6}>
-            {userChannelSubList.length > 0 ? (
+            {userChannelStakerList.length > 0 ? (
               <StakersTable
                 userSubs={userChannelStakerList}
                 limit={5}
                 degenPrice={degenPrice}
               />
             ) : (
-              <>Loading Stakers List</>
+              <>Loading Stakers List (This processing time may take longer depending on your number of stakers. Please do not close the page.)</>
             )}
           </Grid>
         </Grid>
