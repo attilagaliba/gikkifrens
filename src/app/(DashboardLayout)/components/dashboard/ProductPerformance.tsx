@@ -15,6 +15,8 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 import Link from "next/link";
 
 interface Subscription {
+  channelCost: number;
+  title: ReactNode;
   channelId: any;
   userDisplayName: ReactNode;
   index: number;
@@ -23,6 +25,7 @@ interface Subscription {
   userChannelCost: number;
   userChannelAlfa: number;
   userPfp: string;
+  profileimgurl: string;
 }
 
 interface ProductPerformanceProps {
