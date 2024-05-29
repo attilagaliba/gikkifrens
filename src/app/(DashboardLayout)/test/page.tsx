@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import FlowingBalance from "./flowbalance";
 
 const App: React.FC = () => {
   const timestamp = 1716940353; // Your Unix timestamp
@@ -12,11 +11,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <FlowingBalance
-        startingBalance={BigInt("260976486770420669596")}
-        startingBalanceDate={new Date(isoDateString)}
-        flowRate={BigInt("-1206208168777287")}
-      />
+      say hi
     </div>
   );
 };

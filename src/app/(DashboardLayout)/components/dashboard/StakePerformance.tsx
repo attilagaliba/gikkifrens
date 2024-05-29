@@ -15,6 +15,8 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Subscription {
+  channelData: any;
+  pool: any;
   userDisplayName: ReactNode;
   userChannelCost: number;
   userChannelAlfa: number;

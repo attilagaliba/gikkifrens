@@ -11,23 +11,17 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Props {
-  userData: any;
   degenPrice: any;
-  userBalanceFuncHistory;
+  userBalanceFuncHistory: any;
   balanceArea: any;
 }
 
 const MonthlyEarnings: React.FC<Props> = ({
-  userData,
   userBalanceFuncHistory,
   degenPrice,
   balanceArea,
 }) => {
-  const [getUserData, setUserData] = useState(userData);
-  useEffect(() => {
-    setUserData(userData);
-  }, [userData]);
-
+ 
   // chart color
   const theme = useTheme();
   const secondary = theme.palette.secondary.main;

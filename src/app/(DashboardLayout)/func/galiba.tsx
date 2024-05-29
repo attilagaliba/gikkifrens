@@ -1,6 +1,6 @@
 import axios from "axios";
 ////Get User API ALFA
-export const getUserByFid = async (fid: number) => {
+export const getUserByFid = async (fid: any) => {
   try {
     const response = await axios.get(`/api/getUserByFid/${fid}/`);
     return response.data;
@@ -10,7 +10,7 @@ export const getUserByFid = async (fid: number) => {
   }
 };
 ////Chack User Sub me User API ALFA
-export const checkUser = async (fid: number) => {
+export const checkUser = async (fid: any) => {
   try {
     const response = await axios.get(`/api/checkUser/${fid}/`);
     return response.data;
@@ -20,7 +20,7 @@ export const checkUser = async (fid: number) => {
   }
 };
 ////Get User API Farcaster
-export const getUserByFidFFC = async (fid: number) => {
+export const getUserByFidFFC = async (fid: any) => {
   try {
     const response = await axios.get(`/api/getUserByFidFFC/${fid}/`);
     return response.data;
@@ -30,7 +30,7 @@ export const getUserByFidFFC = async (fid: number) => {
   }
 };
 ////Get User Address Airstack
-export const getUserAddress = async (fid: number) => {
+export const getUserAddress = async (fid: any) => {
   try {
     const response = await axios.get(`/api/getUserAddress/${fid}/`);
     return response.data;
@@ -83,7 +83,7 @@ export const getUserTrasfers = async (userAddress: string) => {
   }
 };
 ////Get User Subs DegenFans
-export const getSubsRew = async (fid: number) => {
+export const getSubsRew = async (fid: any) => {
   let skip = 0;
   let hasMore = true;
   let allChannels: any[] = [];
@@ -112,7 +112,7 @@ export const getSubsRew = async (fid: number) => {
   return allChannels;
 };
 ////Get User Channel Degenfans
-export const getChaRew = async (fid: number) => {
+export const getChaRew = async (fid: any) => {
   try {
     const response = await axios.get(`/api/getChaRew/${fid}`);
     const getReward = response.data.data.monthlyApD * response.data.data.cost;
@@ -123,7 +123,7 @@ export const getChaRew = async (fid: number) => {
   }
 };
 /////Get Channel Alfafren
-export const fetchChannelData = async (getChannelAddress) => {
+export const fetchChannelData = async (getChannelAddress: any) => {
   try {
     const response = await axios.get(`/api/getChannel/${getChannelAddress}`);
     return response.data;
@@ -135,7 +135,7 @@ export const fetchChannelData = async (getChannelAddress) => {
 
 /////Get User Subs
 
-export const getUserSubscribedChannels = async (fid: number) => {
+export const getUserSubscribedChannels = async (fid: any) => {
   let skip = 0;
   let hasMore = true;
   let allChannels: any[] = [];
@@ -174,8 +174,8 @@ export const getUserSubscribedChannels = async (fid: number) => {
 
 /////Get Channel Sus And Stakers
 export const getChannelSubscribersAndStakes = async (
-  getChannelAddress,
-  skip
+  getChannelAddress: any,
+  skip: any
 ) => {
   try {
     const response = await axios.get(
@@ -189,7 +189,7 @@ export const getChannelSubscribersAndStakes = async (
 };
 
 // Function to fetch channel reward
-const fetchChannelReward = async (fid) => {
+const fetchChannelReward = async (fid: any) => {
   try {
     const chaReward = await getChaRew(fid);
     return typeof chaReward === "number"
@@ -202,7 +202,7 @@ const fetchChannelReward = async (fid) => {
 };
 
 // Function to process and return channel details
-const processChannelData = (channelData, chaReward) => {
+const processChannelData = (channelData: { title: any; numberOfSubscribers: any; numberOfStakers: any; currentStaked: any; totalSubscriptionFlowRate: any; lastUpdatedTimestamp: string; }, chaReward: string | number) => {
   return {
     channelName: channelData.title,
     subscribers: channelData.numberOfSubscribers,
@@ -219,7 +219,7 @@ const processChannelData = (channelData, chaReward) => {
 };
 
 // Main function to get channel details
-export const getChannelAlfafren = async (getChannelAddress, fid) => {
+export const getChannelAlfafren = async (getChannelAddress: any, fid: any) => {
   try {
     const channelData = await fetchChannelData(getChannelAddress);
     const chaReward = await fetchChannelReward(fid);

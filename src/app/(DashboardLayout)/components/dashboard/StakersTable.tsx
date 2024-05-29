@@ -19,6 +19,7 @@ interface Subscription {
   userDisplayName: string;
   pbg: string;
   priority: string;
+  limit: any;
   userChannelCost: number;
   userChannelAlfa: number;
   userPfp: string;

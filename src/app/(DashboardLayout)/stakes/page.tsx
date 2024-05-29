@@ -12,7 +12,7 @@ import {
 import { useProfile } from "@farcaster/auth-kit";
 
 const SamplePage = () => {
-  const [updatedUserStakedList, setUpdatedUserStakedList] = useState([]);
+  const [updatedUserStakedList, setUpdatedUserStakedList] = useState<any>([]);
   const [userMinData, setUserMinData] = useState<any>([]);
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -41,12 +41,12 @@ const SamplePage = () => {
   }, [fid]);
 
   useEffect(() => {
-    const getUserStakedListFetchData = async (userAddress) => {
+    const getUserStakedListFetchData = async (userAddress: string) => {
       try {
         const stakedListResponse = await getUserStakedList(userAddress);
         const updatedList = await Promise.all(
           stakedListResponse.account.poolMemberships.map(
-            async (poolMembership) => {
+            async (poolMembership: { pool: { admin: { id: any; }; }; }) => {
               const poolAdminId = poolMembership.pool.admin.id;
               const channelData = await fetchChannelData(poolAdminId);
               const updatedPoolMembership = { ...poolMembership, channelData };

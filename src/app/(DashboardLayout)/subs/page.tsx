@@ -9,9 +9,9 @@ import { useProfile } from "@farcaster/auth-kit";
 import { getSubsRew, getUserSubscribedChannels } from "../func/galiba";
 
 const SamplePage = () => {
-  const [userSubsAlfafrens, setUserSubsAlfafrens] = useState([]);
-  const [userSubsDegenFans, setUserSubsDegenfans] = useState([]);
-  const [updatedUserSubsAlfafrens, setUpdatedUserSubsAlfafrens] = useState([]);
+  const [userSubsAlfafrens, setUserSubsAlfafrens] = useState<any>([]);
+  const [userSubsDegenFans, setUserSubsDegenfans] = useState<any>([]);
+  const [updatedUserSubsAlfafrens, setUpdatedUserSubsAlfafrens] = useState<any>([]);
 
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -37,7 +37,7 @@ const SamplePage = () => {
         console.error("Error fetching data:", error);
       }
     };
-    if (fid > 0) {
+    if (fid && fid > 0) {
       fetchData();
     }
   }, [fid]);
@@ -48,15 +48,15 @@ const SamplePage = () => {
       setUserSubsDegenfans(allChannelsDegenFans);
     };
 
-    if (fid > 0) {
+    if (fid && fid > 0) {
       fetchAllData();
     }
   }, [fid]);
 
   useEffect(() => {
-    const updatedSubs = userSubsAlfafrens.map((alfaFren) => {
+    const updatedSubs = userSubsAlfafrens.map((alfaFren: { channelId: any; }) => {
       const matchedDegenFan = userSubsDegenFans.find(
-        (degenFan) => degenFan.channelId === alfaFren.channelId
+        (degenFan: { channelId: any; }) => degenFan.channelId === alfaFren.channelId
       );
 
       if (matchedDegenFan) {

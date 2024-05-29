@@ -159,7 +159,7 @@ const Dashboard = () => {
         console.error("Error fetching data:", error);
       }
     };
-    if (fid > 0) {
+    if (fid && fid > 0) {
       fetchData();
     }
   }, [fid]);
@@ -171,7 +171,7 @@ const Dashboard = () => {
       setUserSubsDegenfans(allChannelsDegenFans);
     };
 
-    if (fid > 0) {
+    if (fid && fid > 0) {
       fetchAllData();
     }
   }, [fid]);
@@ -210,12 +210,12 @@ const Dashboard = () => {
   }, [updatedUserSubsAlfafrens]);
 
   useEffect(() => {
-    const getUserStakedListFetchData = async (userAddress) => {
+    const getUserStakedListFetchData = async (userAddress: string) => {
       try {
         const stakedListResponse = await getUserStakedList(userAddress);
         const updatedList = await Promise.all(
           stakedListResponse.account.poolMemberships.map(
-            async (poolMembership) => {
+            async (poolMembership: { pool: { admin: { id: any; }; }; }) => {
               const poolAdminId = poolMembership.pool.admin.id;
               const channelData = await fetchChannelData(poolAdminId);
               const updatedPoolMembership = { ...poolMembership, channelData };
@@ -224,7 +224,7 @@ const Dashboard = () => {
           )
         );
         setUpdatedUserStakedList(updatedList);
-        const calculateEarnings = (item) => {
+        const calculateEarnings = (item: { channelData: { owner: string; estimatedEarningsPerSecond: number; }; pool: { poolMembers: { units: number; }[]; }; }) => {
           if (
             item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
           ) {
@@ -276,7 +276,7 @@ const Dashboard = () => {
     }
   }, [userMinData]);
 
-  const calculateChannelCost = (response) => {
+  const calculateChannelCost = (response: { totalSubscriptionFlowRate: any; numberOfSubscribers: any; }) => {
     if (!response) return "N/A";
     const cost =
       response.totalSubscriptionFlowRate /
@@ -291,7 +291,7 @@ const Dashboard = () => {
         const response = await fetchChannelData(userMinData.channeladdress);
         const channelCost = calculateChannelCost(response);
         setTotalSubEarnings(
-          response?.numberOfSubscribers * ((channelCost * 25) / 100)
+          response?.numberOfSubscribers * ((Number(channelCost )* 25) / 100)
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -302,13 +302,13 @@ const Dashboard = () => {
     }
   }, [userMinData]);
 
-  function converDate(timestamp) {
+  function converDate(timestamp: number) {
     const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
     const isoDateString = date.toISOString(); // Convert date to ISO 8601 format
     return isoDateString;
   }
   return (
-    <PageContainer title="Dashboard" description="this is Dashboard">
+    <PageContainer title="Dashboard GikkiFrens" description="this is Dashboard">
       <Box>
         <Grid container spacing={3}>
           <Grid item xs={12} lg={4}>
@@ -324,7 +324,7 @@ const Dashboard = () => {
                           new Date(converDate(userBalanceFunc.timestamp))
                         }
                         flowRate={BigInt(
-                          Math.round(
+                          Number(
                             (
                               (totalEarnings +
                                 totalSubEarnings -

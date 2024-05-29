@@ -11,20 +11,16 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Props {
-  userChannel: any;
   title: string;
-  userData: any;
-  degenPrice: any;
+  number: any;
+  unit: string;
   image: string;
 }
 
 const MonthlyEarnings: React.FC<Props> = ({
-  userChannel,
   title,
   number,
   unit,
-  userData,
-  degenPrice,
   image,
 }) => {
 
@@ -65,13 +61,7 @@ const MonthlyEarnings: React.FC<Props> = ({
       theme: theme.palette.mode === "dark" ? "dark" : "light",
     },
   };
-  const seriescolumnchart: any = [
-    {
-      name: "DEGEN",
-      color: secondary,
-      data: [0, 0, 0, 0, 1300, 1000, userData?.userBalance],
-    },
-  ];
+
 
   return (
     <DashboardCard

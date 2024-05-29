@@ -80,7 +80,9 @@ export default function RootLayout({
         "userProfile",
         JSON.stringify({ fid, displayName, custody })
       );
-      setUserProfile({ fid, displayName, custody });
+      if (fid && fid > 0 && displayName && custody) {
+        setUserProfile({ fid, displayName, custody });
+      }
     } else {
       const storedAuth = localStorage.getItem("isAuthenticated");
       const storedProfile = localStorage.getItem("userProfile");

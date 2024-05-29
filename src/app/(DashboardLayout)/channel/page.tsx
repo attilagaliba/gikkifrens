@@ -21,13 +21,16 @@ import {
 
 const Dashboard = () => {
   const [degenPrice, setDegenPrice] = useState(0.01);
-  const [userMinData, setUserMinData] = useState<{ channelAddress?: string[] }>(
-    {}
-  );
-  const [userChannelSubList, setUserChannelSubList] = useState([]);
-  const [userChannelStakerList, setUserChannelStakerList] = useState([]);
+  const [userMinData, setUserMinData] = useState({
+    channeladdress: null,
+    channelAddress: [],
+  });
+  const [userChannelSubList, setUserChannelSubList] = useState<any>(null);
+  const [userChannelStakerList, setUserChannelStakerList] = useState<any>(null);
+
   const [channelData, setChannelData] = useState<any>(null);
-  const [loadingProgress, setLoadingProgress] = useState(0); // Track loading progress
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [numberProgg, setNumberProgg] = useState(0);
 
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -43,7 +46,7 @@ const Dashboard = () => {
       setCustody(profile.custody);
     }
   }, []);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       if (fid && fid > 0) {
@@ -64,7 +67,7 @@ const Dashboard = () => {
     let hasMore = true;
     let allList: any[] = [];
     let totalMembers = 0;
-
+    let whatCount = 0;
     try {
       const initialResponse = await axios.get(
         `/api/getChannelSubscribersAndStakes/${channelAddress}?skip=0`
@@ -80,31 +83,52 @@ const Dashboard = () => {
         const response = await axios.get(
           `/api/getChannelSubscribersAndStakes/${channelAddress}?skip=${skip}`
         );
-        const channels = await Promise.all(
-          response.data.members.map(async (item) => {
-            const userProfileData = await getUserProfileData(item.fid);
-            const userProfilePfp = userProfileData.find(
-              (data) => data.type === "USER_DATA_TYPE_PFP"
-            );
-            const userProfileDisplay = userProfileData.find(
-              (data) => data.type === "USER_DATA_TYPE_DISPLAY"
-            );
+        const sleep = (ms: number | undefined) =>
+          new Promise((resolve) => setTimeout(resolve, ms));
 
-            return {
-              fid: item.fid,
-              totalSubscriptionOutflowAmount:
-                item.totalSubscriptionOutflowAmount,
-              totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
-              currentStaked: (item.currentStaked / 100000000000000).toFixed(2),
-              isStaked: item.isStaked,
-              isSubscribed: item.isSubscribed,
-              subscriber: item.subscriber.id,
-              userPfp: userProfilePfp ? userProfilePfp.value : "",
-              userDisplayName: userProfileDisplay
-                ? userProfileDisplay.value
-                : "",
-            };
-          })
+        const channels = await Promise.all(
+          response.data.members.map(
+            async (item: {
+              fid: number;
+              totalSubscriptionOutflowAmount: any;
+              totalSubscriptionOutflowRate: any;
+              currentStaked: number;
+              isStaked: any;
+              isSubscribed: any;
+              subscriber: { id: any };
+            }) => {
+              const userProfileData = await getUserProfileData(item.fid);
+              await sleep(500);
+
+              whatCount = whatCount + 1;
+
+              setNumberProgg(whatCount);
+              const userProfilePfp = userProfileData.find(
+                (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
+              );
+              const userProfileDisplay = userProfileData.find(
+                (data: { type: string }) =>
+                  data.type === "USER_DATA_TYPE_DISPLAY"
+              );
+
+              return {
+                fid: item.fid,
+                totalSubscriptionOutflowAmount:
+                  item.totalSubscriptionOutflowAmount,
+                totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
+                currentStaked: (item.currentStaked / 100000000000000).toFixed(
+                  2
+                ),
+                isStaked: item.isStaked,
+                isSubscribed: item.isSubscribed,
+                subscriber: item.subscriber.id,
+                userPfp: userProfilePfp ? userProfilePfp.value : "",
+                userDisplayName: userProfileDisplay
+                  ? userProfileDisplay.value
+                  : "",
+              };
+            }
+          )
         );
 
         allList = [...allList, ...channels];
@@ -262,31 +286,40 @@ const Dashboard = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} lg={6}>
-            {userChannelSubList.length > 0 ? (
+            {userChannelSubList?.length > 0 ? (
               <SubsTable
                 userSubs={userChannelSubList}
-                limit={5}
-                degenPrice={degenPrice}
               />
             ) : (
               <>
                 Loading Subs List (This processing time may take longer
                 depending on your number of subs. Please do not close the page.)
+                -{" "}
+                {(
+                  (((numberProgg / 2) * 100) / channelData?.numberOfStakers +
+                    channelData?.numberOfSubscribers) /
+                  3
+                ).toFixed(2)}
+                %
               </>
             )}
           </Grid>
           <Grid item xs={12} lg={6}>
-            {userChannelStakerList.length > 0 ? (
+            {userChannelStakerList?.length > 0 ? (
               <StakersTable
                 userSubs={userChannelStakerList}
-                limit={5}
-                degenPrice={degenPrice}
               />
             ) : (
               <>
                 Loading Stakers List (This processing time may take longer
                 depending on your number of stakers. Please do not close the
-                page.)
+                page.) -{" "}
+                {(
+                  (((numberProgg / 2) * 100) / channelData?.numberOfStakers +
+                    channelData?.numberOfSubscribers) /
+                  3
+                ).toFixed(2)}
+                %
               </>
             )}
           </Grid>

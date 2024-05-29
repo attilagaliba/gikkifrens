@@ -8,7 +8,6 @@ import { IconArrowUpLeft } from "@tabler/icons-react";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Props {
-  userData: any;
   degenPrice: any;
   totalAlfaAllocationPerMo: any;
   totalOutflowRate: any;
@@ -22,20 +21,13 @@ const YearlyBreakup: React.FC<Props> = ({
   totalOutflowRate,
   totalEarnings,
   totalSubEarnings,
-  userBalanceFunc,
-  userData,
   degenPrice,
 }) => {
-  const [getUserData, setUserData] = useState(userData);
 
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const primarylight = "#ecf2ff";
   const successlight = theme.palette.success.light;
-
-  useEffect(() => {
-    setUserData(userData);
-  }, [userData]);
 
   // chart
   const optionscolumnchart: any = {
@@ -97,7 +89,6 @@ const YearlyBreakup: React.FC<Props> = ({
   const getDegenPrice = degenPrice ?? 1;
   const earningMo = totalProfit * getDegenPrice;
 
-  const dailyAlfa = getUserData?.userDailyAlfa ?? 0;
 
   return (
     <DashboardCard title="Net Profit">

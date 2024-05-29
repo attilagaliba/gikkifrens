@@ -27,7 +27,7 @@ interface ItemType {
   onClick: (event: React.MouseEvent<HTMLElement>) => void;
   hideMenu?: any;
   level?: number | any;
-  pathDirect: string;
+  pathDirect: any;
 }
 
 const NavItem = ({ item, level, pathDirect, onClick }: ItemType) => {
