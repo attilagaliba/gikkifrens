@@ -15,6 +15,7 @@ import axios from "axios";
 // components
 import Profile from "./Profile";
 import { IconBellRinging, IconMenu } from "@tabler/icons-react";
+import Link from "next/link";
 
 interface ItemType {
   toggleMobileSidebar: (event: React.MouseEvent<HTMLElement>) => void;
@@ -23,27 +24,20 @@ interface ItemType {
 const Header = ({ toggleMobileSidebar }: ItemType) => {
   // const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   // const lgDown = useMediaQuery((theme) => theme.breakpoints.down('lg'));
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
 
-  const profile = useProfile();
-  const {
-    isAuthenticated,
-    profile: { fid, displayName, custody },
-  } = profile;
-
-  const [userMinData, setUserMinData] = useState([]);
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/api/getUserByFid/${fid}/`);
-        setUserMinData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    if (fid) {
-      fetchData();
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
     }
-  }, [fid]);
+  }, []);
 
   const AppBarStyled = styled(AppBar)(({ theme }) => ({
     boxShadow: "none",
@@ -89,7 +83,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
           <Button variant="contained" disableElevation color="primary">
             Avg Gas Fee = {gasFee.toFixed(0)}
           </Button>
-          <Profile userMinData={userMinData} />
+          | {displayName} |<a href={"/logout"}>Logout</a>
         </Stack>
       </ToolbarStyled>
     </AppBarStyled>

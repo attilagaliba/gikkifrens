@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 import Header from "@/app/(DashboardLayout)/layout/header/Header";
 import Sidebar from "@/app/(DashboardLayout)/layout/sidebar/Sidebar";
 import "@farcaster/auth-kit/styles.css";
-import { AuthKitProvider } from "@farcaster/auth-kit";
 import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { checkUser } from "./func/galiba";
 
@@ -36,6 +35,13 @@ export default function RootLayout({
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isSubMe, setIsSubMe] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    fid: 0,
+    displayName: "",
+    custody: {},
+  });
+  const [isInEarlyList, setisInEarlyList] = useState(false);
 
   const Login = () => {
     return <SignInButton />;
@@ -43,7 +49,7 @@ export default function RootLayout({
 
   const profile = useProfile();
   const {
-    isAuthenticated,
+    isAuthenticated: profileAuthenticated,
     profile: { fid, displayName, custody },
   } = profile;
 
@@ -52,18 +58,44 @@ export default function RootLayout({
   };
 
   // Check if fid exists in earlyList
-  const isInEarlyList = earlyList.values.includes(fid);
 
   useEffect(() => {
     const fetchData = async (fid: number) => {
-      const userData = await checkUser(474817);
+      const userData = await checkUser(userProfile.fid);
+      const checkEarlyList = earlyList.values.includes(userProfile.fid);
+      setisInEarlyList(checkEarlyList);
       setIsSubMe(userData);
     };
 
-    if (fid && fid > 0) {
-      fetchData(fid);
+    if (userProfile && userProfile.fid > 0) {
+      fetchData(userProfile.fid);
     }
-  }, [fid]);
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (profileAuthenticated) {
+      setIsAuthenticated(true);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({ fid, displayName, custody })
+      );
+      setUserProfile({ fid, displayName, custody });
+    } else {
+      const storedAuth = localStorage.getItem("isAuthenticated");
+      const storedProfile = localStorage.getItem("userProfile");
+
+      if (storedAuth === "true" && storedProfile) {
+        setIsAuthenticated(true);
+        const parsedProfile = JSON.parse(storedProfile);
+        setUserProfile(parsedProfile);
+      } else {
+        setIsAuthenticated(false);
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("userProfile");
+      }
+    }
+  }, [profileAuthenticated, fid, displayName, custody]);
 
   return (
     <MainWrapper className="mainwrapper">

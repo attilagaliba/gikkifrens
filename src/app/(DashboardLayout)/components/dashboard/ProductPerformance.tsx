@@ -118,22 +118,43 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      sx={{
-                        px: "4px",
-                        backgroundColor: setColorAlfa(
-                          sub.userChannelAlfa,
-                          sub.channelCost
-                        ),
-                        color: "#fff",
-                      }}
-                      size="small"
-                      label={
-                        sub.userChannelAlfa > 0
-                          ? `${sub.userChannelAlfa} ALFA`
-                          : `Sub degenfans for see Reward cuz its 0`
-                      }
-                    />
+                    <>
+                      {sub.userChannelAlfa < 1 ||
+                        (sub.userChannelAlfa === 999999 && (
+                          <a
+                            target="_blank"
+                            href="https://www.alfafrens.com/channel/0x35dfccae83f23a7f91c0e4ff27d323fc161baca7"
+                          >
+                            <Chip
+                              sx={{
+                                px: "4px",
+                                backgroundColor: setColorAlfa(
+                                  sub.userChannelAlfa,
+                                  sub.channelCost
+                                ),
+                                color: "#fff",
+                              }}
+                              size="small"
+                              label={`Sub @degenfans for see Reward`}
+                            />
+                          </a>
+                        ))}
+                      {sub.userChannelAlfa >= 1 &&
+                        sub.userChannelAlfa !== 999999 && (
+                          <Chip
+                            sx={{
+                              px: "4px",
+                              backgroundColor: setColorAlfa(
+                                sub.userChannelAlfa,
+                                sub.channelCost
+                              ),
+                              color: "#fff",
+                            }}
+                            size="small"
+                            label={`${sub.userChannelAlfa} ALFA`}
+                          />
+                        )}
+                    </>
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="h6">

@@ -91,6 +91,7 @@ export const getSubsRew = async (fid: number) => {
   while (hasMore) {
     try {
       const response = await axios.get(`/api/getSubsRew/${fid}?first=${skip}`);
+      console.log(fid, response.data.data)
       const channels = response.data.data.map((item: any) => ({
         lastUpdated: item.subTs,
         userDisplayName: item.channelName,

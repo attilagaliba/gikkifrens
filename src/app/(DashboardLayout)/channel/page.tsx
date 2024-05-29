@@ -29,12 +29,21 @@ const Dashboard = () => {
   const [channelData, setChannelData] = useState<any>(null);
   const [loadingProgress, setLoadingProgress] = useState(0); // Track loading progress
 
-  const profile = useProfile();
-  const {
-    isAuthenticated,
-    profile: { fid },
-  } = profile;
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
 
+  useEffect(() => {
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
+    }
+  }, []);
+  
   useEffect(() => {
     const fetchData = async () => {
       if (fid && fid > 0) {

@@ -25,8 +25,6 @@ import {
   getUserSubscribedChannels,
 } from "./func/galiba";
 
-import { useProfile } from "@farcaster/auth-kit";
-
 const Dashboard = () => {
   const [userMinData, setUserMinData] = useState<any>([]);
   const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
@@ -51,6 +49,10 @@ const Dashboard = () => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalSubEarnings, setTotalSubEarnings] = useState(0);
 
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,16 +66,18 @@ const Dashboard = () => {
       }
     };
     fetchData();
-
   }, []);
 
-
-  const profile = useProfile();
-  const {
-    isAuthenticated,
-    profile: { fid, displayName, custody },
-  } = profile;
-
+  useEffect(() => {
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
+    }
+  }, []);
   useEffect(() => {
     const fetchData = async (fid: number) => {
       const userData = await getUserByFid(fid);
@@ -298,31 +302,6 @@ const Dashboard = () => {
     }
   }, [userMinData]);
 
-  const userData = {
-    userFid: 474817,
-    userDisplayName: `attilagaliba`,
-    userPfp: `https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original`,
-    userBalance: 1840.124,
-    userAlfaBalance: 0,
-    userAlfaClaimable: 28.602736,
-    userSubs: 327,
-    userSubsCost: 18000,
-    userDailyAlfa: 218.23,
-    userStakes: 8,
-    userStakedAlfa: 2699.23,
-    userStakeCashback: 18374,
-    userChannelSubs: 51,
-    userChannelEarnings: 6375,
-  };
-  console.log(
-    (
-      (totalEarnings +
-        totalSubEarnings -
-        userBalanceFunc?.totalOutflowRate / 380517503050) *
-      380517503050
-    ).toFixed(0)
-  );
-
   function converDate(timestamp) {
     const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
     const isoDateString = date.toISOString(); // Convert date to ISO 8601 format
@@ -360,13 +339,11 @@ const Dashboard = () => {
                       <>0000.00000</>
                     )
                   }
-                  userData={userData}
                   degenPrice={degenPrice}
                 />
               </Grid>
               <Grid item xs={12}>
                 <YearlyBreakup
-                  userData={userData}
                   totalEarnings={totalEarnings}
                   totalSubEarnings={totalSubEarnings}
                   userBalanceFunc={userBalanceFunc}

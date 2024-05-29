@@ -9,15 +9,24 @@ import { useProfile } from "@farcaster/auth-kit";
 import { getSubsRew, getUserSubscribedChannels } from "../func/galiba";
 
 const SamplePage = () => {
-  const profile = useProfile();
-  const {
-    isAuthenticated,
-    profile: { fid, displayName, custody },
-  } = profile;
-
   const [userSubsAlfafrens, setUserSubsAlfafrens] = useState([]);
   const [userSubsDegenFans, setUserSubsDegenfans] = useState([]);
   const [updatedUserSubsAlfafrens, setUpdatedUserSubsAlfafrens] = useState([]);
+
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +45,6 @@ const SamplePage = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       const allChannelsDegenFans = await getSubsRew(fid);
-
       setUserSubsDegenfans(allChannelsDegenFans);
     };
 

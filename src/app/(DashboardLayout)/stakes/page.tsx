@@ -14,12 +14,20 @@ import { useProfile } from "@farcaster/auth-kit";
 const SamplePage = () => {
   const [updatedUserStakedList, setUpdatedUserStakedList] = useState([]);
   const [userMinData, setUserMinData] = useState<any>([]);
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
 
-  const profile = useProfile();
-  const {
-    isAuthenticated,
-    profile: { fid, displayName, custody },
-  } = profile;
+  useEffect(() => {
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async (fid: number) => {
