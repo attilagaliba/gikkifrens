@@ -52,7 +52,11 @@ const Sidebar = ({
             {/* Logo */}
             {/* ------------------------------------------- */}
             <Box px={3}>
-              Board Frens
+              <img
+                width={"90%"}
+                src="/images/logos/alfaLogo.png"
+                alt={"logo"}
+              />
             </Box>
             <Box>
               {/* ------------------------------------------- */}

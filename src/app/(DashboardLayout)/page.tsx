@@ -17,8 +17,12 @@ import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/Monthl
 import {
   getUserTrasfers,
   getUserByFid,
+  getUserStakedList,
   getUserBalance,
+  getUserBalanceHistory,
   getSubsRew,
+  fetchChannelData,
+  getUserSubscribedChannels,
 } from "./func/galiba";
 
 import { useProfile } from "@farcaster/auth-kit";
@@ -26,12 +30,43 @@ import { useProfile } from "@farcaster/auth-kit";
 const Dashboard = () => {
   const [userMinData, setUserMinData] = useState<any>([]);
   const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
-  const [userSubs, setUserSubs] = useState<any[]>([]);
+  const [userBalanceFuncHistory, setUserBalanceHistoryFunc] =
+    useState<any>(null);
+
+  const [updatedUserStakedList, setUpdatedUserStakedList] = useState<any[]>([]);
+
+  const [userSubsAlfafrens, setUserSubsAlfafrens] = useState<any[]>([]);
+  const [userSubsDegenFans, setUserSubsDegenfans] = useState<any[]>([]);
+  const [updatedUserSubsAlfafrens, setUpdatedUserSubsAlfafrens] = useState<
+    any[]
+  >([]);
+  const [totalAlfaAllocationPerMo, setTotalAlfaAllocationPerMo] = useState(0);
+
   const [degenPrice, setDegenPrice] = useState<number | undefined>(0.016);
 
   const [userRecentTransactions, setUserRecentTransactions] = useState<any[]>(
     []
   );
+
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [totalSubEarnings, setTotalSubEarnings] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://li.quest/v1/token?chain=8453&token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"
+        );
+        const result = await response.json();
+        setDegenPrice(parseFloat(parseFloat(result.priceUSD).toFixed(4)));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+
+  }, []);
+
 
   const profile = useProfile();
   const {
@@ -54,13 +89,16 @@ const Dashboard = () => {
     const fetchData = async () => {
       if (userMinData && userMinData.userAddress) {
         const userBalance = await getUserBalance(userMinData.userAddress);
+        const userBalanceHistory = await getUserBalanceHistory(
+          userMinData.userAddress
+        );
         setUserBalanceFunc(userBalance);
+        setUserBalanceHistoryFunc(userBalanceHistory);
       }
     };
 
     fetchData();
   }, [userMinData]);
-
 
   ///Transfers
   useEffect(() => {
@@ -69,25 +107,33 @@ const Dashboard = () => {
         const userTransfers = await getUserTrasfers(userMinData.userAddress);
         const accountData = userTransfers.data.account;
         const mergedTransfers = [
-          ...accountData.receivedTransferEvents.map((event: { value: string; timestamp: any; }) => ({
-            action: "deposit",
-            value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
-            date: event.timestamp || null, // Eğer timestamp yoksa null
-          })),
+          ...accountData.receivedTransferEvents.map(
+            (event: { value: string; timestamp: any }) => ({
+              action: "deposit",
+              value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+              date: event.timestamp || null, // Eğer timestamp yoksa null
+            })
+          ),
           ...accountData.sentTransferEvents
             .filter(
-              (event: { to: { id: string; }; }) =>
+              (event: { to: { id: string } }) =>
                 event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852" ||
                 event.to.id === "0x0000000000000000000000000000000000000000"
             )
-            .map((event: { to: { id: string; }; value: string; timestamp: any; }) => ({
-              action:
-                event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852"
-                  ? "gas"
-                  : "withdraw",
-              value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
-              date: event.timestamp || null, // Eğer timestamp yoksa null
-            })),
+            .map(
+              (event: {
+                to: { id: string };
+                value: string;
+                timestamp: any;
+              }) => ({
+                action:
+                  event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852"
+                    ? "gas"
+                    : "withdraw",
+                value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+                date: event.timestamp || null, // Eğer timestamp yoksa null
+              })
+            ),
         ];
         const sortedTransfers = mergedTransfers.sort(
           (a, b) => (b.date || 0) - (a.date || 0)
@@ -101,22 +147,156 @@ const Dashboard = () => {
   }, [userMinData]);
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      if (fid && fid > 0) {
-        const allChannels = await getSubsRew(fid);
-        if (typeof allChannels === "number") {
-          // getSubsRew fonksiyonundan dönen değer uygun değilse, hata işleme alınabilir
-        } else {
-          // allChannels değişkeni uygun bir değer döndüğünde setUserSubs ile güncelleme yapılır
-          setUserSubs(allChannels);
-        }
+    const fetchData = async () => {
+      try {
+        const allChannelsAlfaFrens = await getUserSubscribedChannels(fid);
+        setUserSubsAlfafrens(allChannelsAlfaFrens);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
-    
-    if (fid && fid > 0) {
+    if (fid > 0) {
+      fetchData();
+    }
+  }, [fid]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      const allChannelsDegenFans = await getSubsRew(fid);
+
+      setUserSubsDegenfans(allChannelsDegenFans);
+    };
+
+    if (fid > 0) {
       fetchAllData();
     }
   }, [fid]);
+
+  useEffect(() => {
+    const updatedSubs = userSubsAlfafrens.map((alfaFren) => {
+      const matchedDegenFan = userSubsDegenFans.find(
+        (degenFan) => degenFan.channelId === alfaFren.channelId
+      );
+
+      if (matchedDegenFan) {
+        return {
+          ...alfaFren,
+          userChannelAlfa: matchedDegenFan.userChannelAlfa,
+          lastUpdated: matchedDegenFan.lastUpdated,
+        };
+      } else {
+        return {
+          ...alfaFren,
+          userChannelAlfa: 999999,
+          lastUpdated: 31313131,
+        };
+      }
+    });
+    setUpdatedUserSubsAlfafrens(updatedSubs);
+  }, [userSubsAlfafrens, userSubsDegenFans]);
+
+  useEffect(() => {
+    const total = updatedUserSubsAlfafrens
+      .filter(
+        (sub) => sub.userChannelAlfa !== 999999 && !isNaN(sub.userChannelAlfa)
+      )
+      .reduce((sum, sub) => sum + parseFloat(sub.userChannelAlfa), 0);
+
+    setTotalAlfaAllocationPerMo(total);
+  }, [updatedUserSubsAlfafrens]);
+
+  useEffect(() => {
+    const getUserStakedListFetchData = async (userAddress) => {
+      try {
+        const stakedListResponse = await getUserStakedList(userAddress);
+        const updatedList = await Promise.all(
+          stakedListResponse.account.poolMemberships.map(
+            async (poolMembership) => {
+              const poolAdminId = poolMembership.pool.admin.id;
+              const channelData = await fetchChannelData(poolAdminId);
+              const updatedPoolMembership = { ...poolMembership, channelData };
+              return updatedPoolMembership;
+            }
+          )
+        );
+        setUpdatedUserStakedList(updatedList);
+        const calculateEarnings = (item) => {
+          if (
+            item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
+          ) {
+            return (
+              (((((item.channelData.estimatedEarningsPerSecond *
+                60 *
+                60 *
+                24 *
+                30) /
+                10000000000) *
+                (item.pool.poolMembers[0].units * 94)) /
+                100 /
+                1000000) *
+                100) /
+              100
+            );
+          } else {
+            return (
+              (((((item.channelData.estimatedEarningsPerSecond *
+                60 *
+                60 *
+                24 *
+                30) /
+                10000000000) *
+                (item.pool.poolMembers[0].units * 100)) /
+                70 /
+                1000000) *
+                100) /
+              100
+            );
+          }
+        };
+
+        let total = 0;
+        updatedList.forEach((item) => {
+          const earnings = calculateEarnings(item);
+          total += earnings;
+        });
+
+        setTotalEarnings(total);
+        setUpdatedUserStakedList(updatedList);
+      } catch (error) {
+        console.error("Error fetching user staked list:", error);
+      }
+    };
+
+    if (userMinData && userMinData.userAddress) {
+      getUserStakedListFetchData(userMinData.userAddress);
+    }
+  }, [userMinData]);
+
+  const calculateChannelCost = (response) => {
+    if (!response) return "N/A";
+    const cost =
+      response.totalSubscriptionFlowRate /
+      380517503805.174 /
+      response.numberOfSubscribers;
+    return cost.toFixed(0);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchChannelData(userMinData.channeladdress);
+        const channelCost = calculateChannelCost(response);
+        setTotalSubEarnings(
+          response?.numberOfSubscribers * ((channelCost * 25) / 100)
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userMinData && userMinData.channeladdress) {
+      fetchData();
+    }
+  }, [userMinData]);
 
   const userData = {
     userFid: 474817,
@@ -134,44 +314,20 @@ const Dashboard = () => {
     userChannelSubs: 51,
     userChannelEarnings: 6375,
   };
+  console.log(
+    (
+      (totalEarnings +
+        totalSubEarnings -
+        userBalanceFunc?.totalOutflowRate / 380517503050) *
+      380517503050
+    ).toFixed(0)
+  );
 
-  const userStakes = [
-    {
-      userDisplayName: "Maretus 🎩",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/35379c32-956a-4d27-c8e9-4eb208270200/original",
-      userChannelAlfa: 5.69,
-      userChannelCost: 224.81,
-    },
-    {
-      userDisplayName: "𝖈𝖆𝖗𝖊𝖑👽",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/07df6793-935b-4e9e-57b5-5f9f4c8c3f00/original",
-      userChannelAlfa: 6.02,
-      userChannelCost: 156.43,
-    },
-    {
-      userDisplayName: "attilagaliba.degen🔹🎩🔵",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original",
-      userChannelAlfa: 6.33,
-      userChannelCost: 1900.77,
-    },
-    {
-      userDisplayName: "ohige a.k.a beardmen🎩",
-      userPfp: "https://i.imgur.com/HRs0nGc.jpeg",
-      userChannelAlfa: 6.57,
-      userChannelCost: 197.8,
-    },
-    {
-      userDisplayName: "Pinky Jenny 🎩🔵",
-      userPfp:
-        "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/d1653339-66e1-4fcb-d891-1c2e807ffc00/original",
-      userChannelAlfa: 9.46,
-      userChannelCost: 111.02,
-    },
-  ];
-
+  function converDate(timestamp) {
+    const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
+    const isoDateString = date.toISOString(); // Convert date to ISO 8601 format
+    return isoDateString;
+  }
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
@@ -180,12 +336,25 @@ const Dashboard = () => {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <MonthlyEarnings
+                  userBalanceFuncHistory={userBalanceFuncHistory}
                   balanceArea={
                     userBalanceFunc && userBalanceFunc.balance > 0 ? (
                       <FlowingBalance
                         startingBalance={BigInt(userBalanceFunc.balance)}
-                        startingBalanceDate={userBalanceFunc.timestamp}
-                        flowRate={BigInt(-userBalanceFunc.totalNetFlowRate)}
+                        startingBalanceDate={
+                          new Date(converDate(userBalanceFunc.timestamp))
+                        }
+                        flowRate={BigInt(
+                          Math.round(
+                            (
+                              (totalEarnings +
+                                totalSubEarnings -
+                                userBalanceFunc?.totalOutflowRate /
+                                  380517503050) *
+                              380517503050
+                            ).toFixed(0)
+                          )
+                        )}
                       />
                     ) : (
                       <>0000.00000</>
@@ -196,14 +365,22 @@ const Dashboard = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <YearlyBreakup userData={userData} degenPrice={degenPrice} />
+                <YearlyBreakup
+                  userData={userData}
+                  totalEarnings={totalEarnings}
+                  totalSubEarnings={totalSubEarnings}
+                  userBalanceFunc={userBalanceFunc}
+                  totalOutflowRate={userBalanceFunc?.totalOutflowRate}
+                  totalAlfaAllocationPerMo={totalAlfaAllocationPerMo}
+                  degenPrice={degenPrice}
+                />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} lg={8}>
-            {userSubs.length > 0 ? (
+            {updatedUserSubsAlfafrens.length > 0 ? (
               <ProductPerformance
-                userSubs={userSubs}
+                userSubs={updatedUserSubsAlfafrens}
                 limit={5}
                 degenPrice={degenPrice}
               />
@@ -213,9 +390,9 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} lg={8}>
             <StakePerformance
-              userSubs={userStakes}
+              userSubs={updatedUserStakedList}
+              userMinData={userMinData}
               limit={5}
-              degenPrice={degenPrice}
             />
           </Grid>
           {userRecentTransactions.length > 0 ? (

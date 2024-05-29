@@ -25,12 +25,10 @@ interface Subscription {
   userPfp: string;
 }
 
-
 interface ProductPerformanceProps {
   userSubs: Subscription[];
   limit: number;
-  degenPrice?: number; 
-
+  degenPrice?: number;
 }
 
 const ProductPerformance: React.FC<ProductPerformanceProps> = ({
@@ -48,7 +46,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       return "#7ABA78";
     }
   }
-  
+
   return (
     <DashboardCard title={`Subscriptions (${userSubs.length})`}>
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
@@ -97,7 +95,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                     <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                       <img
                         style={{ borderRadius: "50%" }} // Apply border radius
-                        src={sub.userPfp}
+                        src={sub.profileimgurl}
                         width={40}
                         height={40}
                         alt="pfp"
@@ -113,7 +111,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                             target="_blank"
                             href={`https://www.alfafrens.com/channel/${sub.channelId}`}
                           >
-                            {sub.userDisplayName}
+                            {sub.title}
                           </Link>
                         </Typography>
                       </Box>
@@ -125,8 +123,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                         px: "4px",
                         backgroundColor: setColorAlfa(
                           sub.userChannelAlfa,
-                          sub.userChannelCost
-                          
+                          sub.channelCost
                         ),
                         color: "#fff",
                       }}
@@ -140,7 +137,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="h6">
-                      {sub.userChannelCost} Degen
+                      {sub.channelCost} Degen
                     </Typography>
                   </TableCell>
                 </TableRow>

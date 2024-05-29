@@ -13,16 +13,17 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 interface Props {
   userData: any;
   degenPrice: any;
+  userBalanceFuncHistory;
   balanceArea: any;
 }
 
 const MonthlyEarnings: React.FC<Props> = ({
   userData,
+  userBalanceFuncHistory,
   degenPrice,
   balanceArea,
 }) => {
   const [getUserData, setUserData] = useState(userData);
-
   useEffect(() => {
     setUserData(userData);
   }, [userData]);
@@ -68,10 +69,24 @@ const MonthlyEarnings: React.FC<Props> = ({
     {
       name: "DEGEN",
       color: secondary,
-      data: [0, 0, 0, 0, 1300, 1000, userData?.userBalance],
+      data: [
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[6].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[5].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[4].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[3].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[2].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[1].balance / 1000000000000000000,
+        userBalanceFuncHistory?.accountTokenSnapshots[0]
+          .accountTokenSnapshotLogs[0].balance / 1000000000000000000,
+      ],
     },
   ];
-
   return (
     <DashboardCard
       title="Balance"
@@ -97,25 +112,6 @@ const MonthlyEarnings: React.FC<Props> = ({
         <Typography variant="h3" fontWeight="700" mt="-20px">
           {balanceArea ? balanceArea : null}
         </Typography>
-        <Stack direction="row" spacing={1} my={1} alignItems="center">
-          <Avatar sx={{ bgcolor: errorlight, width: 27, height: 27 }}>
-            {(getUserData?.userStakeCashback +
-              getUserData?.userChannelEarnings -
-              getUserData?.userSubsCost) /
-              30 >
-            0 ? (
-              <IconArrowUpRight width={20} color="green" />
-            ) : (
-              <IconArrowDownRight width={20} color="red" />
-            )}
-          </Avatar>
-          <Typography variant="subtitle2" fontWeight="600">
-            {getUserData?.userAlfaClaimable.toFixed(6)}
-          </Typography>
-          <Typography variant="subtitle2" color="textSecondary">
-            Alfa
-          </Typography>
-        </Stack>
       </>
     </DashboardCard>
   );

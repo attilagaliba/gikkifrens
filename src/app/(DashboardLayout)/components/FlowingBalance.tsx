@@ -1,6 +1,6 @@
-"use client";
-import React, { useEffect, useState, useMemo, memo } from "react";
-import { formatEther } from "viem";
+"use client"
+import React, { useEffect, useState, useMemo, memo } from 'react';
+import { formatEther } from 'viem';
 
 // Constants
 export const ANIMATION_MINIMUM_STEP_TIME = 40;
@@ -10,57 +10,45 @@ export const absoluteValue = (n: bigint) => {
   return n >= BigInt(0) ? n : -n;
 };
 
-export function toFixedUsingString(
-  numStr: string,
-  decimalPlaces: number
-): string {
-  const [wholePart, decimalPart] = numStr.split(".");
+export function toFixedUsingString(numStr: string, decimalPlaces: number): string {
+  const [wholePart, decimalPart] = numStr.split('.');
 
   if (!decimalPart || decimalPart.length <= decimalPlaces) {
-    return numStr.padEnd(wholePart.length + 1 + decimalPlaces, "0");
+    return numStr.padEnd(wholePart.length + 1 + decimalPlaces, '0');
   }
 
-  const decimalPartBigInt = BigInt(
-    `${decimalPart.slice(0, decimalPlaces)}${
-      decimalPart[decimalPlaces] >= "5" ? "1" : "0"
-    }`
-  );
+  const decimalPartBigInt = BigInt(`${decimalPart.slice(0, decimalPlaces)}${decimalPart[decimalPlaces] >= '5' ? '1' : '0'}`);
 
-  return `${wholePart}.${decimalPartBigInt
-    .toString()
-    .padStart(decimalPlaces, "0")}`;
+  return `${wholePart}.${decimalPartBigInt.toString().padStart(decimalPlaces, '0')}`;
 }
 
 // Hooks
 export const useSignificantFlowingDecimal = (
   flowRate: bigint,
-  animationStepTimeInMs: number
-): number | undefined =>
-  useMemo(() => {
-    if (flowRate === BigInt(0)) {
-      return undefined;
-    }
+  animationStepTimeInMs: number,
+): number | undefined => useMemo(() => {
+  if (flowRate === BigInt(0)) {
+    return undefined;
+  }
 
-    const ticksPerSecond = 1000 / animationStepTimeInMs;
-    const flowRatePerTick = flowRate / BigInt(ticksPerSecond);
+  const ticksPerSecond = 1000 / animationStepTimeInMs;
+  const flowRatePerTick = flowRate / BigInt(ticksPerSecond);
 
-    const [beforeEtherDecimal, afterEtherDecimal] =
-      formatEther(flowRatePerTick).split(".");
+  const [beforeEtherDecimal, afterEtherDecimal] = formatEther(flowRatePerTick).split('.');
 
-    const isFlowingInWholeNumbers =
-      absoluteValue(BigInt(beforeEtherDecimal)) > BigInt(0);
+  const isFlowingInWholeNumbers = absoluteValue(BigInt(beforeEtherDecimal)) > BigInt(0);
 
-    if (isFlowingInWholeNumbers) {
-      return 0; // Flowing in whole numbers per tick.
-    }
-    const numberAfterDecimalWithoutLeadingZeroes = BigInt(afterEtherDecimal);
+  if (isFlowingInWholeNumbers) {
+    return 0; // Flowing in whole numbers per tick.
+  }
+  const numberAfterDecimalWithoutLeadingZeroes = BigInt(afterEtherDecimal);
 
-    const lengthToFirstSignificantDecimal = afterEtherDecimal
-      .toString()
-      .replace(numberAfterDecimalWithoutLeadingZeroes.toString(), "").length; // We're basically counting the zeroes.
+  const lengthToFirstSignificantDecimal = afterEtherDecimal
+    .toString()
+    .replace(numberAfterDecimalWithoutLeadingZeroes.toString(), '').length; // We're basically counting the zeroes.
 
-    return Math.min(lengthToFirstSignificantDecimal + 2, 18); // Don't go over 18.
-  }, [flowRate, animationStepTimeInMs]);
+  return Math.min(lengthToFirstSignificantDecimal + 2, 18); // Don't go over 18.
+}, [flowRate, animationStepTimeInMs]);
 
 const useFlowingBalance = (
   startingBalance: bigint,
@@ -69,7 +57,7 @@ const useFlowingBalance = (
 ) => {
   const [flowingBalance, setFlowingBalance] = useState(startingBalance);
 
-  const startingBalanceTime = startingBalanceDate;
+  const startingBalanceTime = startingBalanceDate.getTime();
   useEffect(() => {
     if (flowRate === BigInt(0)) return;
 
@@ -81,26 +69,19 @@ const useFlowingBalance = (
         currentAnimationTimestamp - lastAnimationTimestamp >
         ANIMATION_MINIMUM_STEP_TIME
       ) {
-        const currentTime = Date.now();
-        const trimmedTime = Number(currentTime.toString().slice(0, -3));
-        const startingBalanceTimeNumber = Number(startingBalanceTime);
-    
-        const elapsedTimeInMilliseconds =
-          trimmedTime * 111 - startingBalanceTimeNumber * 111;
-    
-        const elapsedTimeBigInt = BigInt(elapsedTimeInMilliseconds);
-    
+        const elapsedTimeInMilliseconds = BigInt(
+          Date.now() - startingBalanceTime
+        );
         const flowingBalance_ =
-          startingBalance + (flowRate * elapsedTimeBigInt) / BigInt(1000);
-    
+          startingBalance + (flowRate * elapsedTimeInMilliseconds) / BigInt(1000);
+
         setFlowingBalance(flowingBalance_);
-    
+
         lastAnimationTimestamp = currentAnimationTimestamp;
       }
-    
+
       return () => window.cancelAnimationFrame(animationFrameId);
     };
-    
 
     let animationFrameId = window.requestAnimationFrame(animationStep);
 
@@ -129,10 +110,10 @@ const FlowingBalance: React.FC<{
 
   return (
     <div className="flowing-balance">
-      {decimalPlaces !== undefined
-        ? toFixedUsingString(formatEther(flowingBalance), decimalPlaces)
-        : formatEther(flowingBalance)}
-    </div>
+    {decimalPlaces !== undefined
+      ? toFixedUsingString(formatEther(flowingBalance), decimalPlaces)
+      : formatEther(flowingBalance)}
+  </div>
   );
 });
 

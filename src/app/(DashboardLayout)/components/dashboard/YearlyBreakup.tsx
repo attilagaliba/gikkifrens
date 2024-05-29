@@ -10,9 +10,22 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 interface Props {
   userData: any;
   degenPrice: any;
+  totalAlfaAllocationPerMo: any;
+  totalOutflowRate: any;
+  totalEarnings: any;
+  totalSubEarnings: any;
+  userBalanceFunc: any;
 }
 
-const YearlyBreakup: React.FC<Props> = ({ userData, degenPrice }) => {
+const YearlyBreakup: React.FC<Props> = ({
+  totalAlfaAllocationPerMo,
+  totalOutflowRate,
+  totalEarnings,
+  totalSubEarnings,
+  userBalanceFunc,
+  userData,
+  degenPrice,
+}) => {
   const [getUserData, setUserData] = useState(userData);
 
   const theme = useTheme();
@@ -72,15 +85,12 @@ const YearlyBreakup: React.FC<Props> = ({ userData, degenPrice }) => {
     ],
   };
 
-  const seriescolumnchart: any = [
-    getUserData?.userStakeCashback ?? 0,
-    getUserData?.userChannelEarnings ?? 0,
-  ];
+  const seriescolumnchart: any = [totalEarnings ?? 0, totalSubEarnings ?? 0];
 
   const totalProfit =
-    (getUserData?.userStakeCashback ?? 0) +
-    (getUserData?.userChannelEarnings ?? 0) -
-    (getUserData?.userSubsCost ?? 0);
+    (totalEarnings ?? 0) +
+    (totalSubEarnings ?? 0) -
+    (totalOutflowRate / 380517503055.17425 ?? 0);
 
   const dailyProfit = (totalProfit / 30).toFixed(2);
 
@@ -95,7 +105,7 @@ const YearlyBreakup: React.FC<Props> = ({ userData, degenPrice }) => {
         {/* column */}
         <Grid item xs={7} sm={7}>
           <Typography variant="h3" fontWeight="700">
-            {totalProfit}
+            {totalProfit.toFixed(2)}
           </Typography>
           <Typography variant="subtitle2" color="textSecondary">
             degen / mo
@@ -110,7 +120,7 @@ const YearlyBreakup: React.FC<Props> = ({ userData, degenPrice }) => {
           </Stack>
           <Stack direction="row" spacing={1} mt={1} alignItems="center">
             <Typography variant="subtitle2" fontWeight="600">
-              {dailyAlfa}
+              {(totalAlfaAllocationPerMo / 30).toFixed(2)}
             </Typography>
             <Typography variant="subtitle2" color="textSecondary">
               alfa / daily

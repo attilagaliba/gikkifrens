@@ -21,16 +21,17 @@ interface Subscription {
   userPfp: string;
 }
 
-
 interface ProductPerformanceProps {
   userSubs: Subscription[];
+  userMinData: any;
   limit: number;
   degenPrice?: number;
-
 }
 
 const ProductPerformance: React.FC<ProductPerformanceProps> = ({
-  userSubs, limit
+  userSubs,
+  userMinData,
+  limit,
 }) => {
   function setColorAlfa(userChannelCost: number, userChannelAlfa: number) {
     const fifPerAlfa = userChannelAlfa;
@@ -50,22 +51,24 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
             <TableRow>
               <TableCell>
                 <Typography variant="subtitle2" fontWeight={600}>
-                {limit !== 5000 ? ( <Link
-                    href={"/stakes"}
-                    style={{ color: "black", textDecoration: "none" }}
-                  >
-                    Show All
-                  </Link>) : null }
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Channel
+                  {limit !== 5000 ? (
+                    <Link
+                      href={"/stakes"}
+                      style={{ color: "black", textDecoration: "none" }}
+                    >
+                      Show All
+                    </Link>
+                  ) : null}
                 </Typography>
               </TableCell>
               <TableCell>
                 <Typography variant="subtitle2" fontWeight={600}>
                   Degen /per Alfa
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" fontWeight={600}>
+                  EST. CASHBACK
                 </Typography>
               </TableCell>
               <TableCell align="right">
@@ -77,46 +80,100 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
           </TableHead>
           <TableBody>
             {userSubs
-              ?.sort((a, b) => b.userChannelAlfa - a.userChannelAlfa) // Sort by userChannelAlfa in descending order
-              .slice(0, limit) // Get the 5th element after sorting
+              ?.sort((a, b) => b.userChannelAlfa - a.userChannelAlfa)
+              .slice(0, limit)
               .map((sub, index) => (
                 <TableRow key={index}>
-                  <TableCell>
-                    <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
-                      <img
-                        style={{ borderRadius: "50%" }} // Apply border radius
-                        src={sub.userPfp}
-                        width={40}
-                        height={40}
-                        alt="pfp"
-                      />
-                    </Typography>
-                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
                         <Typography variant="subtitle2" fontWeight={600}>
-                          {sub.userDisplayName}
+                          {sub.channelData.title}
                         </Typography>
                       </Box>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      sx={{
-                        px: "4px",
-                        backgroundColor: setColorAlfa(
-                          sub.userChannelCost,
-                          sub.userChannelAlfa
-                        ),
-                        color: "#fff",
-                      }}
-                      size="small"
-                      label={`${sub.userChannelAlfa} DEGEN`} // Updated label
-                    />
+                    {(
+                      (sub.channelData.estimatedEarningsPerSecond *
+                        60 *
+                        60 *
+                        24 *
+                        30) /
+                      10000000000
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    {sub.channelData.owner.toLowerCase() ===
+                    userMinData.userAddress.toLowerCase() ? (
+                      <Chip
+                        sx={{
+                          px: "4px",
+                          backgroundColor: `purple`,
+                          color: "#fff",
+                        }}
+                        size="small"
+                        label={
+                          (
+                            (((((sub.channelData.estimatedEarningsPerSecond *
+                              60 *
+                              60 *
+                              24 *
+                              30) /
+                              10000000000) *
+                              (sub.pool.poolMembers[0].units * 94)) /
+                              100 /
+                              1000000) *
+                              100) /
+                            100
+                          ).toFixed(2) + "  DEGENx"
+                        }
+                      />
+                    ) : (
+                      <Chip
+                        sx={{
+                          px: "4px",
+                          backgroundColor: `purple`,
+                          color: "#fff",
+                        }}
+                        size="small"
+                        label={
+                          (
+                            (((((sub.channelData.estimatedEarningsPerSecond *
+                              60 *
+                              60 *
+                              24 *
+                              30) /
+                              10000000000) *
+                              (sub.pool.poolMembers[0].units * 100)) /
+                              70 /
+                              1000000) *
+                              100) /
+                            100
+                          ).toFixed(2) + "  DEGENx"
+                        }
+                      />
+                    )}
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="h6">{sub.userChannelCost}</Typography>{" "}
+                    {sub.channelData.owner.toLowerCase() ===
+                    userMinData.userAddress.toLowerCase() ? (
+                      <Typography variant="h6">
+                        {(
+                          (sub.pool.poolMembers[0].units * 92.4) /
+                          100 /
+                          1000000
+                        ).toFixed(2)}
+                      </Typography>
+                    ) : (
+                      <Typography variant="h6">
+                        {(
+                          (sub.pool.poolMembers[0].units * 100) /
+                          70 /
+                          1000000
+                        ).toFixed(2)}
+                      </Typography>
+                    )}
                     <Typography>ALFA</Typography>
                   </TableCell>
                 </TableRow>

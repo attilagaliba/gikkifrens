@@ -1,11 +1,24 @@
 query ($id: ID = "") {
   account(id: $id) {
+    id
     poolMemberships(where: {isConnected: true}) {
       pool {
+        flowRate
         admin {
           id
         }
+        adjustmentFlowRate
+        totalBuffer
+        perUnitFlowRate
+        perUnitSettledValue
+        updatedAtTimestamp
+        totalUnits
+        totalConnectedUnits
       }
+      units
+      totalAmountClaimed
+      syncedPerUnitSettledValue
+      syncedPerUnitFlowRate
     }
   }
 }

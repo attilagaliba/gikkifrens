@@ -39,6 +39,16 @@ export const getUserAddress = async (fid: number) => {
     return null;
   }
 };
+////Get User Staked List
+export const getUserStakedList = async (userAddress: string) => {
+  try {
+    const response = await axios.get(`/api/getUserStakedList/${userAddress}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
 ////Get User Balance Superfluid
 export const getUserBalance = async (userAddress: string) => {
   try {
@@ -50,6 +60,18 @@ export const getUserBalance = async (userAddress: string) => {
     return null;
   }
 };
+
+////Get User Balance History
+export const getUserBalanceHistory = async (userAddress: string) => {
+  try {
+    const response = await axios.get(`/api/getUserBalance/${userAddress}`);
+    return response.data.account;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
+
 ////Get User Transfers Superfluid
 export const getUserTrasfers = async (userAddress: string) => {
   try {
@@ -110,11 +132,68 @@ export const fetchChannelData = async (getChannelAddress) => {
   }
 };
 
+/////Get User Subs
+
+export const getUserSubscribedChannels = async (fid: number) => {
+  let skip = 0;
+  let hasMore = true;
+  let allChannels: any[] = [];
+
+  while (hasMore) {
+    try {
+      const response = await axios.get(
+        `/api/getUserSubscribedChannels/${fid}?skip=${skip}`
+      );
+      const channels = response.data.channels.map((item: any) => ({
+        title: item.title,
+        profileimgurl: item.profileimgurl,
+        totalSubscriptionOutflowRate: item.totalSubscriptionOutflowRate,
+        totalSubscriptionOutflowAmount: item.totalSubscriptionOutflowAmount,
+        channelId: item.channel.id,
+        channelCost:
+          item.totalSubscriptionOutflowRate === "190258751902587"
+            ? 500
+            : item.totalSubscriptionOutflowRate === "570776255707762"
+            ? 1500
+            : item.totalSubscriptionOutflowRate === "380517503805175"
+            ? 1000
+            : undefined, // Add a default case if none of the conditions match
+      }));
+
+      allChannels = [...allChannels, ...channels];
+      hasMore = response.data.hasMore;
+      skip += 20;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      hasMore = false;
+    }
+  }
+  return allChannels;
+};
+
+/////Get Channel Sus And Stakers
+export const getChannelSubscribersAndStakes = async (
+  getChannelAddress,
+  skip
+) => {
+  try {
+    const response = await axios.get(
+      `/api/getChannelSubscribersAndStakes/${getChannelAddress}?skip=${skip}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching channel data:", error);
+    throw error;
+  }
+};
+
 // Function to fetch channel reward
 const fetchChannelReward = async (fid) => {
   try {
     const chaReward = await getChaRew(fid);
-    return typeof chaReward === "number" ? chaReward : parseFloat(chaReward) || 0;
+    return typeof chaReward === "number"
+      ? chaReward
+      : parseFloat(chaReward) || 0;
   } catch (error) {
     console.error("Error fetching channel reward:", error);
     return "Sub";
@@ -129,8 +208,12 @@ const processChannelData = (channelData, chaReward) => {
     stakers: channelData.numberOfStakers,
     reward: chaReward,
     stake: Number((channelData.currentStaked / 1e14).toFixed(0)),
-    cost: Number((channelData.totalSubscriptionFlowRate / 380517503805).toFixed(0)),
-    date: new Date(parseInt(channelData.lastUpdatedTimestamp) * 1000).toISOString(),
+    cost: Number(
+      (channelData.totalSubscriptionFlowRate / 380517503805).toFixed(0)
+    ),
+    date: new Date(
+      parseInt(channelData.lastUpdatedTimestamp) * 1000
+    ).toISOString(),
   };
 };
 

@@ -81,37 +81,13 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://li.quest/v1/token?chain=8453&token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"
-        );
-        const result = await response.json();
-        setDegenPrice(parseFloat(parseFloat(result.priceUSD).toFixed(4)));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-    const interval = setInterval(() => {
-      fetchData();
-    }, 60000); // 60 saniye
-
-    // Temizleme işlemi
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
-        <Button variant="contained" disableElevation color="primary">
-          Avg Gas Fee = {gasFee.toFixed(0)}
-        </Button>
         <Box flexGrow={1} />
         <Stack spacing={1} direction="row" alignItems="center">
           <Button variant="contained" disableElevation color="primary">
-            $Degen = {degenPrice}
+            Avg Gas Fee = {gasFee.toFixed(0)}
           </Button>
           <Profile userMinData={userMinData} />
         </Stack>

@@ -1,72 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchChannelData } from "../func/galiba";
+import FlowingBalance from "./flowbalance";
 
 const App: React.FC = () => {
-  const [channelData, setChannelData] = useState<any>(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetchChannelData(
-          "0x35594acfed507027a32d7d05dc77015703a1bb8c"
-        );
-        setChannelData(response);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+  const timestamp = 1716940353; // Your Unix timestamp
+  const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
 
-    fetchData();
-  }, []);
+  const isoDateString = date.toISOString(); // Convert date to ISO 8601 format
 
-  const calculateStakeIncome = () => {
-    if (!channelData) return "N/A";
-    const income =
-      ((channelData.totalSubscriptionFlowRate /
-        380517503805.174 /
-        channelData.numberOfSubscribers /
-        500) *
-        channelData.stakeToIncomeRatio *
-        60 *
-        60 *
-        24 *
-        30) /
-      1000000000000;
-    return income.toFixed(2);
-  };
-
-  const calculateStakeForOneAlfa = () => {
-    if (!channelData) return "N/A";
-    const stake =
-      (channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
-      10000000000;
-    return stake.toFixed(2);
-  };
-
-  const calculateChannelCost = () => {
-    if (!channelData) return "N/A";
-    const cost =
-      channelData.totalSubscriptionFlowRate /
-      380517503805.174 /
-      channelData.numberOfSubscribers;
-    return cost.toFixed(0);
-  };
-
+  console.log(); // Output: 2024-01-25T07:25:53.000Z
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <span style={styles.label}>Stake Income:</span>
-        <span style={styles.value}>{calculateStakeIncome()}</span>
-      </div>
-      <div style={styles.card}>
-        <span style={styles.label}>Stake for 1 Alfa:</span>
-        <span style={styles.value}>{calculateStakeForOneAlfa()}</span>
-      </div>
-      <div style={styles.card}>
-        <span style={styles.label}>Channel Cost:</span>
-        <span style={styles.value}>{calculateChannelCost()}</span>
-      </div>
+    <div>
+      <FlowingBalance
+        startingBalance={BigInt("260976486770420669596")}
+        startingBalanceDate={new Date(isoDateString)}
+        flowRate={BigInt("-1206208168777287")}
+      />
     </div>
   );
 };

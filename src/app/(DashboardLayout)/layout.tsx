@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { styled, Container, Box, Typography, Button } from "@mui/material";
 import React, { useState, useEffect } from "react";

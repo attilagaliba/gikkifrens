@@ -116,10 +116,10 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (userMinData.channeladdress) {
+    if (userMinData && userMinData.channeladdress) {
       fetchChannelSubscribersAndStakes(userMinData.channeladdress);
     }
-  }, [userMinData.channeladdress]);
+  }, [userMinData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,11 +130,10 @@ const Dashboard = () => {
         console.error("Error fetching data:", error);
       }
     };
-    if (userMinData.channeladdress) {
-      console.log(userMinData.channeladdress);
+    if (userMinData && userMinData.channeladdress) {
       fetchData();
     }
-  }, [userMinData.channeladdress]);
+  }, [userMinData]);
 
   const calculateStakeIncome = () => {
     if (!channelData) return "N/A";
@@ -168,8 +167,6 @@ const Dashboard = () => {
       channelData.numberOfSubscribers;
     return cost.toFixed(0);
   };
-
-  console.log(channelData);
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
@@ -222,7 +219,9 @@ const Dashboard = () => {
                   title={"Channel Cost"}
                   number={calculateChannelCost()}
                   unit={"Degen"}
-                  image={"https://media.tenor.com/Xq6Ij1fSSqMAAAAM/pepe-money.gif"}
+                  image={
+                    "https://media.tenor.com/Xq6Ij1fSSqMAAAAM/pepe-money.gif"
+                  }
                 />
               </Grid>
             </Grid>
@@ -244,9 +243,9 @@ const Dashboard = () => {
               <Grid item xs={12}>
                 <ChannelStats
                   title={"Stakes"}
-                  number={(channelData?.currentStaked / 100000000000000).toFixed(
-                    2
-                  )}
+                  number={(
+                    channelData?.currentStaked / 100000000000000
+                  ).toFixed(2)}
                   unit={"Alfa"}
                   image={"https://c.tenor.com/KudEsy5UPSoAAAAd/tenor.gif"}
                 />
@@ -261,7 +260,10 @@ const Dashboard = () => {
                 degenPrice={degenPrice}
               />
             ) : (
-              <>Loading Subs List (This processing time may take longer depending on your number of subs. Please do not close the page.)</>
+              <>
+                Loading Subs List (This processing time may take longer
+                depending on your number of subs. Please do not close the page.)
+              </>
             )}
           </Grid>
           <Grid item xs={12} lg={6}>
@@ -272,7 +274,11 @@ const Dashboard = () => {
                 degenPrice={degenPrice}
               />
             ) : (
-              <>Loading Stakers List (This processing time may take longer depending on your number of stakers. Please do not close the page.)</>
+              <>
+                Loading Stakers List (This processing time may take longer
+                depending on your number of stakers. Please do not close the
+                page.)
+              </>
             )}
           </Grid>
         </Grid>
