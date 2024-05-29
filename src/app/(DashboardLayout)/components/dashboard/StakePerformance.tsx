@@ -45,6 +45,8 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       return "#7ABA78";
     }
   }
+
+  console.log(userSubs)
   return (
     <DashboardCard title={`Stakes (${userSubs.length})`}>
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
@@ -89,9 +91,15 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
+                      <Link
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            href={`https://www.alfafrens.com/channel/${sub.channelData.id}`}
+                          >
                         <Typography variant="subtitle2" fontWeight={600}>
                           {sub.channelData.title}
                         </Typography>
+                        </Link>
                       </Box>
                     </Box>
                   </TableCell>
