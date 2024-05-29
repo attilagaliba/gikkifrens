@@ -54,7 +54,7 @@ export default function RootLayout({
   } = profile;
 
   const earlyList = {
-    values: [1474817, 474817, 42352354, 324234, 2354, 43],
+    values: [447766, 474817, 479063, 385955],
   };
 
   // Check if fid exists in earlyList
