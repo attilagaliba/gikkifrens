@@ -87,10 +87,11 @@ export const getSubsRew = async (fid: any) => {
   let skip = 0;
   let hasMore = true;
   let allChannels: any[] = [];
+  let howMany = 0;
 
   while (hasMore) {
     try {
-      const response = await axios.get(`/api/getSubsRew/${fid}?first=${skip}`);
+      const response = await axios.get(`/api/getSubsRew/385955?first=${skip}`);
       console.log(fid, response.data.data);
       const channels = response.data.data.map((item: any) => ({
         lastUpdated: item.subTs,
@@ -101,9 +102,9 @@ export const getSubsRew = async (fid: any) => {
         channelId: item.channelAddress,
       }));
       allChannels = [...allChannels, ...channels];
-      hasMore = response.data.hasMore;
-      console.log(hasMore)
-      skip += 100;
+      hasMore = response.data.hasmore;
+      howMany = howMany + response.data.data.length
+      skip += 50;
     } catch (error) {
       console.error("Error fetching data:", error);
       hasMore = false;
