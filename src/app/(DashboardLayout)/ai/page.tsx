@@ -94,7 +94,7 @@ const SamplePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/getBlesuBalance/${userWallet}`);
+        const response = await fetch(`/api/getBleuBalance/${userWallet}`);
         const result = await response.json();
         const formattedBalance = (result.result / 1000000000000000000).toFixed(
           2
