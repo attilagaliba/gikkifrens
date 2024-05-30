@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // app/page.tsx
 
 "use client";
@@ -16,6 +17,12 @@ import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/Monthl
 import CircularProgress from "@mui/material/CircularProgress";
 import LinearProgress from "@mui/material/LinearProgress";
 
+import Snackbar, { SnackbarOrigin } from "@mui/material/Snackbar";
+
+interface State extends SnackbarOrigin {
+  open: boolean;
+}
+
 import {
   getUserTrasfers,
   getUserByFid,
@@ -26,6 +33,8 @@ import {
   fetchChannelData,
   getUserSubscribedChannels,
 } from "./func/galiba";
+
+import React from "react";
 
 const Dashboard = () => {
   const [userMinData, setUserMinData] = useState<any>([]);
@@ -55,6 +64,78 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
 
+  const [userData, setUserData] = useState<any>({
+    userFid: null,
+    userDisplayName: null,
+    userBalance: null,
+    userSubscriptions: 0,
+    userDailyAlfa: 0,
+    userStakeCashback: 0,
+    userChannelEarnings: 0,
+  });
+
+  useEffect(() => {
+    // localStorage'dan verilerin alınması
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+  }, []);
+
+  useEffect(() => {
+    // userMinData, fid, displayName, custody gibi diğer state'lerin alınması...
+
+    // Verilerin toplanması ve userData'nın güncellenmesi
+    if (fid && userMinData && userMinData.userAddress) {
+      const fetchData = async () => {
+        try {
+          setUserData({
+            userFid: fid,
+            userDisplayName: displayName,
+            userBalance: userBalanceFunc
+              ? (userBalanceFunc.balance / 1000000000000000000).toFixed(4)
+              : null,
+            userSubscriptions: updatedUserSubsAlfafrens.length,
+            userTotalSubsCost: totalSubEarnings,
+            userDailyAlfa: (totalAlfaAllocationPerMo / 30).toFixed(2),
+            userStakeCashback: (totalEarnings - totalSubEarnings).toFixed(2),
+            userChannelEarnings: totalSubEarnings,
+          });
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [
+    fid,
+    displayName,
+    custody,
+    userMinData,
+    userBalanceFunc,
+    totalAlfaAllocationPerMo,
+    totalSubEarnings,
+    updatedUserSubsAlfafrens,
+    totalEarnings,
+    updatedUserStakedList,
+    userSubsAlfafrens,
+  ]);
+
+  useEffect(() => {
+    localStorage.setItem("userData", JSON.stringify(userData));
+  }, [userData]);
+
+  const [state, setState] = React.useState<State>({
+    open: true,
+    vertical: "top",
+    horizontal: "center",
+  });
+  const { vertical, horizontal, open } = state;
+
+  const handleClose = () => {
+    setState({ ...state, open: false });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,6 +161,7 @@ const Dashboard = () => {
       setCustody(profile.custody);
     }
   }, []);
+
   useEffect(() => {
     const fetchData = async (fid: number) => {
       const userData = await getUserByFid(fid);
@@ -291,6 +373,18 @@ const Dashboard = () => {
       response.numberOfSubscribers;
     return cost.toFixed(0);
   };
+  const handleOpen = (newState: SnackbarOrigin) => () => {
+    setState({ ...newState, open: true });
+  };
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      handleOpen({ vertical, horizontal });
+    }, 60000);
+
+    // Component unmount olduğunda interval'i temizle
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -310,13 +404,20 @@ const Dashboard = () => {
   }, [userMinData]);
 
   function converDate(timestamp: number) {
-    const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
-    const isoDateString = date.toISOString(); // Convert date to ISO 8601 format
+    const date = new Date(timestamp * 1000);
+    const isoDateString = date.toISOString();
     return isoDateString;
   }
   return (
     <PageContainer title="Dashboard GikkiFrens" description="this is Dashboard">
       <Box>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          onClick={handleClose}
+          message={`I know there are some bugs. -------  You are currently in early access, so some of your data may be delayed. ------- Additionally, lists will arrive with a delay depending on the size of the number. -------  If you are subscribed to @Degenfans and 'Alfa Allocation' still does not appear, there may be a delay in the data processing. ------- AI sees your data after the home page is completely loaded. ------- Go to my Alfafrens chat for bugs and feedback `}
+          key={vertical + horizontal}
+        />
         <Grid container spacing={3}>
           <Grid item xs={12} lg={4}>
             <Grid container spacing={3}>

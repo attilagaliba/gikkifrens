@@ -26,10 +26,57 @@ const SamplePage = () => {
   const apiKey = "AIzaSyAmeJjqu5K5ty7ZyEr2JDg9v30PCna01Us";
   const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
+  const [fid, setFid] = useState<number | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [custody, setCustody] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>({
+    userFid: null,
+    userDisplayName: null,
+    userBalance: null,
+    userSubscriptions: 0,
+    userDailyAlfa: 0,
+    userStakeCashback: 0,
+    userChannelEarnings: 0,
+  });
+
+  useEffect(() => {
+    // localStorage'dan verilerin alınması
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getUserAddress(474817);
+        const response = await fetch(
+          "https://li.quest/v1/token?chain=8453&token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"
+        );
+        const result = await response.json();
+        setDegenPrice(parseFloat(parseFloat(result.priceUSD).toFixed(4)));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedIsAuthenticated && storedProfile) {
+      const profile = JSON.parse(storedProfile);
+      setFid(profile.fid);
+      setDisplayName(profile.displayName);
+      setCustody(profile.custody);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getUserAddress(fid);
         if (response.Socials.Social[0].connectedAddresses[0].address) {
           setUserWallet(
             response.Socials.Social[0].connectedAddresses[0].address
@@ -39,15 +86,15 @@ const SamplePage = () => {
         console.error("Error fetching data:", error);
       }
     };
-
-    fetchData();
-  }, []);
+    if (fid && fid > 0) {
+      fetchData();
+    }
+  }, [fid]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`/api/getBleuBalance/${userWallet}`);
-        // const response = await fetch(`/api/getBleuBalance/0xB730500032a3CCc7F4770235CA62eD40d473Df75`);
         const result = await response.json();
         const formattedBalance = (result.result / 1000000000000000000).toFixed(
           2
@@ -57,7 +104,7 @@ const SamplePage = () => {
         console.error("Error fetching data:", error);
       }
     };
-    if (userWallet !== "0x") {
+    if (userWallet && userWallet !== "0x") {
       fetchData();
     }
   }, [userWallet]);
@@ -131,46 +178,18 @@ Calculations are done instantly. For example, the amounts you earn or pay monthl
 Additionally, we can collect subscribers by opening our own channel, and we receive monthly payments per subscriber to our own channel.
 `;
 
-  const userData = {
-    userFid: 474817,
-    userDisplayName: `attilagaliba`,
-    userPfp: `https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original`,
-    userBalance: 1951.121474,
-    userAlfaBalance: 0,
-    userAlfaClaimable: 91.584147,
-    userSubs: 26,
-    userSubsCost: 17500,
-    userDailyAlfa: 192.6,
-    userStakes: 8,
-    userStakedAlfa: 3048,
-    userStakeCashback: 17917,
-    userChannelSubs: 44,
-    userChannelEarnings: 5500,
-  };
-
   const aiData = {
     dataUnits: {
       userBalance: "DEGEN",
-      userAlfaBalance: "ALFA",
-      userAlfaClaimable: "ALFA",
-      userSubsCost: "DEGEN",
       userDailyAlfa: "ALFA",
-      userStakes: "ALFA",
-      userStakedAlfa: "ALFA",
       userStakeCashback: "DEGEN",
       userChannelEarnings: "DEGEN",
     },
     dataDescription: {
       userBalance: "User Current Degen Balance",
-      userAlfaBalance: "User Current Claimed Alfa Balance",
-      userAlfaClaimable: "User Current Claimable Alfa Balance",
-      userSubs: "User Subscription Count",
-      userSubsCost: "User's Subscription Cost Paid Monthly",
+      userSubscriptions: "User Subscription Count",
       userDailyAlfa: "User's Daily Alfa Reward",
-      userStakes: "User's Stake Count",
-      userStakedAlfa: "User's Staked Alfa",
       userStakeCashback: "User's Income Degen from Stakes",
-      userChannelSubs: "User's Channel Subscription Count",
       userChannelEarnings:
         "User's Income Degen from User's Channel Subscriptions",
     },
@@ -217,12 +236,10 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
         const cleanHtml = storyText.replace(/^```html\n|```$/g, "");
         setGeneratedContent(cleanHtml);
       } catch (error) {
-        console.error("Error:", error);
         if (retryCount < 10) {
           setGeneratedContent(getRandomMessage());
           await makeRequest(retryCount + 1);
         } else {
-          console.error("Max retry limit reached.");
           setGeneratedContent(
             "Failed to generate content after multiple attempts."
           );
