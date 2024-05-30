@@ -171,9 +171,11 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
       Channel: sub.title,
       "Alfa Allocation": sub.userChannelAlfa,
       "Channel Cost": sub.channelCost,
+      "Channel URL": `https://www.alfafrens.com/channel/${sub.channelId}` // Yeni eklenen satır
     }));
     setCsvData(data);
   };
+  
 
   React.useEffect(() => {
     prepareCsvData();

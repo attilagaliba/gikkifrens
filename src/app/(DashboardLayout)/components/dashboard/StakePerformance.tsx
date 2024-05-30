@@ -56,6 +56,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
   const prepareCsvData = () => {
     const data = userSubs.map((sub) => ({
       Channel: sub.channelData.title,
+      "Channel Link": `https://www.alfafrens.com/channel/${sub.channelData.id}`, // New field
       "Degen /per Alfa": (
         (sub.channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
         10000000000
