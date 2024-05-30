@@ -69,7 +69,6 @@ const SamplePage = () => {
       <StakePerformance
         userSubs={updatedUserStakedList}
         userMinData={userMinData}
-        limit={5000}
       />
     </PageContainer>
   );

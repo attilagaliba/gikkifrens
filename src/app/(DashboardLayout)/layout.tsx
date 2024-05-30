@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { styled, Container, Box, Typography, Button } from "@mui/material";
@@ -54,7 +55,7 @@ export default function RootLayout({
   } = profile;
 
   const earlyList = {
-    values: [447766, 474817, 479063, 385955],
+    values: [447766, 474817, 479063, 385955, 253127],
   };
 
   // Check if fid exists in earlyList

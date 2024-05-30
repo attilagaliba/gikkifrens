@@ -79,7 +79,7 @@ const SamplePage = () => {
 
   return (
     <PageContainer title="YOUR SUBSCRIPTIONS" description="this is Sample page">
-      <ProductPerformance userSubs={updatedUserSubsAlfafrens} limit={5000} />
+      <ProductPerformance userSubs={updatedUserSubsAlfafrens} />
     </PageContainer>
   );
 };
