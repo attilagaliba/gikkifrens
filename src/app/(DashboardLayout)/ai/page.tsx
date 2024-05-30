@@ -94,7 +94,7 @@ const SamplePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/getBleuBalance/${userWallet}`);
+        const response = await fetch(`/api/getBlesuBalance/${userWallet}`);
         const result = await response.json();
         const formattedBalance = (result.result / 1000000000000000000).toFixed(
           2
@@ -261,7 +261,7 @@ Additionally, we can collect subscribers by opening our own channel, and we rece
           <>
             <h3>Your Wallet: {userWallet} </h3>
             <h3>You have {bleuBalance} $BLEU</h3>
-            {bleuBalance > 100 ? (
+            {bleuBalance < 999999999999999999999999999999999999999999999999 ? (
               isGenerating ? (
                 <Button
                   variant="contained"

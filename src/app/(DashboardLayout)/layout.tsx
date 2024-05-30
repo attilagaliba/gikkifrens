@@ -8,6 +8,7 @@ import Sidebar from "@/app/(DashboardLayout)/layout/sidebar/Sidebar";
 import "@farcaster/auth-kit/styles.css";
 import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { checkUser } from "./func/galiba";
+import Link from "next/link";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -127,6 +128,20 @@ export default function RootLayout({
                 }}
               >
                 <Box sx={{ minHeight: "calc(100vh - 170px)" }}>{children}</Box>
+                <Link href={"/"}>Dashboard</Link> |{" "}
+                <Link href={"/channel"}>Your Channel</Link> |{" "}
+                <Link href={"/subs"}>Subscriptions</Link> |{" "}
+                <Link href={"/stakes"}>Stakes</Link> |{" "}
+                <Link href={"/ai"}>AiFren</Link> | 🟣 made by @attilagaliba with
+                💜 | You need Sub{" "}
+                <Link
+                  href={
+                    "https://www.alfafrens.com/channel/0x35dfccae83f23a7f91c0e4ff27d323fc161baca7"
+                  }
+                >
+                  @DegenFans
+                </Link>{" "}
+                for channel Alfa Allocation | Version: toooooooMuchAlpha
               </Container>
             </PageWrapper>
           ) : (
