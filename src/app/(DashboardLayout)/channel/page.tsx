@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
 import { Grid, Box } from "@mui/material";
@@ -37,7 +38,7 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
 
-  const [channelRewardGet, setChannelRewardGet] = useState(0)
+  const [channelRewardGet, setChannelRewardGet] = useState(0);
 
   useEffect(() => {
     const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
@@ -64,13 +65,13 @@ const Dashboard = () => {
     const fetchData = async () => {
       if (fid && fid > 0) {
         const userData = await getChaRew(fid);
-        setChannelRewardGet(userData);
+        setChannelRewardGet(Number(userData));
       }
     };
     fetchData();
   }, [fid]);
 
-console.log(channelRewardGet)
+  console.log(channelRewardGet);
   const getUserProfileData = async (fid: number) => {
     const userData = await getUserByFidFFC(fid);
     return userData;
@@ -276,12 +277,21 @@ console.log(channelRewardGet)
           <Grid item xs={12} lg={2}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <ChannelStats
-                  title={"Reward"}
-                  number={channelRewardGet}
-                  unit={"Alfa"}
-                  image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"}
-                />
+                {channelRewardGet !== 0 ? (
+                  <ChannelStats
+                    title={"Reward"}
+                    number={channelRewardGet}
+                    unit={"Alfa"}
+                    image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"}
+                  />
+                ) : (
+                  <ChannelStats
+                    title={"Reward"}
+                    number={"Please Sub"}
+                    unit={"@degenfans"}
+                    image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"}
+                  />
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -301,9 +311,7 @@ console.log(channelRewardGet)
           </Grid>
           <Grid item xs={12} lg={6}>
             {userChannelSubList?.length > 0 ? (
-              <SubsTable
-                userSubs={userChannelSubList}
-              />
+              <SubsTable userSubs={userChannelSubList} />
             ) : (
               <>
                 Loading Subs List (This processing time may take longer
@@ -320,9 +328,7 @@ console.log(channelRewardGet)
           </Grid>
           <Grid item xs={12} lg={6}>
             {userChannelStakerList?.length > 0 ? (
-              <StakersTable
-                userSubs={userChannelStakerList}
-              />
+              <StakersTable userSubs={userChannelStakerList} />
             ) : (
               <>
                 Loading Stakers List (This processing time may take longer
