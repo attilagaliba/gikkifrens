@@ -13,6 +13,8 @@ import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/Pro
 import StakePerformance from "@/app/(DashboardLayout)/components/dashboard/StakePerformance";
 import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings";
+import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress from "@mui/material/LinearProgress";
 
 import {
   getUserTrasfers,
@@ -167,7 +169,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       const allChannelsDegenFans = await getSubsRew(fid);
-
       setUserSubsDegenfans(allChannelsDegenFans);
     };
 
@@ -215,7 +216,7 @@ const Dashboard = () => {
         const stakedListResponse = await getUserStakedList(userAddress);
         const updatedList = await Promise.all(
           stakedListResponse.account.poolMemberships.map(
-            async (poolMembership: { pool: { admin: { id: any; }; }; }) => {
+            async (poolMembership: { pool: { admin: { id: any } } }) => {
               const poolAdminId = poolMembership.pool.admin.id;
               const channelData = await fetchChannelData(poolAdminId);
               const updatedPoolMembership = { ...poolMembership, channelData };
@@ -224,7 +225,10 @@ const Dashboard = () => {
           )
         );
         setUpdatedUserStakedList(updatedList);
-        const calculateEarnings = (item: { channelData: { owner: string; estimatedEarningsPerSecond: number; }; pool: { poolMembers: { units: number; }[]; }; }) => {
+        const calculateEarnings = (item: {
+          channelData: { owner: string; estimatedEarningsPerSecond: number };
+          pool: { poolMembers: { units: number }[] };
+        }) => {
           if (
             item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
           ) {
@@ -276,7 +280,10 @@ const Dashboard = () => {
     }
   }, [userMinData]);
 
-  const calculateChannelCost = (response: { totalSubscriptionFlowRate: any; numberOfSubscribers: any; }) => {
+  const calculateChannelCost = (response: {
+    totalSubscriptionFlowRate: any;
+    numberOfSubscribers: any;
+  }) => {
     if (!response) return "N/A";
     const cost =
       response.totalSubscriptionFlowRate /
@@ -291,7 +298,7 @@ const Dashboard = () => {
         const response = await fetchChannelData(userMinData.channeladdress);
         const channelCost = calculateChannelCost(response);
         setTotalSubEarnings(
-          response?.numberOfSubscribers * ((Number(channelCost )* 25) / 100)
+          response?.numberOfSubscribers * ((Number(channelCost) * 25) / 100)
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -358,19 +365,29 @@ const Dashboard = () => {
             {updatedUserSubsAlfafrens.length > 0 ? (
               <ProductPerformance
                 userSubs={updatedUserSubsAlfafrens}
-                limit={5}
                 degenPrice={degenPrice}
               />
             ) : (
-              <>Loading Your Sub List</>
+              <>
+                <LinearProgress />
+                Loading Your Sub List
+                <LinearProgress />
+              </>
             )}
           </Grid>
           <Grid item xs={12} lg={8}>
-            <StakePerformance
-              userSubs={updatedUserStakedList}
-              userMinData={userMinData}
-              limit={5}
-            />
+            {updatedUserSubsAlfafrens.length > 0 ? (
+              <StakePerformance
+                userSubs={updatedUserStakedList}
+                userMinData={userMinData}
+              />
+            ) : (
+              <>
+                <LinearProgress />
+                Loading Your Stake List
+                <LinearProgress />
+              </>
+            )}
           </Grid>
           {userRecentTransactions.length > 0 ? (
             <Grid item xs={12} lg={4}>
@@ -381,7 +398,9 @@ const Dashboard = () => {
             </Grid>
           ) : (
             <Grid item xs={12} lg={4}>
-              Loading
+              <LinearProgress />
+              Loading Your Recent Transactions
+              <LinearProgress />
             </Grid>
           )}
         </Grid>
