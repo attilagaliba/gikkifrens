@@ -75,7 +75,7 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    // localStorage'dan verilerin alınması
+
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
@@ -83,9 +83,6 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    // userMinData, fid, displayName, custody gibi diğer state'lerin alınması...
-
-    // Verilerin toplanması ve userData'nın güncellenmesi
     if (fid && userMinData && userMinData.userAddress) {
       const fetchData = async () => {
         try {

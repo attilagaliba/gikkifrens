@@ -103,7 +103,7 @@ export const getSubsRew = async (fid: any) => {
 
       allChannels = [...allChannels, ...channels];
       hasMore = response.data.hasMore;
-      skip += 50;
+      skip += 20;
     } catch (error) {
       console.error("Error fetching data:", error);
       hasMore = false;
