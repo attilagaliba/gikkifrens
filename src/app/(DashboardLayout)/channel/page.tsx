@@ -16,6 +16,7 @@ import axios from "axios";
 import {
   getUserByFid,
   getUserByFidFFC,
+  getChaRew,
   fetchChannelData,
 } from "../func/galiba";
 
@@ -35,6 +36,8 @@ const Dashboard = () => {
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
+
+  const [channelRewardGet, setChannelRewardGet] = useState(0)
 
   useEffect(() => {
     const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
@@ -57,6 +60,17 @@ const Dashboard = () => {
     fetchData();
   }, [fid]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (fid && fid > 0) {
+        const userData = await getChaRew(fid);
+        setChannelRewardGet(userData);
+      }
+    };
+    fetchData();
+  }, [fid]);
+
+console.log(channelRewardGet)
   const getUserProfileData = async (fid: number) => {
     const userData = await getUserByFidFFC(fid);
     return userData;
@@ -264,7 +278,7 @@ const Dashboard = () => {
               <Grid item xs={12}>
                 <ChannelStats
                   title={"Reward"}
-                  number={calculateStakeIncome()}
+                  number={channelRewardGet}
                   unit={"Alfa"}
                   image={"https://media.tenor.com/_4v3Nx_hzjwAAAAM/peepo.gif"}
                 />
