@@ -91,7 +91,7 @@ export const getSubsRew = async (fid: any) => {
   while (hasMore) {
     try {
       const response = await axios.get(`/api/getSubsRew/${fid}?first=${skip}`);
-      console.log(fid, response.data.data)
+      console.log(fid, response.data.data);
       const channels = response.data.data.map((item: any) => ({
         lastUpdated: item.subTs,
         userDisplayName: item.channelName,
@@ -100,8 +100,8 @@ export const getSubsRew = async (fid: any) => {
         userChannelCost: item.channelCost,
         channelId: item.channelAddress,
       }));
-
       allChannels = [...allChannels, ...channels];
+      hasMore = response.data.hasMore;
       skip += 100;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -201,7 +201,17 @@ const fetchChannelReward = async (fid: any) => {
 };
 
 // Function to process and return channel details
-const processChannelData = (channelData: { title: any; numberOfSubscribers: any; numberOfStakers: any; currentStaked: any; totalSubscriptionFlowRate: any; lastUpdatedTimestamp: string; }, chaReward: string | number) => {
+const processChannelData = (
+  channelData: {
+    title: any;
+    numberOfSubscribers: any;
+    numberOfStakers: any;
+    currentStaked: any;
+    totalSubscriptionFlowRate: any;
+    lastUpdatedTimestamp: string;
+  },
+  chaReward: string | number
+) => {
   return {
     channelName: channelData.title,
     subscribers: channelData.numberOfSubscribers,
