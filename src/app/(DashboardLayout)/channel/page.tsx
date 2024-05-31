@@ -72,7 +72,6 @@ const Dashboard = () => {
     fetchData();
   }, [fid]);
 
-  console.log(channelRewardGet);
   const getUserProfileData = async (fid: number) => {
     const userData = await getUserByFidFFC(fid);
     return userData;
