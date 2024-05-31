@@ -15,8 +15,8 @@ export default function RootLayout({
 }) {
   const config = {
     rpcUrl: "https://mainnet.optimism.io",
-    domain: "gikkifrens.vercel.app",
-    siweUri: "https://gikkifrens.vercel.app",
+    domain: "frens.gikkilab.com",
+    siweUri: "https://frens.gikkilab.com",
   };
 
   return (
