@@ -109,6 +109,8 @@ const Dashboard = () => {
         const channels = await Promise.all(
           response.data.members.map(
             async (item: {
+              profileimgurl: any;
+              handle: any;
               fid: number;
               totalSubscriptionOutflowAmount: any;
               totalSubscriptionOutflowRate: any;
@@ -142,8 +144,8 @@ const Dashboard = () => {
                 isStaked: item.isStaked,
                 isSubscribed: item.isSubscribed,
                 subscriber: item.subscriber.id,
-                userPfp: "",
-                userDisplayName: item.subscriber.id,
+                userPfp: item.profileimgurl,
+                userDisplayName: item.handle,
               };
             }
           )

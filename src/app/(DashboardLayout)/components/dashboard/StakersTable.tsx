@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { ReactNode, useState } from "react";
 import Link from "next/link";
 import {
@@ -14,6 +15,7 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 
 interface Subscription {
+  [x: string]: any;
   currentStaked: ReactNode;
   index: number;
   userDisplayName: string;
@@ -89,7 +91,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((sub, index) => (
                   <TableRow key={index}>
-                    {/* <TableCell>
+                    <TableCell>
                       <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                         <img
                           style={{ borderRadius: "50%" }}
@@ -99,12 +101,13 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                           alt="pfp"
                         />
                       </Typography>
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <Box>
                           <Link
-                            href={`https://alfafrens.com/profile/${sub.userDisplayName}`}
+                          target="_blank"
+                            href={`https://alfafrens.com/profile/${sub.subscriber}`}
                           >
                             <Typography variant="subtitle2" fontWeight={600}>
                               {sub.userDisplayName}

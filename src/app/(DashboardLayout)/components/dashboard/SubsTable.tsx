@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState } from "react";
 import {
   Typography,
@@ -15,6 +16,7 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 import Link from "next/link";
 
 interface Subscription {
+  [x: string]: any;
   totalSubscriptionOutflowAmount: number;
   index: number;
   userDisplayName: string;
@@ -86,7 +88,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((sub, index) => (
                 <TableRow key={index}>
-                  {/* <TableCell>
+                  <TableCell>
                     <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                       <img
                         style={{ borderRadius: "50%" }} // Apply border radius
@@ -96,12 +98,13 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                         alt="pfp"
                       />
                     </Typography>
-                  </TableCell> */}
+                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
                         <Link
-                          href={`https://alfafrens.com/profile/${sub.userDisplayName}`}
+                        target="_blank"
+                          href={`https://alfafrens.com/profile/${sub.subscriber}`}
                         >
                           <Typography variant="subtitle2" fontWeight={600}>
                             {sub.userDisplayName}
