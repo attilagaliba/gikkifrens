@@ -68,7 +68,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
             (sub.pool.poolMembers[0].units *
               (sub.channelData.owner.toLowerCase() ===
               userMinData.userAddress.toLowerCase()
-                ? 94
+                ? 85
                 : 100))) /
             (sub.channelData.owner.toLowerCase() ===
             userMinData.userAddress.toLowerCase()
@@ -82,7 +82,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
           (sub.pool.poolMembers[0].units *
             (sub.channelData.owner.toLowerCase() ===
             userMinData.userAddress.toLowerCase()
-              ? 92.4
+              ? 85
               : 100)) /
           (sub.channelData.owner.toLowerCase() ===
           userMinData.userAddress.toLowerCase()
@@ -245,7 +245,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
                                 24 *
                                 30) /
                                 10000000000) *
-                                (sub.pool.poolMembers[0].units * 94)) /
+                                (sub.pool.poolMembers[0].units * 85)) /
                                 100 /
                                 1000000) *
                                 100) /
@@ -284,7 +284,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
                       userMinData.userAddress.toLowerCase() ? (
                         <Typography variant="h6">
                           {(
-                            (sub.pool.poolMembers[0].units * 92.4) /
+                            (sub.pool.poolMembers[0].units * 85) /
                             100 /
                             1000000
                           ).toFixed(2)}

@@ -318,7 +318,7 @@ const Dashboard = () => {
                 24 *
                 30) /
                 10000000000) *
-                (item.pool.poolMembers[0].units * 94)) /
+                (item.pool.poolMembers[0].units * 85)) /
                 100 /
                 1000000) *
                 100) /

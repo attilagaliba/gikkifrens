@@ -32,16 +32,26 @@ const MonthlyEarnings: React.FC<Props> = ({
   const optionscolumnchart: any = {
     chart: {
       type: "area",
+      zoom: {
+        enabled: false
+      },
       fontFamily: "'Plus Jakarta Sans', sans-serif;",
       foreColor: "#adb0bb",
       toolbar: {
         show: false,
       },
-      height: 60,
+      height: 150,
       sparkline: {
         enabled: true,
       },
       group: "sparklines",
+    },
+    dataLabels: {
+      enabled: false
+    },
+
+    yaxis: {
+      opposite: true
     },
     stroke: {
       curve: "smooth",
@@ -49,11 +59,11 @@ const MonthlyEarnings: React.FC<Props> = ({
     },
     fill: {
       colors: [secondarylight],
-      type: "solid",
-      opacity: 0.05,
+      type: "straight",
+      opacity: 0.1,
     },
     markers: {
-      size: 0,
+      size: 1,
     },
     tooltip: {
       theme: theme.palette.mode === "dark" ? "dark" : "light",
@@ -97,7 +107,7 @@ const MonthlyEarnings: React.FC<Props> = ({
           options={optionscolumnchart}
           series={seriescolumnchart}
           type="area"
-          height={60}
+          height={100}
           width={"100%"}
         />
       }
