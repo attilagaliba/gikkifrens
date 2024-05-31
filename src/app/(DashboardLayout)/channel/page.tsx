@@ -18,6 +18,7 @@ import {
   getUserByFid,
   getUserByFidFFC,
   getChaRew,
+  getUserByAddress,
   fetchChannelData,
 } from "../func/galiba";
 
@@ -77,6 +78,11 @@ const Dashboard = () => {
     return userData;
   };
 
+  const getUserProfileDataFromAlfa = async (userAddress: any) => {
+    const userData = await getUserByAddress(userAddress);
+    return userData;
+  };
+
   const fetchChannelSubscribersAndStakes = async (channelAddress: string) => {
     let skip = 0;
     let hasMore = true;
@@ -112,19 +118,19 @@ const Dashboard = () => {
               isSubscribed: any;
               subscriber: { id: any };
             }) => {
-              const userProfileData = await getUserProfileData(item.fid);
+              // const userProfileData = await getUserProfileData(item.fid);
               await sleep(500);
 
               whatCount = whatCount + 1;
 
               setNumberProgg(whatCount);
-              const userProfilePfp = userProfileData.find(
-                (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
-              );
-              const userProfileDisplay = userProfileData.find(
-                (data: { type: string }) =>
-                  data.type === "USER_DATA_TYPE_DISPLAY"
-              );
+              // const userProfilePfp = userProfileData.find(
+              //   (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
+              // );
+              // const userProfileDisplay = userProfileData.find(
+              //   (data: { type: string }) =>
+              //     data.type === "USER_DATA_TYPE_DISPLAY"
+              // );
 
               return {
                 fid: item.fid,
@@ -137,10 +143,8 @@ const Dashboard = () => {
                 isStaked: item.isStaked,
                 isSubscribed: item.isSubscribed,
                 subscriber: item.subscriber.id,
-                userPfp: userProfilePfp ? userProfilePfp.value : "",
-                userDisplayName: userProfileDisplay
-                  ? userProfileDisplay.value
-                  : "",
+                userPfp: "",
+                userDisplayName: item.subscriber.id,
               };
             }
           )

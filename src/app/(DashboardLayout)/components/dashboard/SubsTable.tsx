@@ -68,7 +68,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
         <Table aria-label="simple table" sx={{ whiteSpace: "nowrap", mt: 2 }}>
           <TableHead>
             <TableRow>
-              <TableCell></TableCell>
+              {/* <TableCell></TableCell> */}
               <TableCell>
                 <Typography variant="subtitle2" fontWeight={600}>
                   Channel
@@ -86,7 +86,7 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((sub, index) => (
                 <TableRow key={index}>
-                  <TableCell>
+                  {/* <TableCell>
                     <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                       <img
                         style={{ borderRadius: "50%" }} // Apply border radius
@@ -96,20 +96,27 @@ const ProductPerformance: React.FC<ProductPerformanceProps> = ({
                         alt="pfp"
                       />
                     </Typography>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {sub.userDisplayName}
-                        </Typography>
+                        <Link
+                          href={`https://alfafrens.com/profile/${sub.userDisplayName}`}
+                        >
+                          <Typography variant="subtitle2" fontWeight={600}>
+                            {sub.userDisplayName}
+                          </Typography>
+                        </Link>
                       </Box>
                     </Box>
                   </TableCell>
 
                   <TableCell align="right">
                     <Typography variant="h6">
-                      {(sub.totalSubscriptionOutflowAmount/1000000000000000000).toFixed(2)} Degen
+                      {(
+                        sub.totalSubscriptionOutflowAmount / 1000000000000000000
+                      ).toFixed(2)}{" "}
+                      Degen
                     </Typography>
                   </TableCell>
                 </TableRow>

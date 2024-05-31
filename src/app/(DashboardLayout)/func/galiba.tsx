@@ -103,7 +103,7 @@ export const getSubsRew = async (fid: any) => {
       }));
       allChannels = [...allChannels, ...channels];
       hasMore = response.data.hasmore;
-      howMany = howMany + response.data.data.length
+      howMany = howMany + response.data.data.length;
       skip += 50;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -124,6 +124,18 @@ export const getChaRew = async (fid: any) => {
     throw new Error("Error fetching data");
   }
 };
+
+////Get User Data Alfafrens
+export const getUserByAddress = async (channelId: any) => {
+  try {
+    const response = await axios.get(`/api/getUserByAddress/${channelId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw new Error("Error fetching data");
+  }
+};
+
 /////Get Channel Alfafren
 export const fetchChannelData = async (getChannelAddress: any) => {
   try {
