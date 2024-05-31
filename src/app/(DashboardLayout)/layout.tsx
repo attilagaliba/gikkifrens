@@ -8,6 +8,7 @@ import Sidebar from "@/app/(DashboardLayout)/layout/sidebar/Sidebar";
 import "@farcaster/auth-kit/styles.css";
 import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { checkUser } from "./func/galiba";
+import { Analytics } from "@vercel/analytics/react";
 import Link from "next/link";
 
 const MainWrapper = styled("div")(() => ({
@@ -110,6 +111,7 @@ export default function RootLayout({
 
   return (
     <MainWrapper className="mainwrapper">
+      <Analytics />
       {isAuthenticated && isInEarlyList && (
         <Sidebar
           isSidebarOpen={isSidebarOpen}
