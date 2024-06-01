@@ -48,7 +48,7 @@ const MonthlyEarnings: React.FC<Props> = ({
     chart: {
       type: "area",
       zoom: {
-        enabled: false,
+        enabled: true,
       },
       fontFamily: "'Plus Jakarta Sans', sans-serif;",
       foreColor: "#adb0bb",
