@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -21,7 +23,6 @@ const MonthlyEarnings: React.FC<Props> = ({
   degenPrice,
   balanceArea,
 }) => {
- 
   // chart color
   const theme = useTheme();
   const secondary = theme.palette.secondary.main;
@@ -33,7 +34,7 @@ const MonthlyEarnings: React.FC<Props> = ({
     chart: {
       type: "area",
       zoom: {
-        enabled: false
+        enabled: false,
       },
       fontFamily: "'Plus Jakarta Sans', sans-serif;",
       foreColor: "#adb0bb",
@@ -47,11 +48,11 @@ const MonthlyEarnings: React.FC<Props> = ({
       group: "sparklines",
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
 
     yaxis: {
-      opposite: true
+      opposite: true,
     },
     stroke: {
       curve: "smooth",
@@ -74,20 +75,34 @@ const MonthlyEarnings: React.FC<Props> = ({
       name: "DEGEN",
       color: secondary,
       data: [
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[6].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[5].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[4].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[3].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[2].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[1].balance / 1000000000000000000,
-        userBalanceFuncHistory?.accountTokenSnapshots[0]
-          .accountTokenSnapshotLogs[0].balance / 1000000000000000000,
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[6].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[5].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[4].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[3].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[2].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[1].balance / 1000000000000000000
+        ).toFixed(2),
+        (
+          userBalanceFuncHistory?.accountTokenSnapshots[0]
+            .accountTokenSnapshotLogs[0].balance / 1000000000000000000
+        ).toFixed(2),
       ],
     },
   ];

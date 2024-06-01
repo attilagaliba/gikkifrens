@@ -9,7 +9,7 @@ import "@farcaster/auth-kit/styles.css";
 import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { checkUser } from "./func/galiba";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import Link from "next/link";
 
@@ -60,12 +60,13 @@ export default function RootLayout({
 
   const earlyList = {
     values: [
-      447766, 474817, 479063, 385955, 253127, 306610, 536200, 9507, 289702,
-      1631, 4282, 4865, 8152, 8685, 19129, 196411, 323583, 343400, 354894,
-      366713, 385469, 444517, 446697, 310124, 426875, 324115, 369769, 466946,
-      568047, 427685, 17474, 278653, 4549, 239709, 268992, 277700, 320189,
-      408746, 237778, 395461, 576740, 253127, 403619, 12021, 296785, 269385,
-      2904, 382254, 449282, 214570, 409852, 351282, 263685, 488644, 2904,
+      387731, 447766, 474817, 479063, 385955, 253127, 306610, 536200, 9507,
+      289702, 1631, 4282, 4865, 8152, 8685, 19129, 196411, 323583, 343400,
+      354894, 366713, 385469, 444517, 446697, 310124, 426875, 324115, 369769,
+      466946, 568047, 427685, 17474, 278653, 4549, 239709, 268992, 277700,
+      320189, 408746, 237778, 395461, 576740, 253127, 403619, 12021, 296785,
+      269385, 2904, 382254, 449282, 214570, 409852, 351282, 263685, 488644,
+      2904,
     ],
   };
 
@@ -114,7 +115,7 @@ export default function RootLayout({
   return (
     <MainWrapper className="mainwrapper">
       <Analytics />
-      <SpeedInsights/>
+      <SpeedInsights />
       {isAuthenticated && isInEarlyList && (
         <Sidebar
           isSidebarOpen={isSidebarOpen}

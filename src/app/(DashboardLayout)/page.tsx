@@ -75,7 +75,6 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
@@ -162,6 +161,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async (fid: number) => {
       const userData = await getUserByFid(fid);
+
       setUserMinData(userData);
     };
 
@@ -318,7 +318,7 @@ const Dashboard = () => {
                 24 *
                 30) /
                 10000000000) *
-                (item.pool.poolMembers[0].units * 85)) /
+                ((item.pool.poolMembers[0].units * 85212635) / 1000000)) /
                 100 /
                 1000000) *
                 100) /
