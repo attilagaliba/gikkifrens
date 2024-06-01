@@ -5,18 +5,12 @@
 import { useEffect, useState } from "react";
 import { Grid, Box } from "@mui/material";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
-import axios from "axios";
-// components
 
 import YearlyBreakup from "@/app/(DashboardLayout)/components/dashboard/YearlyBreakup";
 import Profit from "@/app/(DashboardLayout)/components/dashboard/Profit";
-import RecentTransactions from "@/app/(DashboardLayout)/components/dashboard/RecentTransactions";
-import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/ProductPerformance";
-import SalesOverview from "@/app/(DashboardLayout)/components/dashboard/SalesOverview";
 import FlowingDegen from "@/app/(DashboardLayout)/components/FlowingDegen";
 import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import DetailedBalance from "@/app/(DashboardLayout)/components/dashboard/DetailedBalance";
-import CircularProgress from "@mui/material/CircularProgress";
 import StakeChart from "@/app/(DashboardLayout)/components/details/stakeChart";
 import LinearProgress from "@mui/material/LinearProgress";
 
@@ -507,7 +501,7 @@ const Dashboard = () => {
               </>
             )}
           </Grid>
-          {userRecentTransactions.length > 0 ? (
+          {/* {userRecentTransactions.length > 0 ? (
             <Grid item xs={12} lg={3}>
               <RecentTransactions
                 userRecentTransactions={userRecentTransactions}
@@ -526,7 +520,7 @@ const Dashboard = () => {
               userRecentTransactions={userRecentTransactions}
               limit={7}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Box>
     </PageContainer>

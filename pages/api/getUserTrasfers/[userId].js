@@ -21,6 +21,7 @@ export default async function handler(req, res) {
               orderBy: timestamp
               orderDirection: desc
               where: {isNFTTransfer: false}
+              first: 1000
             ) {
               from {
                 id
@@ -32,6 +33,7 @@ export default async function handler(req, res) {
               orderBy: timestamp
               orderDirection: desc
               where: {isNFTTransfer: false}
+              first: 1000
             ) {
               value
               from {
