@@ -54,14 +54,14 @@ const SamplePage = () => {
               } catch (error) {
                 console.error("Error fetching channel data:", error);
                 channelData = {
-                  id: "unknown",
+                  id:`${userAddress}`,
                   lastUpdatedTimestamp: "unknown",
                   numberOfSubscribers: 0,
                   numberOfStakers: 0,
                   totalSubscriptionFlowRate: "1",
                   totalSubscriptionInflowAmount: "1",
                   totalClaimed: "1",
-                  owner: "unknown",
+                  owner:`${userAddress}`,
                   currentStaked: "1",
                   estimatedEarningsPerSecond: "1",
                   incomeToStakeRatio: "1",
