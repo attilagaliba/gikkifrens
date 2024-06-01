@@ -13,6 +13,7 @@ import Profit from "@/app/(DashboardLayout)/components/dashboard/Profit";
 import RecentTransactions from "@/app/(DashboardLayout)/components/dashboard/RecentTransactions";
 import ProductPerformance from "@/app/(DashboardLayout)/components/dashboard/ProductPerformance";
 import SalesOverview from "@/app/(DashboardLayout)/components/dashboard/SalesOverview";
+import FlowingDegen from "@/app/(DashboardLayout)/components/FlowingDegen";
 import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import DetailedBalance from "@/app/(DashboardLayout)/components/dashboard/DetailedBalance";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -53,7 +54,7 @@ const Dashboard = () => {
   >([]);
   const [totalAlfaAllocationPerMo, setTotalAlfaAllocationPerMo] = useState(0);
 
-  const [degenPrice, setDegenPrice] = useState<number | undefined>(0.016);
+  const [degenPrice, setDegenPrice] = useState<number>(0.02);
 
   const [userRecentTransactions, setUserRecentTransactions] = useState<any[]>(
     []
@@ -447,22 +448,44 @@ const Dashboard = () => {
               userBalanceFuncHistory={userBalanceFuncHistory}
               balanceArea={
                 userBalanceFunc && userBalanceFunc.balance > 0 ? (
-                  <FlowingBalance
-                    startingBalance={BigInt(userBalanceFunc.balance)}
-                    startingBalanceDate={
-                      new Date(converDate(userBalanceFunc.timestamp))
-                    }
-                    flowRate={BigInt(
-                      Number(
-                        (
-                          (totalEarnings +
-                            totalSubEarnings -
-                            userBalanceFunc?.totalOutflowRate / 380517503050) *
-                          380517503050
-                        ).toFixed(0)
-                      )
-                    )}
-                  />
+                  <>
+                    <FlowingBalance
+                      startingBalance={BigInt(userBalanceFunc.balance)}
+                      startingBalanceDate={
+                        new Date(converDate(userBalanceFunc.timestamp))
+                      }
+                      flowRate={BigInt(
+                        Number(
+                          (
+                            (totalEarnings +
+                              totalSubEarnings -
+                              userBalanceFunc?.totalOutflowRate /
+                                380517503050) *
+                            380517503050
+                          ).toFixed(0)
+                        )
+                      )}
+                    />
+                    $
+                    <FlowingDegen
+                      degenPrice={degenPrice}
+                      startingBalance={BigInt(userBalanceFunc.balance)}
+                      startingBalanceDate={
+                        new Date(converDate(userBalanceFunc.timestamp))
+                      }
+                      flowRate={BigInt(
+                        Number(
+                          (
+                            (totalEarnings +
+                              totalSubEarnings -
+                              userBalanceFunc?.totalOutflowRate /
+                                380517503050) *
+                            380517503050
+                          ).toFixed(0)
+                        )
+                      )}
+                    />
+                  </>
                 ) : (
                   <>0000.00000</>
                 )
@@ -470,7 +493,7 @@ const Dashboard = () => {
               degenPrice={degenPrice}
             />
           </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={12} lg={5}>
             {updatedUserSubsAlfafrens.length > 0 ? (
               <StakeChart
                 userSubs={updatedUserStakedList}
@@ -484,8 +507,8 @@ const Dashboard = () => {
               </>
             )}
           </Grid>
-          {/* {userRecentTransactions.length > 0 ? (
-            <Grid item xs={12} lg={4}>
+          {userRecentTransactions.length > 0 ? (
+            <Grid item xs={12} lg={3}>
               <RecentTransactions
                 userRecentTransactions={userRecentTransactions}
                 limit={7}
@@ -494,10 +517,16 @@ const Dashboard = () => {
           ) : (
             <Grid item xs={12} lg={4}>
               <LinearProgress />
-              Loading Your Recent Transactions
+              Loading Your Deposits
               <LinearProgress />
             </Grid>
-          )} */}
+          )}
+          <Grid item xs={12} lg={4}>
+            <RecentTransactions
+              userRecentTransactions={userRecentTransactions}
+              limit={7}
+            />
+          </Grid>
         </Grid>
       </Box>
     </PageContainer>

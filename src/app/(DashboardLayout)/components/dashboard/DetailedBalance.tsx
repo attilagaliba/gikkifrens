@@ -32,7 +32,7 @@ const MonthlyEarnings: React.FC<Props> = ({
   // chart
   const dataDate =
     userBalanceFuncHistory?.accountTokenSnapshots[0].accountTokenSnapshotLogs
-      .map((log: { timestamp: number; }) => {
+      .map((log: { timestamp: number }) => {
         const timestamp = log.timestamp * 1000; // Unix zaman damgasını milisaniyeye çevir
         const date = new Date(timestamp); // Unix zaman damgasını tarih nesnesine dönüştür
         // İstenilen formatta tarihi döndür ("1d ago" gibi)
@@ -89,9 +89,10 @@ const MonthlyEarnings: React.FC<Props> = ({
   };
   const data =
     userBalanceFuncHistory?.accountTokenSnapshots[0].accountTokenSnapshotLogs
-      .map((log: { balance: number; }) => (log.balance / 1000000000000000000).toFixed(2))
+      .map((log: { balance: number }) =>
+        (log.balance / 1000000000000000000).toFixed(2)
+      )
       .reverse();
-  console.log(userBalanceFuncHistory);
   const seriescolumnchart: any = [
     {
       name: "DEGEN",
