@@ -297,7 +297,30 @@ const Dashboard = () => {
           stakedListResponse.account.poolMemberships.map(
             async (poolMembership: { pool: { admin: { id: any } } }) => {
               const poolAdminId = poolMembership.pool.admin.id;
-              const channelData = await fetchChannelData(poolAdminId);
+              let channelData;
+              try {
+                channelData = await fetchChannelData(poolAdminId);
+              } catch (error) {
+                console.error("Error fetching channel data:", error);
+                channelData = {
+                  id: "unknown",
+                  lastUpdatedTimestamp: "unknown",
+                  numberOfSubscribers: 0,
+                  numberOfStakers: 0,
+                  totalSubscriptionFlowRate: "1",
+                  totalSubscriptionInflowAmount: "1",
+                  totalClaimed: "1",
+                  owner: "unknown",
+                  currentStaked: "1",
+                  estimatedEarningsPerSecond: "1",
+                  incomeToStakeRatio: "1",
+                  stakeToIncomeRatio: "1",
+                  totalSubscriptionCashbackFlowRate: "1",
+                  totalSubscriptionCashbackFlowAmount: "1",
+                  title: "unknown",
+                  bio: "unknown",
+                };
+              }
               const updatedPoolMembership = { ...poolMembership, channelData };
               return updatedPoolMembership;
             }

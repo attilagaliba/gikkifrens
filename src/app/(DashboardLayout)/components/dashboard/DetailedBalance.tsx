@@ -42,8 +42,6 @@ const MonthlyEarnings: React.FC<Props> = ({
       })
       .reverse();
 
-  console.log(dataDate);
-
   const optionscolumnchart: any = {
     chart: {
       type: "area",
