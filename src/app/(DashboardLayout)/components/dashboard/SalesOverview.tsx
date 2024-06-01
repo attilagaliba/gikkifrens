@@ -17,9 +17,7 @@ const SalesOverview = (userData: any) => {
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const secondary = theme.palette.secondary.main;
-  const totalIncome =
-    userData?.userData.userChannelEarnings +
-    userData?.userData.userStakeCashback;
+
   // chart
   const optionscolumnchart: any = {
     chart: {
@@ -90,15 +88,15 @@ const SalesOverview = (userData: any) => {
   const seriescolumnchart: any = [
     {
       name: "Income",
-      data: [0, 0, 0, 0, 0, 0, 0, totalIncome],
+      data: [0, 0, 0, 0, 0, 0, 0, 1233],
     },
     {
       name: "Expense",
-      data: [0, 0, 0, 0, 0, 0, 0, userData?.userData.userSubsCost],
+      data: [0, 0, 0, 0, 0, 0, 0, 23213],
     },
     {
         name: "Net Profit",
-        data: [0, 0, 0, 0, 0, 0, 0, totalIncome - userData?.userData.userSubsCost],
+        data: [0, 0, 0, 0, 0, 0, 0, 232],
       },
   ];
 

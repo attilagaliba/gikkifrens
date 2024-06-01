@@ -45,6 +45,16 @@ const Menuitems = [
     icon: IconFriends,
     href: "/stakes",
   },
+  // {
+  //   navlabel: true,
+  //   subheader: "Wow",
+  // },
+  // {
+  //   id: uniqueId(),
+  //   title: "Details",
+  //   icon: IconMoodHappy,
+  //   href: "/details",
+  // },
   {
     navlabel: true,
     subheader: "idk",
