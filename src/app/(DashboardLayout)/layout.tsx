@@ -60,7 +60,7 @@ export default function RootLayout({
 
   const earlyList = {
     values: [
-      387731, 447766, 474817, 479063, 385955, 253127, 306610, 536200, 9507,
+      474817, 387731, 447766, 479063, 385955, 253127, 306610, 536200, 9507,
       289702, 1631, 4282, 4865, 8152, 8685, 19129, 196411, 323583, 343400,
       354894, 366713, 385469, 444517, 446697, 310124, 426875, 324115, 369769,
       466946, 568047, 427685, 17474, 278653, 4549, 239709, 268992, 277700,
@@ -112,6 +112,11 @@ export default function RootLayout({
     }
   }, [profileAuthenticated, fid, displayName, custody]);
 
+  const CustomLink = styled(Link)(({ theme }) => ({
+    textDecoration: "none",
+    color: "inherit",
+  }));
+
   return (
     <MainWrapper className="mainwrapper">
       <Analytics />
@@ -134,23 +139,98 @@ export default function RootLayout({
                 sx={{
                   paddingTop: "20px",
                   maxWidth: "1200px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
                 <Box sx={{ minHeight: "calc(100vh - 170px)" }}>{children}</Box>
-                <Link href={"/"}>Dashboard</Link> |{" "}
-                <Link href={"/channel"}>Your Channel</Link> |{" "}
-                <Link href={"/subs"}>Subscriptions</Link> |{" "}
-                <Link href={"/stakes"}>Stakes</Link> |{" "}
-                <Link href={"/ai"}>AiFren</Link> | 🟣 made by @attilagaliba with
-                💜 | You need Sub{" "}
-                <Link
-                  href={
-                    "https://www.alfafrens.com/channel/0x35dfccae83f23a7f91c0e4ff27d323fc161baca7"
-                  }
+                <Box
+                  component="footer"
+                  sx={{
+                    width: "100%",
+                    maxWidth: "1200px",
+                    padding: "20px 0",
+                    borderTop: "1px solid #e0e0e0",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    marginTop: "20px",
+                  }}
                 >
-                  @DegenFans
-                </Link>{" "}
-                for channel Alfa Allocation | Version: toooooooMuchAlpha
+                  <Box
+                    sx={{ display: "flex", gap: "15px", marginBottom: "10px" }}
+                  >
+                    <CustomLink
+                      href="/"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Dashboard
+                    </CustomLink>
+                    <CustomLink
+                      href="/channel"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Your Channel
+                    </CustomLink>
+                    <CustomLink
+                      href="/subs"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Subscriptions
+                    </CustomLink>
+                    <CustomLink
+                      href="/stakes"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Stakes
+                    </CustomLink>
+                    <CustomLink
+                      href="/details"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Details
+                    </CustomLink>
+                    <CustomLink
+                      href="/ai"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      AiFren
+                    </CustomLink>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ marginBottom: "10px" }}
+                  >
+                    <b>GikkiFrens</b> made by{" "}
+                    <CustomLink
+                      href="https://warpcast.com/attilagaliba.eth"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      @attilagaliba
+                    </CustomLink>{" "}
+                    with 💜 and 🐘
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ marginBottom: "10px" }}
+                  >
+                    You need Sub{" "}
+                    <CustomLink
+                      href="https://www.alfafrens.com/channel/0x35dfccae83f23a7f91c0e4ff27d323fc161baca7"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      @DegenFans
+                    </CustomLink>{" "}
+                    for channel Alfa Allocation
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    V0.7 Early Alpha
+                  </Typography>
+                </Box>
               </Container>
             </PageWrapper>
           ) : (
@@ -159,46 +239,94 @@ export default function RootLayout({
                 sx={{
                   paddingTop: "20px",
                   maxWidth: "1200px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
+                <img
+                  src="/images/logos/alfaLogo.png"
+                  alt="Logo"
+                  style={{
+                    marginBottom: "50px",
+                    width: "300px",
+                    height: "auto",
+                  }}
+                />
                 <Box
                   sx={{
-                    minHeight: "calc(100vh - 170px)",
                     display: "flex",
-                    justifyContent: "center",
+                    flexDirection: "column",
                     alignItems: "center",
+                    textAlign: "center",
+                    minHeight: "calc(100vh - 170px)",
+                    justifyContent: "center",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      flexDirection: "column",
+                      textAlign: "center",
+                      backgroundColor: "#f9f9f9",
+                      padding: "20px",
+                      borderRadius: "8px",
+                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
                     <img
                       src="https://c.tenor.com/Z2TdtasP_b0AAAAd/tenor.gif"
                       alt="Profile Picture"
                       style={{
-                        width: "50px",
-                        height: "50px",
+                        width: "100px",
+                        height: "100px",
                         borderRadius: "50%",
+                        marginBottom: "20px",
                       }}
                     />
-                    <Box sx={{ marginLeft: "20px" }}>
-                      <Typography variant="body1" color="textPrimary">
-                        Hello Fren
+                    <Typography variant="h6" color="textPrimary">
+                      Hello Fren
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="textSecondary"
+                      gutterBottom
+                    >
+                      You are not in the Early Access Lists
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      href="https://warpcast.com/attilagaliba.eth/0xf30380cc"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ backgroundColor: "black", marginTop: "20px" }}
+                    >
+                      <Typography variant="button" sx={{ color: "green" }}>
+                        Join to early access
                       </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        You are not in the Early Access Lists
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        href="https://warpcast.com/attilagaliba.eth/0xf30380cc"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ backgroundColor: "black", marginTop: "10px" }}
-                      >
-                        <Typography variant="button" style={{ color: "green" }}>
-                          Join to early access
-                        </Typography>
-                      </Button>
-                    </Box>
+                    </Button>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      maxWidth: "300px",
+                      marginTop: "20px",
+                    }}
+                  >
+                    <CustomLink
+                      target="_blank"
+                      href="https://warpcast.com/attilagaliba.eth"
+                      sx={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      @attilagaliba
+                    </CustomLink>
+                    <Typography variant="body2" color="textSecondary">
+                      V0.7 Early Alpha
+                    </Typography>
                   </Box>
                 </Box>
               </Container>
@@ -210,46 +338,94 @@ export default function RootLayout({
               sx={{
                 paddingTop: "20px",
                 maxWidth: "1200px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
               }}
             >
               <Box
                 sx={{
-                  minHeight: "calc(100vh - 170px)",
                   display: "flex",
-                  justifyContent: "center",
+                  flexDirection: "column",
                   alignItems: "center",
+                  textAlign: "center",
+                  minHeight: "calc(100vh - 170px)",
+                  justifyContent: "center",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <img
+                  src="/images/logos/alfaLogo.png"
+                  alt="Logo"
+                  style={{
+                    marginBottom: "50px",
+                    width: "300px",
+                    height: "auto",
+                  }}
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    textAlign: "center",
+                    backgroundColor: "#f9f9f9",
+                    padding: "20px",
+                    borderRadius: "8px",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
                   <img
                     src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/df368ec8-99d7-4485-b261-9cd4efd8f200/original"
                     alt="Profile Picture"
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: "100px",
+                      height: "100px",
                       borderRadius: "50%",
+                      marginBottom: "20px",
                     }}
                   />
-                  <Box sx={{ marginLeft: "20px" }}>
-                    <Typography variant="body1" color="textPrimary">
-                      attilagaliba.degen🔹🎩🔵
+                  <Typography variant="h6" color="textPrimary">
+                    attilagaliba.degen🔹🎩🔵
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="textSecondary"
+                    gutterBottom
+                  >
+                    Please Subscribe to me
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href="https://www.alfafrens.com/channel/0x27bf87dcaf7121715ac6b8addf2085a62be7ea0d"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ backgroundColor: "black", marginTop: "20px" }}
+                  >
+                    <Typography variant="button" sx={{ color: "green" }}>
+                      Subscribe for 500 DEGENx/mo
                     </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Please Subscribe to me
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      href="https://www.alfafrens.com/channel/0x27bf87dcaf7121715ac6b8addf2085a62be7ea0d"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ backgroundColor: "black", marginTop: "10px" }}
-                    >
-                      <Typography variant="button" style={{ color: "green" }}>
-                        Subscribe for 500 DEGENx/mo
-                      </Typography>
-                    </Button>
-                  </Box>
+                  </Button>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    maxWidth: "300px",
+                    marginTop: "20px",
+                  }}
+                >
+                  <CustomLink
+                    target="_blank"
+                    href="https://warpcast.com/attilagaliba.eth"
+                    sx={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    @attilagaliba
+                  </CustomLink>
+                  <Typography variant="body2" color="textSecondary">
+                    V0.7 Early Alpha
+                  </Typography>
                 </Box>
               </Box>
             </Container>
@@ -261,17 +437,54 @@ export default function RootLayout({
             sx={{
               paddingTop: "20px",
               maxWidth: "1200px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
             <Box
               sx={{
-                minHeight: "calc(100vh - 170px)",
                 display: "flex",
-                justifyContent: "center",
+                flexDirection: "column",
                 alignItems: "center",
+                textAlign: "center",
+                minHeight: "calc(100vh - 170px)",
+                justifyContent: "center",
               }}
             >
-              <SignInButton />
+              <img
+                src="/images/logos/alfaLogo.png"
+                alt="Logo"
+                style={{ marginBottom: "50px", width: "300px", height: "auto" }}
+              />
+              <Typography variant="h4" gutterBottom>
+                AlfaFrens Detailed Dashboard
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Love Cats, Degen, Bleu, Farcaster and Alfafrens
+              </Typography>
+              <Box sx={{ marginTop: "30px", marginBottom: "30px" }}>
+                <SignInButton />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  maxWidth: "300px",
+                }}
+              >
+                <CustomLink
+                  target="_blank"
+                  href="https://warpcast.com/attilagaliba.eth"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  @attilagaliba
+                </CustomLink>
+                <Typography variant="body2" color="textSecondary">
+                  V0.7 Early Alpha
+                </Typography>
+              </Box>
             </Box>
           </Container>
         </PageWrapper>
