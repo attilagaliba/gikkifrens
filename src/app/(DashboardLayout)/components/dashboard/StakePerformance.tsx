@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+"use client";
 import React, { ReactNode, useState } from "react";
 import Link from "next/link";
 import {
@@ -17,6 +18,8 @@ import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCa
 import LinearProgress from "@mui/material/LinearProgress";
 import { CSVLink } from "react-csv";
 
+import { getUserStake } from "../../func/galiba";
+
 interface Subscription {
   channelData: any;
   pool: any;
@@ -30,16 +33,21 @@ interface Subscription {
 interface StakePerformanceProps {
   userSubs: Subscription[];
   userMinData: any;
-  degenPrice?: number;
+  userSelfStake?: any;
 }
 
 const StakePerformance: React.FC<StakePerformanceProps> = ({
   userSubs,
   userMinData,
+  userSelfStake,
 }) => {
   type OrderBy = "channelData.title" | "userChannelAlfa" | "userChannelCost";
 
   const [orderBy, setOrderBy] = useState<OrderBy>("userChannelAlfa");
+
+  const [userSelfStakeGett, setuserSelfStakeGett] =
+    useState<any>(userSelfStake);
+  const [userSelfStakeGettEarn, setuserSelfStakeGettEarn] = useState<any>(null);
 
   const [order, setOrder] = useState<any>("desc");
   const [page, setPage] = useState(0);
@@ -53,54 +61,64 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
     }[]
   >([]);
 
+  const getUserStakeFunc = async (
+    userAddress: any,
+    userChannel: any,
+    toConvertNumber: number
+  ) => {
+    return 0;
+  };
+
   const prepareCsvData = () => {
-    const data = userSubs.map((sub) => ({
+    const data = sortedSubs.map((sub) => ({
       Channel: sub.channelData.title,
-      "Channel Link": `https://www.alfafrens.com/channel/${sub.channelData.id}`, // New field
+      "Channel Link": `https://www.alfafrens.com/channel/${sub.channelData.id}`,
       "Degen /per Alfa": (
         (sub.channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
         10000000000
       ).toFixed(2),
       "EST. CASHBACK":
-        (
-          ((((sub.channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
-            10000000000) *
-            (sub.pool.poolMembers[0].units *
-              (sub.channelData.owner.toLowerCase() ===
-              userMinData.userAddress.toLowerCase()
-                ? 85212635/1000000
-                : 100))) /
-            (sub.channelData.owner.toLowerCase() ===
-            userMinData.userAddress.toLowerCase()
-              ? 100
-              : 70) /
-            1000000) *
-          100
-        ).toFixed(2) + " DEGENx",
+        sub.channelData.owner.toLowerCase() ===
+        userMinData.userAddress.toLowerCase()
+          ? userSelfStakeGett
+            ? (
+                (userSelfStakeGett *
+                  (sub.channelData.estimatedEarningsPerSecond *
+                    60 *
+                    60 *
+                    24 *
+                    30)) /
+                10000000000
+              ).toFixed(2)
+            : "0"
+          : (
+              (((((sub.channelData.estimatedEarningsPerSecond *
+                60 *
+                60 *
+                24 *
+                30) /
+                10000000000) *
+                (sub.pool.poolMembers[0].units * 100)) /
+                69.069 /
+                1000000) *
+                100) /
+              100
+            ).toFixed(2) + " DEGENx",
       Staked:
-        (
-          (sub.pool.poolMembers[0].units *
-            (sub.channelData.owner.toLowerCase() ===
-            userMinData.userAddress.toLowerCase()
-              ? 85212635/1000000
-              : 100)) /
-          (sub.channelData.owner.toLowerCase() ===
-          userMinData.userAddress.toLowerCase()
-            ? 100
-            : 70) /
-          1000000
-        ).toFixed(2) + " ALFA",
+        sub.channelData.owner.toLowerCase() ===
+        userMinData.userAddress.toLowerCase()
+          ? (userSelfStakeGett ? userSelfStakeGett : "0") + " ALFA"
+          : (
+              ((sub.pool.poolMembers[0].units * 100) / 70 / 1000000) *
+              100
+            ).toFixed(2) + " ALFA",
     }));
     setCsvData(data);
   };
 
   React.useEffect(() => {
     prepareCsvData();
-  }, [userSubs]);
-
-  React.useEffect(() => {
-    prepareCsvData();
-  }, [userSubs]);
+  }, [userSubs, userSelfStakeGett]);
 
   const handleRequestSort = (property: OrderBy) => {
     const isAsc = orderBy === property && order === "asc";
@@ -230,29 +248,34 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
                     <TableCell>
                       {sub.channelData.owner.toLowerCase() ===
                       userMinData.userAddress.toLowerCase() ? (
-                        <Chip
-                          sx={{
-                            px: "4px",
-                            backgroundColor: `purple`,
-                            color: "#fff",
-                          }}
-                          size="small"
-                          label={
-                            (
-                              (((((sub.channelData.estimatedEarningsPerSecond *
-                                60 *
-                                60 *
-                                24 *
-                                30) /
-                                10000000000) *
-                                (sub.pool.poolMembers[0].units * 85212635/1000000)) /
-                                100 /
-                                1000000) *
-                                100) /
-                              100
-                            ).toFixed(2) + "  DEGENx"
-                          }
-                        />
+                        <>
+                          <Chip
+                            sx={{
+                              px: "4px",
+                              backgroundColor: `purple`,
+                              color: "#fff",
+                            }}
+                            size="small"
+                            label={
+                              userSelfStakeGett
+                                ? `${(
+                                    (userSelfStakeGett *
+                                      (sub.channelData
+                                        .estimatedEarningsPerSecond *
+                                        60 *
+                                        60 *
+                                        24 *
+                                        30)) /
+                                    10000000000
+                                  ).toFixed(2)} DEGENx`
+                                : getUserStakeFunc(
+                                    userMinData.userAddress,
+                                    sub.channelData.id,
+                                    1
+                                  )
+                            }
+                          />
+                        </>
                       ) : (
                         <Chip
                           sx={{
@@ -270,7 +293,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
                                 30) /
                                 10000000000) *
                                 (sub.pool.poolMembers[0].units * 100)) /
-                                70 /
+                                69.069 /
                                 1000000) *
                                 100) /
                               100
@@ -283,11 +306,7 @@ const StakePerformance: React.FC<StakePerformanceProps> = ({
                       {sub.channelData.owner.toLowerCase() ===
                       userMinData.userAddress.toLowerCase() ? (
                         <Typography variant="h6">
-                          {(
-                            (sub.pool.poolMembers[0].units * 85212635/1000000) /
-                            100 /
-                            1000000
-                          ).toFixed(2)}
+                          {userSelfStakeGett ? userSelfStakeGett : 0}
                         </Typography>
                       ) : (
                         <Typography variant="h6">

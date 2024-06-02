@@ -119,19 +119,11 @@ const Dashboard = () => {
               isSubscribed: any;
               subscriber: { id: any };
             }) => {
-              // const userProfileData = await getUserProfileData(item.fid);
               await sleep(500);
 
               whatCount = whatCount + 1;
 
               setNumberProgg(whatCount);
-              // const userProfilePfp = userProfileData.find(
-              //   (data: { type: string }) => data.type === "USER_DATA_TYPE_PFP"
-              // );
-              // const userProfileDisplay = userProfileData.find(
-              //   (data: { type: string }) =>
-              //     data.type === "USER_DATA_TYPE_DISPLAY"
-              // );
 
               return {
                 fid: item.fid,
@@ -187,22 +179,6 @@ const Dashboard = () => {
       fetchData();
     }
   }, [userMinData]);
-
-  const calculateStakeIncome = () => {
-    if (!channelData) return "N/A";
-    const income =
-      ((channelData.totalSubscriptionFlowRate /
-        380517503805.174 /
-        channelData.numberOfSubscribers /
-        500) *
-        channelData.stakeToIncomeRatio *
-        60 *
-        60 *
-        24 *
-        30) /
-      1000000000000;
-    return income.toFixed(2);
-  };
 
   const calculateStakeForOneAlfa = () => {
     if (!channelData) return "N/A";

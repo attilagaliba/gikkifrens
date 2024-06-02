@@ -49,6 +49,18 @@ export const getUserStakedList = async (userAddress: string) => {
     return null;
   }
 };
+
+////Get User Alfa Balance
+export const getUserAlfaBalance = async (userAddress: string) => {
+  try {
+    const response = await axios.get(`/api/readContract/getUserAlfa?account=${userAddress}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
+
 ////Get User Balance Superfluid
 export const getUserBalance = async (userAddress: string) => {
   try {
@@ -139,6 +151,22 @@ export const getUserByAddress = async (channelId: any) => {
 export const fetchChannelData = async (getChannelAddress: any) => {
   try {
     const response = await axios.get(`/api/getChannel/${getChannelAddress}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching channel data:", error);
+    throw error;
+  }
+};
+
+/////Get UserStake by Contract
+export const getUserStake = async (
+  getUserAddress: any,
+  getChannelAddress: any
+) => {
+  try {
+    const response = await axios.get(
+      `/api/readContract/getUserStake?subscriber=${getUserAddress}&channel=${getChannelAddress}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching channel data:", error);

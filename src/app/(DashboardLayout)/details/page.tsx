@@ -13,6 +13,8 @@ import FlowingBalance from "@/app/(DashboardLayout)/components/FlowingBalance";
 import DetailedBalance from "@/app/(DashboardLayout)/components/dashboard/DetailedBalance";
 import StakeChart from "@/app/(DashboardLayout)/components/details/stakeChart";
 import LinearProgress from "@mui/material/LinearProgress";
+import DetailsTotals from "@/app/(DashboardLayout)/components/dashboard/DetailsTotals";
+import RecentTransactionsTotal from "@/app/(DashboardLayout)/components/dashboard/RecentTransactionsTotal";
 
 import Snackbar, { SnackbarOrigin } from "@mui/material/Snackbar";
 
@@ -24,6 +26,8 @@ import {
   getUserTrasfers,
   getUserByFid,
   getUserStakedList,
+  getUserAlfaBalance,
+  getUserStake,
   getUserBalance,
   getUserBalanceHistory,
   getSubsRew,
@@ -49,10 +53,12 @@ const Dashboard = () => {
   const [totalAlfaAllocationPerMo, setTotalAlfaAllocationPerMo] = useState(0);
 
   const [degenPrice, setDegenPrice] = useState<number>(0.02);
-
+  const [userSelfStake, setUserSelfStake] = useState<any>(0);
   const [userRecentTransactions, setUserRecentTransactions] = useState<any[]>(
     []
   );
+
+  const [userAlfaBalance, setUserAlfaBalance] = useState(0);
 
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalSubEarnings, setTotalSubEarnings] = useState(0);
@@ -60,7 +66,7 @@ const Dashboard = () => {
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
-
+  const [channelData, setChannelData] = useState<any>(null);
   const [userData, setUserData] = useState<any>({
     userFid: null,
     userDisplayName: null,
@@ -78,6 +84,94 @@ const Dashboard = () => {
     }
   }, []);
 
+  const getUserStakeFunc = async (
+    userAddress: any,
+    userChannel: any,
+    toConvertNumber: number
+  ) => {
+    try {
+      if (
+        !userSelfStake &&
+        userAddress !== undefined &&
+        userChannel !== undefined
+      ) {
+        const responseBalance = await getUserStake(userAddress, userChannel);
+        if (responseBalance) {
+          return Number(
+            (responseBalance.result.balance / 100000000000000) * toConvertNumber
+          ).toFixed(2);
+        }
+      } else {
+        return 0;
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (userMinData) {
+      const fetchData = async () => {
+        try {
+          const userSelfStakeFunc = await getUserStakeFunc(
+            userMinData.userAddress,
+            userMinData.channeladdress,
+            1
+          );
+          setUserSelfStake(userSelfStakeFunc);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [userMinData]);
+
+  useEffect(() => {
+    if (userMinData) {
+      const fetchData = async () => {
+        try {
+          const userAlfa = await getUserAlfaBalance(userMinData.userAddress);
+          setUserAlfaBalance(userAlfa.result.alfaBalance);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [userMinData]);
+
+  ///////////////
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchChannelData(userMinData.channeladdress);
+        setChannelData(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userMinData && userMinData.channeladdress) {
+      fetchData();
+    }
+  }, [userMinData]);
+
+  const calculateStakeForOneAlfa = () => {
+    if (!channelData) return "N/A";
+    const stake =
+      (channelData.estimatedEarningsPerSecond * 60 * 60 * 24 * 30) /
+      10000000000;
+    return stake.toFixed(2);
+  };
+
+  const calculateChannelCostChannelData = () => {
+    if (!channelData) return "N/A";
+    const cost =
+      channelData.totalSubscriptionFlowRate /
+      380517503805.174 /
+      channelData.numberOfSubscribers;
+    return cost.toFixed(0);
+  };
+  ////////////
   useEffect(() => {
     if (fid && userMinData && userMinData.userAddress) {
       const fetchData = async () => {
@@ -288,97 +382,99 @@ const Dashboard = () => {
 
   useEffect(() => {
     const getUserStakedListFetchData = async (userAddress: string) => {
-      try {
-        const stakedListResponse = await getUserStakedList(userAddress);
-        const updatedList = await Promise.all(
-          stakedListResponse.account.poolMemberships.map(
-            async (poolMembership: { pool: { admin: { id: any } } }) => {
-              const poolAdminId = poolMembership.pool.admin.id;
-              let channelData;
-              try {
-                channelData = await fetchChannelData(poolAdminId);
-              } catch (error) {
-                console.error("Error fetching channel data:", error);
-                channelData = {
-                  id: `${userAddress}`,
-                  lastUpdatedTimestamp: "unknown",
-                  numberOfSubscribers: 0,
-                  numberOfStakers: 0,
-                  totalSubscriptionFlowRate: "1",
-                  totalSubscriptionInflowAmount: "1",
-                  totalClaimed: "1",
-                  owner: `${userAddress}`,
-                  currentStaked: "1",
-                  estimatedEarningsPerSecond: "1",
-                  incomeToStakeRatio: "1",
-                  stakeToIncomeRatio: "1",
-                  totalSubscriptionCashbackFlowRate: "1",
-                  totalSubscriptionCashbackFlowAmount: "1",
-                  title: "unknown",
-                  bio: "unknown",
+      if (userAddress && userSelfStake > 0 && userMinData) {
+        try {
+          const stakedListResponse = await getUserStakedList(userAddress);
+          const updatedList = await Promise.all(
+            stakedListResponse.account.poolMemberships.map(
+              async (poolMembership: { pool: { admin: { id: any } } }) => {
+                const poolAdminId = poolMembership.pool.admin.id;
+                let channelData;
+                try {
+                  channelData = await fetchChannelData(poolAdminId);
+                } catch (error) {
+                  console.error("Error fetching channel data:", error);
+                  channelData = {
+                    id: `${userAddress}`,
+                    lastUpdatedTimestamp: "unknown",
+                    numberOfSubscribers: 0,
+                    numberOfStakers: 0,
+                    totalSubscriptionFlowRate: "1",
+                    totalSubscriptionInflowAmount: "1",
+                    totalClaimed: "1",
+                    owner: `${userAddress}`,
+                    currentStaked: "1",
+                    estimatedEarningsPerSecond: "1",
+                    incomeToStakeRatio: "1",
+                    stakeToIncomeRatio: "1",
+                    totalSubscriptionCashbackFlowRate: "1",
+                    totalSubscriptionCashbackFlowAmount: "1",
+                    title: "unknown",
+                    bio: "unknown",
+                  };
+                }
+                const updatedPoolMembership = {
+                  ...poolMembership,
+                  channelData,
                 };
+                return updatedPoolMembership;
               }
-              const updatedPoolMembership = { ...poolMembership, channelData };
-              return updatedPoolMembership;
+            )
+          );
+          setUpdatedUserStakedList(updatedList);
+          const calculateEarnings = (item: {
+            channelData: { owner: string; estimatedEarningsPerSecond: number };
+            pool: { poolMembers: { units: number }[] };
+          }) => {
+            if (
+              item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
+            ) {
+              const result: number =
+                ((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                userSelfStake;
+              const resultPlusOnePercent: number = result * 1.01;
+
+              return resultPlusOnePercent;
+            } else {
+              return (
+                (((((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                  (item.pool.poolMembers[0].units * 100)) /
+                  69.069 /
+                  1000000) *
+                  100) /
+                100
+              );
             }
-          )
-        );
+          };
 
-        setUpdatedUserStakedList(updatedList);
-        const calculateEarnings = (item: {
-          channelData: { owner: string; estimatedEarningsPerSecond: number };
-          pool: { poolMembers: { units: number }[] };
-        }) => {
-          if (
-            item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
-          ) {
-            return (
-              (((((item.channelData.estimatedEarningsPerSecond *
-                60 *
-                60 *
-                24 *
-                30) /
-                10000000000) *
-                ((item.pool.poolMembers[0].units * 85212635) / 1000000)) /
-                100 /
-                1000000) *
-                100) /
-              100
-            );
-          } else {
-            return (
-              (((((item.channelData.estimatedEarningsPerSecond *
-                60 *
-                60 *
-                24 *
-                30) /
-                10000000000) *
-                (item.pool.poolMembers[0].units * 100)) /
-                70 /
-                1000000) *
-                100) /
-              100
-            );
-          }
-        };
+          let total = 0;
+          updatedList.forEach((item) => {
+            const earnings = calculateEarnings(item);
+            total += earnings;
+          });
 
-        let total = 0;
-        updatedList.forEach((item) => {
-          const earnings = calculateEarnings(item);
-          total += earnings;
-        });
-
-        setTotalEarnings(total);
-        setUpdatedUserStakedList(updatedList);
-      } catch (error) {
-        console.error("Error fetching user staked list:", error);
+          setTotalEarnings(total);
+          setUpdatedUserStakedList(updatedList);
+        } catch (error) {
+          console.error("Error fetching user staked list:", error);
+        }
       }
     };
 
     if (userMinData && userMinData.userAddress) {
       getUserStakedListFetchData(userMinData.userAddress);
     }
-  }, [userMinData]);
+  }, [userMinData, userSelfStake]);
 
   const calculateChannelCost = (response: {
     totalSubscriptionFlowRate: any;
@@ -391,6 +487,7 @@ const Dashboard = () => {
       response.numberOfSubscribers;
     return cost.toFixed(0);
   };
+
   const handleOpen = (newState: SnackbarOrigin) => () => {
     setState({ ...newState, open: true });
   };
@@ -399,8 +496,6 @@ const Dashboard = () => {
     const interval = setInterval(() => {
       handleOpen({ vertical, horizontal });
     }, 60000);
-
-    // Component unmount olduğunda interval'i temizle
     return () => clearInterval(interval);
   }, []);
 
@@ -463,6 +558,7 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} lg={8}>
             <DetailedBalance
+              userAlfaBalance={userAlfaBalance}
               userBalanceFuncHistory={userBalanceFuncHistory}
               balanceArea={
                 userBalanceFunc && userBalanceFunc.balance > 0 ? (
@@ -511,11 +607,12 @@ const Dashboard = () => {
               degenPrice={degenPrice}
             />
           </Grid>
-          <Grid item xs={12} lg={5}>
-            {updatedUserSubsAlfafrens.length > 0 ? (
+          <Grid item xs={12} lg={6}>
+            {updatedUserSubsAlfafrens.length > 0 && userSelfStake > 0 ? (
               <StakeChart
                 userSubs={updatedUserStakedList}
                 userMinData={userMinData}
+                userSelfStake={userSelfStake}
               />
             ) : (
               <>
@@ -525,9 +622,14 @@ const Dashboard = () => {
               </>
             )}
           </Grid>
-          {/* {userRecentTransactions.length > 0 ? (
+
+          <Grid item xs={4} lg={3}>
+            <DetailsTotals channelData={channelData} />
+          </Grid>
+
+          {userRecentTransactions.length > 0 ? (
             <Grid item xs={12} lg={3}>
-              <RecentTransactions
+              <RecentTransactionsTotal
                 userRecentTransactions={userRecentTransactions}
                 limit={7}
               />
@@ -535,16 +637,10 @@ const Dashboard = () => {
           ) : (
             <Grid item xs={12} lg={4}>
               <LinearProgress />
-              Loading Your Deposits
+              Loading Your Datas
               <LinearProgress />
             </Grid>
           )}
-          <Grid item xs={12} lg={4}>
-            <RecentTransactions
-              userRecentTransactions={userRecentTransactions}
-              limit={7}
-            />
-          </Grid> */}
         </Grid>
       </Box>
     </PageContainer>

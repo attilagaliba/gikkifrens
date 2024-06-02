@@ -33,10 +33,14 @@ interface Subscription {
 interface StakeChartProps {
   userSubs: Subscription[];
   userMinData: any;
-  degenPrice?: number;
+  userSelfStake?: any;
 }
 
-const StakeChart: React.FC<StakeChartProps> = ({ userSubs, userMinData }) => {
+const StakeChart: React.FC<StakeChartProps> = ({
+  userSubs,
+  userMinData,
+  userSelfStake,
+}) => {
   // chart
   const theme = useTheme();
   const optionscolumnchart: any = {
@@ -66,16 +70,15 @@ const StakeChart: React.FC<StakeChartProps> = ({ userSubs, userMinData }) => {
     labels: userSubs.map((sub) => sub.channelData.title),
   };
   const seriescolumnchart = userSubs.flatMap((sub) =>
-    sub.pool.poolMembers.map((member: { units: number; }) => {
+    sub.pool.poolMembers.map((member: { units: number }) => {
       const item = sub;
       if (
         item.channelData.owner.toLowerCase() ===
         userMinData.userAddress.toLowerCase()
       ) {
         return (
-          ((((member.units * 85212635) / 100 / 10000000 / 1000000) * 100) /
-            (item.pool.totalUnits / 1000000)) *
-          10
+          (userSelfStake * 100) /
+          (item.pool.totalUnits / 1000000)
         ).toFixed(2);
       } else {
         return (
@@ -86,9 +89,9 @@ const StakeChart: React.FC<StakeChartProps> = ({ userSubs, userMinData }) => {
       }
     })
   );
-  console.log(seriescolumnchart);
+
   return (
-    <DashboardCard title={`Stakes (${userSubs.length})`}>
+    <DashboardCard title={`Your Stake in Channel`}>
       <Chart
         options={optionscolumnchart}
         series={seriescolumnchart}

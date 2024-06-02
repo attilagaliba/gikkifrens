@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from "@mui/material/styles";
+import Chip from "@mui/material/Chip";
 import { Stack, Typography, Avatar, Fab } from "@mui/material";
+
 import {
   IconArrowDownRight,
   IconArrowUpRight,
@@ -16,12 +18,14 @@ interface Props {
   degenPrice: any;
   userBalanceFuncHistory: any;
   balanceArea: any;
+  userAlfaBalance: any;
 }
 
 const MonthlyEarnings: React.FC<Props> = ({
   userBalanceFuncHistory,
   degenPrice,
   balanceArea,
+  userAlfaBalance,
 }) => {
   // chart color
   const theme = useTheme();
@@ -120,9 +124,31 @@ const MonthlyEarnings: React.FC<Props> = ({
       }
     >
       <>
-        <Typography variant="h3" fontWeight="700" mt="-20px">
-          {balanceArea ? balanceArea : null}
-        </Typography>
+        <Chip
+          sx={{
+            height: "55px",
+            "& .MuiChip-label": {
+              display: "block",
+              whiteSpace: "normal",
+            },
+          }}
+          label={balanceArea ? balanceArea : null}
+        />
+        {" <> "}
+        <Chip
+          sx={{
+            height: "40px",
+            "& .MuiChip-label": {
+              display: "block",
+              whiteSpace: "normal",
+            },
+          }}
+          label={`Claimed ${
+            userAlfaBalance
+              ? Number((userAlfaBalance / 100000000000000).toFixed(3))
+              : null
+          } ALFA Ready For Stake`}
+        />
       </>
     </DashboardCard>
   );

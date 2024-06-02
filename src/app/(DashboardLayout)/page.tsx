@@ -27,6 +27,7 @@ import {
   getUserTrasfers,
   getUserByFid,
   getUserStakedList,
+  getUserStake,
   getUserBalance,
   getUserBalanceHistory,
   getSubsRew,
@@ -41,6 +42,8 @@ const Dashboard = () => {
   const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
   const [userBalanceFuncHistory, setUserBalanceHistoryFunc] =
     useState<any>(null);
+
+  const [userSelfStake, setUserSelfStake] = useState<any>(0);
 
   const [updatedUserStakedList, setUpdatedUserStakedList] = useState<any[]>([]);
 
@@ -80,6 +83,47 @@ const Dashboard = () => {
       setUserData(JSON.parse(storedUserData));
     }
   }, []);
+
+  const getUserStakeFunc = async (
+    userAddress: any,
+    userChannel: any,
+    toConvertNumber: number
+  ) => {
+    try {
+      if (
+        !userSelfStake &&
+        userAddress !== undefined &&
+        userChannel !== undefined
+      ) {
+        const responseBalance = await getUserStake(userAddress, userChannel);
+        if (responseBalance) {
+          return Number(
+            (responseBalance.result.balance / 100000000000000) * toConvertNumber
+          ).toFixed(2);
+        }
+      } else {
+        return 0;
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (userMinData) {
+      const fetchData = async () => {
+        try {
+          const userSelfStakeFunc = await getUserStakeFunc(
+            userMinData.userAddress,
+            userMinData.channeladdress,
+            1
+          );
+          setUserSelfStake(userSelfStakeFunc);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [userMinData]);
 
   useEffect(() => {
     if (fid && userMinData && userMinData.userAddress) {
@@ -291,96 +335,99 @@ const Dashboard = () => {
 
   useEffect(() => {
     const getUserStakedListFetchData = async (userAddress: string) => {
-      try {
-        const stakedListResponse = await getUserStakedList(userAddress);
-        const updatedList = await Promise.all(
-          stakedListResponse.account.poolMemberships.map(
-            async (poolMembership: { pool: { admin: { id: any } } }) => {
-              const poolAdminId = poolMembership.pool.admin.id;
-              let channelData;
-              try {
-                channelData = await fetchChannelData(poolAdminId);
-              } catch (error) {
-                console.error("Error fetching channel data:", error);
-                channelData = {
-                  id: `${userAddress}`,
-                  lastUpdatedTimestamp: "unknown",
-                  numberOfSubscribers: 0,
-                  numberOfStakers: 0,
-                  totalSubscriptionFlowRate: "1",
-                  totalSubscriptionInflowAmount: "1",
-                  totalClaimed: "1",
-                  owner: `${userAddress}`,
-                  currentStaked: "1",
-                  estimatedEarningsPerSecond: "1",
-                  incomeToStakeRatio: "1",
-                  stakeToIncomeRatio: "1",
-                  totalSubscriptionCashbackFlowRate: "1",
-                  totalSubscriptionCashbackFlowAmount: "1",
-                  title: "unknown",
-                  bio: "unknown",
+      if (userAddress && userSelfStake > 0 && userMinData) {
+        try {
+          const stakedListResponse = await getUserStakedList(userAddress);
+          const updatedList = await Promise.all(
+            stakedListResponse.account.poolMemberships.map(
+              async (poolMembership: { pool: { admin: { id: any } } }) => {
+                const poolAdminId = poolMembership.pool.admin.id;
+                let channelData;
+                try {
+                  channelData = await fetchChannelData(poolAdminId);
+                } catch (error) {
+                  console.error("Error fetching channel data:", error);
+                  channelData = {
+                    id: `${userAddress}`,
+                    lastUpdatedTimestamp: "unknown",
+                    numberOfSubscribers: 0,
+                    numberOfStakers: 0,
+                    totalSubscriptionFlowRate: "1",
+                    totalSubscriptionInflowAmount: "1",
+                    totalClaimed: "1",
+                    owner: `${userAddress}`,
+                    currentStaked: "1",
+                    estimatedEarningsPerSecond: "1",
+                    incomeToStakeRatio: "1",
+                    stakeToIncomeRatio: "1",
+                    totalSubscriptionCashbackFlowRate: "1",
+                    totalSubscriptionCashbackFlowAmount: "1",
+                    title: "unknown",
+                    bio: "unknown",
+                  };
+                }
+                const updatedPoolMembership = {
+                  ...poolMembership,
+                  channelData,
                 };
+                return updatedPoolMembership;
               }
-              const updatedPoolMembership = { ...poolMembership, channelData };
-              return updatedPoolMembership;
+            )
+          );
+          setUpdatedUserStakedList(updatedList);
+          const calculateEarnings = (item: {
+            channelData: { owner: string; estimatedEarningsPerSecond: number };
+            pool: { poolMembers: { units: number }[] };
+          }) => {
+            if (
+              item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
+            ) {
+              const result: number =
+                ((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                userSelfStake;
+              const resultPlusOnePercent: number = result * 1.01;
+
+              return resultPlusOnePercent;
+            } else {
+              return (
+                (((((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                  (item.pool.poolMembers[0].units * 100)) /
+                  69.069 /
+                  1000000) *
+                  100) /
+                100
+              );
             }
-          )
-        );
-        setUpdatedUserStakedList(updatedList);
-        const calculateEarnings = (item: {
-          channelData: { owner: string; estimatedEarningsPerSecond: number };
-          pool: { poolMembers: { units: number }[] };
-        }) => {
-          if (
-            item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
-          ) {
-            return (
-              (((((item.channelData.estimatedEarningsPerSecond *
-                60 *
-                60 *
-                24 *
-                30) /
-                10000000000) *
-                ((item.pool.poolMembers[0].units * 85212635) / 1000000)) /
-                100 /
-                1000000) *
-                100) /
-              100
-            );
-          } else {
-            return (
-              (((((item.channelData.estimatedEarningsPerSecond *
-                60 *
-                60 *
-                24 *
-                30) /
-                10000000000) *
-                (item.pool.poolMembers[0].units * 100)) /
-                70 /
-                1000000) *
-                100) /
-              100
-            );
-          }
-        };
+          };
 
-        let total = 0;
-        updatedList.forEach((item) => {
-          const earnings = calculateEarnings(item);
-          total += earnings;
-        });
+          let total = 0;
+          updatedList.forEach((item) => {
+            const earnings = calculateEarnings(item);
+            total += earnings;
+          });
 
-        setTotalEarnings(total);
-        setUpdatedUserStakedList(updatedList);
-      } catch (error) {
-        console.error("Error fetching user staked list:", error);
+          setTotalEarnings(total);
+          setUpdatedUserStakedList(updatedList);
+        } catch (error) {
+          console.error("Error fetching user staked list:", error);
+        }
       }
     };
 
     if (userMinData && userMinData.userAddress) {
       getUserStakedListFetchData(userMinData.userAddress);
     }
-  }, [userMinData]);
+  }, [userMinData, userSelfStake]);
 
   const calculateChannelCost = (response: {
     totalSubscriptionFlowRate: any;
@@ -497,10 +544,11 @@ const Dashboard = () => {
             )}
           </Grid>
           <Grid item xs={12} lg={8}>
-            {updatedUserSubsAlfafrens.length > 0 ? (
+            {updatedUserSubsAlfafrens.length > 0 && userSelfStake > 0 ? (
               <StakePerformance
                 userSubs={updatedUserStakedList}
                 userMinData={userMinData}
+                userSelfStake={userSelfStake}
               />
             ) : (
               <>

@@ -6,7 +6,6 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(url);
-    console.log(response);
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
     }
