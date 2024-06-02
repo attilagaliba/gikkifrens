@@ -298,7 +298,7 @@ export default function RootLayout({
                     <Button
                       variant="contained"
                       color="primary"
-                      href="https://warpcast.com/attilagaliba.eth/0xf30380cc"
+                      href="https://warpcast.com/attilagaliba.eth/0xee205ebf"
                       target="_blank"
                       rel="noopener noreferrer"
                       sx={{ backgroundColor: "black", marginTop: "20px" }}
