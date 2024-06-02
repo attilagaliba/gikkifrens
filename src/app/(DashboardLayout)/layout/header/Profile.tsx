@@ -21,7 +21,7 @@ const Profile = (userMinData: any) => {
   const handleClose2 = () => {
     setAnchorEl2(null);
   };
-  return <Box>{userMinData?.userMinData.handle}</Box>;
+  return <Box>sa</Box>;
 };
 
 export default Profile;
