@@ -128,7 +128,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
                 src="https://www.alfafrens.com/_next/image?url=%2Ficon-64.png&w=96&q=75"
               />
             }
-            label={`Avg Gas Fee = ${gasFee.toFixed(2)}`}
+            label={`Avg Gas = ${gasFee.toFixed(0)}`}
             variant="outlined"
           />
           <Chip label={`${displayName}`} variant="outlined" />

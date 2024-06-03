@@ -1,67 +1,85 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { Typography } from "@mui/material";
 import { getUserAddress } from "../func/galiba";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
+import { Avatar, TextField, Grid } from "@mui/material";
+import MenuItem from "@mui/material/MenuItem";
+import { askAi } from "@/utils/openai";
+import { Box, Button } from "@mui/material";
 import {
-  Box,
-  AppBar,
-  Toolbar,
-  styled,
-  Stack,
-  IconButton,
-  Badge,
-  Button,
-} from "@mui/material";
-const SamplePage = () => {
-  const [generatedContent, setGeneratedContent] =
-    useState<string>("Waiting af...");
+  getUserTrasfers,
+  getUserByFid,
+  getUserStakedList,
+  getUserAlfaBalance,
+  getUserStake,
+  getUserBalance,
+  getUserBalanceHistory,
+  getSubsRew,
+  fetchChannelData,
+  getUserSubscribedChannels,
+} from "../func/galiba";
 
+const AiPage = () => {
   const [degenPrice, setDegenPrice] = useState(0.02);
+  const [bleuPrice, setBleuPrice] = useState(0.001);
   const [isGenerating, setIsGenerating] = useState<boolean>(false); // Yeni state ekledik
   const [bleuBalance, setBleuBalance] = useState(0);
   const [userWallet, setUserWallet] = useState("0x");
 
-  const apiKey = "AIzaSyAmeJjqu5K5ty7ZyEr2JDg9v30PCna01Us";
-  const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>({
-    userFid: null,
-    userDisplayName: null,
-    userBalance: null,
-    userSubscriptions: 0,
-    userDailyAlfa: 0,
-    userStakeCashback: 0,
-    userChannelEarnings: 0,
+
+  const [aiContent, setAiContent] = useState<string | null>(null);
+  const [sendUserdata, setSendUserdata] = useState<any>({
+    userDegenBalance: "278.27 Degen",
+    userDailyAlfa: "58.27 Alfa",
+    userStakeCashback: "6930 Degen",
+    userChannelSubs: 38,
+    userChannelEarnings: "4750 Degen",
+    userBleuBalance: "125448413 Bleu",
+    userDeposit: "9316 Degen",
+    userWithraw: "1610 Degen",
+    userSubscriptions: 8,
+    userPaidForSubscriptions: "6500 Degen",
   });
 
-  useEffect(() => {
-    // localStorage'dan verilerin alınması
-    const storedUserData = localStorage.getItem("userData");
-    if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
-    }
-  }, []);
+  //LanguageFunc
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const handleLanguageChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setSelectedLanguage(event.target.value);
+  };
 
+  // Get Prices
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
+        // Fetch Degen Price
+        const degenResponse = await fetch(
           "https://li.quest/v1/token?chain=8453&token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"
         );
-        const result = await response.json();
-        setDegenPrice(parseFloat(parseFloat(result.priceUSD).toFixed(4)));
+        const degenResult = await degenResponse.json();
+        setDegenPrice(parseFloat(parseFloat(degenResult.priceUSD).toFixed(5)));
+
+        // Fetch Bleu Price
+        const bleuResponse = await fetch(
+          "https://li.quest/v1/token?chain=8453&token=0xBf4Db8b7A679F89Ef38125d5F84dd1446AF2ea3B"
+        );
+        const bleuResult = await bleuResponse.json();
+        setBleuPrice(parseFloat(parseFloat(bleuResult.priceUSD).toFixed(7)));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
   }, []);
 
+  // GetUser
   useEffect(() => {
     const storedIsAuthenticated = localStorage.getItem("isAuthenticated");
     const storedProfile = localStorage.getItem("userProfile");
@@ -73,6 +91,7 @@ const SamplePage = () => {
     }
   }, []);
 
+  // Bleu Balance
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,7 +109,6 @@ const SamplePage = () => {
       fetchData();
     }
   }, [fid]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -109,6 +127,7 @@ const SamplePage = () => {
     }
   }, [userWallet]);
 
+  // Random Messages
   const creatingMessage = [
     "I'm on it, dude.",
     "Doing it right now.",
@@ -161,145 +180,186 @@ const SamplePage = () => {
     "Setting it up.",
     "Working through it.",
   ];
-
+  const randomEntry = [
+    "Yo, elephants be one of da biggest land animals on dis planet, ya feel me? African elephants, dey got dem ears bigger than Asian elephants, ya know? Savanna elephants' ears be lookin' different from dem forest elephants, straight up. Dey some social animals, keepin' dem family ties tight. Usin' dey trunks, dey drink water, take baths, and grab food, all dat jazz. Pregnant elephants be carryin' fo' 'bout 22 months, damn! And dey got some insane memory skills, no lie.",
+    "Yo, cats be one of da most popular pets out there, been chillin' wit humans fo' centuries. Dese cats, dey be night hunters, rockin' dope night vision and sharp hearin'. Dey be mad agile, flexin' dey flexibility and quick reflexes, ya dig? And check dis, cats communicate wit humans usin' body language and vocal tones, ain't dat cool? Dey be seen as independent and mysterious, but dey can be lovin' and loyal to they peeps too.",
+    "Ayo, Earth be da third planet in our Solar System, holdin' it down as da only known planet supportin' life. Dis blue planet, 'bout 70% of it be covered in water, ya know? Earth's atmosphere be packin' oxygen and other gases vital fo' life. Earth be spinnin' 'round its axis, makin' day and night, while orbitin' 'round da Sun, causin' dem seasons, ya feel? Earth be diverse AF, wit all kinda climates and geographies, hostin' mad ecosystems and species. Our planet be filled wit natural resources crucial fo' survival, so we gotta keep it real and protect it, ya hear?",
+    "water be da essence of life, ya know what I'm sayin'? It be da most essential substance for all living things, keepin' us hydrated and kickin'. 'Bout 70% of Earth be covered in water, givin' us oceans, lakes, and rivers to chill by. Water be involved in all kinds of processes in our bodies and da environment, makin' it a key player in keepin' things runnin' smooth.",
+    "Aight, peep this, da first blockchain concept was introduced back in 1991 by two cats named Stuart Haber and W. Scott Stornetta. Dey came up wit dis idea to timestamp digital documents to make 'em tamper-proof. But da actual term 'blockchain' got poppin' in 2008 when Satoshi Nakamoto dropped da Bitcoin whitepaper, layin' da foundation for blockchain technology as we know it today.",
+    "wine be dat classy drink dat's been around since ancient times, ya feel? It be made from fermented grapes and it's been enjoyed by peeps all over da world for centuries. Wine culture be deep, with different regions boastin' their own unique flavors and styles. From bold reds to crisp whites, wine be all about savorin' da moment and appreciatin' da craftsmanship behind each bottle.",
+    "Check it, da world's first coffee cup dates back to da 15th century in da Ottoman Empire, homie. Dem early coffee cups, known as 'pialas,' was small, handleless cups made of porcelain or metal. Dey was perfect for sippin' on dat strong Turkish coffee, bringin' peeps together for deep convos and good vibes.",
+    "da largest ashtray ever recorded was built in Argentina in 2011. Dis massive ashtray bein' 'bout 5.6 meters in diameter, weighin' 'bout 4,000 kilograms. It was built to promote awareness 'bout da harmful effects of smokin' and to encourage peeps to kick dat habit, ya know? It be a bold statement against smokin' and a reminder to take care of our health and environment.",
+  ];
   function getRandomMessage() {
     const randomIndex = Math.floor(Math.random() * creatingMessage.length);
     return creatingMessage[randomIndex];
   }
+  function getRandomEntry() {
+    const randomIndex = Math.floor(Math.random() * randomEntry.length);
+    return randomEntry[randomIndex];
+  }
 
-  const systemDescription = `
-System:
-- You can subscribe monthly by paying "Degen" as a user, and in return, you earn "Alfa" monthly.
-- You can claim the Alfars you earned whenever you want to your account.
-- By staking "Alfa", you earn "degen" monthly.
-
-Calculations are done instantly. For example, the amounts you earn or pay monthly are deducted from your account every second. If you subscribe to 500 Degen, 500 degen is deducted from your account every second and reaches 0 at the end of the month. So, if you unsubscribe, you only pay for the time you subscribed, or even if you have only 100 degen in your account, you can subscribe to a channel or channels that cost 500 degen.
-
-Additionally, we can collect subscribers by opening our own channel, and we receive monthly payments per subscriber to our own channel.
-`;
-
-  const aiData = {
-    dataUnits: {
-      userBalance: "DEGEN",
-      userDailyAlfa: "ALFA",
-      userStakeCashback: "DEGEN",
-      userChannelEarnings: "DEGEN",
-    },
-    dataDescription: {
-      userBalance: "User Current Degen Balance",
-      userSubscriptions: "User Subscription Count",
-      userDailyAlfa: "User's Daily Alfa Reward",
-      userStakeCashback: "User's Income Degen from Stakes",
-      userChannelEarnings:
-        "User's Income Degen from User's Channel Subscriptions",
-    },
-  };
-
-  const generateContent = async () => {
-    setGeneratedContent(getRandomMessage());
-    setIsGenerating(true);
-    const requestData = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `* Response should return with html codes and modern colored (purple palette) text. * ${systemDescription} * Response should return with html codes and modern colored (purple palette) text. * Can you analyse that data? I want recommendations for the user's daily earnings and earning more. Also advice on how many subscribers you should have to double your earnings, how much alpha stake you should make, and what you should do without reducing your expenses. * Response should return with html codes and modern colored (purple palette) text. I want to speak in urban language. Sometimes you can make fun of it. * Degen Price: 1 DEGEN = ${degenPrice} USD | ALFA has no financial equivalent. * and congratulate me for holding ${bleuBalance} $BLEU * Data: ${JSON.stringify(
-                userData
-              )} *  Data's Descriptions: ${JSON.stringify(aiData)}`,
-            },
-          ],
-        },
-      ],
-    };
-
-    const makeRequest = async (retryCount = 0) => {
+  // Send AI Request
+  async function generateContent() {
+    if (!isGenerating) {
       try {
-        const response = await fetch(requestUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestData),
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        setAiContent(getRandomMessage());
+        setIsGenerating(true);
+        const content = await askAi(
+          sendUserdata,
+          selectedLanguage,
+          degenPrice,
+          bleuPrice
+        );
+        const lines = content.message.content.split("\n\n");
+        let fullContent = ""; // Tüm içeriği bir değişkene atamak için boş bir dize oluşturuyoruz
+        for (const line of lines) {
+          if (line.startsWith("**") && line.endsWith("**")) {
+            // Eğer cümle kalın yazılması gerekiyorsa
+            fullContent += `<strong>${line.substring(
+              2,
+              line.length - 2
+            )}</strong><br/><br/>`;
+          } else {
+            fullContent += `${line}<br/><br/>`;
+          }
         }
-
-        const data = await response.json();
-        const storyText = data.candidates[0].content.parts[0].text;
-
-        if (!storyText.startsWith("```html")) {
-          throw new Error("Response did not start with ```html");
-        }
-
-        const cleanHtml = storyText.replace(/^```html\n|```$/g, "");
-        setGeneratedContent(cleanHtml);
+        setAiContent(fullContent);
       } catch (error) {
-        if (retryCount < 10) {
-          setGeneratedContent(getRandomMessage());
-          await makeRequest(retryCount + 1);
-        } else {
-          setGeneratedContent(
-            "Failed to generate content after multiple attempts."
-          );
-        }
+        console.error("Error occurred while fetching AI response:", error);
+        setAiContent(null);
+      } finally {
+        setIsGenerating(false);
       }
-    };
-
-    try {
-      await makeRequest();
-    } finally {
-      setIsGenerating(false);
     }
-  };
+  }
+
+  // Get User Stats
+  const [userMinData, setUserMinData] = useState<any>([]);
+  const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
+  const [updatedUserStakedList, setUpdatedUserStakedList] = useState<any[]>([]);
+
+  const [userSubsAlfafrens, setUserSubsAlfafrens] = useState<any[]>([]);
+  const [userSubsDegenFans, setUserSubsDegenfans] = useState<any[]>([]);
+  const [updatedUserSubsAlfafrens, setUpdatedUserSubsAlfafrens] = useState<
+    any[]
+  >([]);
+
+  const [totalAlfaAllocationPerMo, setTotalAlfaAllocationPerMo] = useState(0);
+  const [userRecentTransactions, setUserRecentTransactions] = useState<any[]>(
+    []
+  );
+  const [userSelfStake, setUserSelfStake] = useState<any>(0);
+
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [totalSubEarnings, setTotalSubEarnings] = useState(0);
+
 
   return (
-    <PageContainer title="Bleu AI" description="this is Sample page">
-      <>
-        <DashboardCard>
-          <>
-            <h3>Your Wallet: {userWallet} </h3>
-            <h3>You have {bleuBalance} $BLEU</h3>
-            {bleuBalance < 999999999999999999999999999999999999999999999999 ? (
-              isGenerating ? (
-                <Button
-                  variant="contained"
-                  disableElevation
-                  color="secondary"
+    <PageContainer title="Bleu AI" description="GikkiFrens Ai">
+      <DashboardCard>
+        <>
+          <Grid container style={{ width: "100%", justifyContent: "center" }}>
+            <Grid item xs={12} sm={8} md={10}>
+              <Box bgcolor="white" borderRadius={8} boxShadow={3} p={3} mt={4}>
+                <Grid container alignItems="center" spacing={1}>
+                  <Grid item>
+                    <Avatar
+                      alt="Profile Picture"
+                      src="/images/profile/pccat.gif"
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="h5">AiFren</Typography>
+                  </Grid>
+                </Grid>
+                <Box mt={2}>
+                  <Typography variant="body1">
+                    {aiContent ? (
+                      <div dangerouslySetInnerHTML={{ __html: aiContent }} />
+                    ) : (
+                      getRandomEntry()
+                    )}
+                    {!aiContent && "\u00A0"} {/* non-breaking space */}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box mt={2} display="flex">
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  value={
+                    "Hey bud! Can you analyse my Alfafrens data, I hope you do well. I pay for every request tho!"
+                  }
                   disabled
-                >
-                  Asking...
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  disableElevation
-                  color="primary"
-                  onClick={generateContent}
-                >
-                  Generate Analyse
-                </Button>
-              )
-            ) : (
-              <Button
-                variant="contained"
-                disableElevation
-                color="secondary"
-                disabled
-              >
-                You need hold more than 100 $BLEU for Bleu Ai
-              </Button>
-            )}
-            <div>
-              <h2>Ai Fren:</h2>
-              <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
-            </div>
-          </>
-        </DashboardCard>
-      </>
+                />
+              </Box>
+              <Box mt={2} textAlign="center">
+                <Grid container spacing={5} alignItems="center">
+                  <Grid item>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      value={`Holding ${bleuBalance} $BLEU`}
+                      disabled
+                    />
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                      select
+                      label="Language (Beta (may not work))"
+                      value={selectedLanguage}
+                      onChange={handleLanguageChange}
+                      variant="outlined"
+                      fullWidth
+                    >
+                      {[
+                        "English",
+                        "Español",
+                        "Français",
+                        "Deutsch",
+                        "Türkçe",
+                        "한국인",
+                        "ประเทศไทย",
+                        "Bahasa Indonesia",
+                        "Português",
+                        "Italiano",
+                      ].map((language) => (
+                        <MenuItem key={language} value={language}>
+                          {language}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item>
+                    {isGenerating ? (
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        color="secondary"
+                        disabled
+                      >
+                        Generating...
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        color="primary"
+                        onClick={generateContent}
+                      >
+                        Generate Analyse
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
+          </Grid>
+        </>
+      </DashboardCard>
     </PageContainer>
   );
 };
 
-export default SamplePage;
+export default AiPage;

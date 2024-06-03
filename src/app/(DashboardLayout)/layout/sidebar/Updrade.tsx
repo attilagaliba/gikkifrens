@@ -43,7 +43,7 @@ export const Upgrade = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  href="https://www.alfafrens.com/channel/0x27bf87dcaf7121715ac6b8addf2085a62be7ea0d/chat"
+                  href="https://warpcast.com/attilagaliba.eth/0xee205ebf"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -53,7 +53,7 @@ export const Upgrade = () => {
                   }}
                 >
                   <Typography variant="button" style={{ color: "green" }}>
-                    Feedback
+                    Tip
                   </Typography>
                 </Button>
               </Box>
@@ -102,7 +102,7 @@ export const Upgrade = () => {
                   }}
                 >
                   <Typography variant="button" style={{ color: "green" }}>
-                    Minted Out!
+                    Mint
                   </Typography>
                 </Button>
               </Box>
