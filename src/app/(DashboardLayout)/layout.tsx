@@ -192,12 +192,12 @@ export default function RootLayout({
                     >
                       Details
                     </CustomLink>
-                    {/* <CustomLink
+                    <CustomLink
                       href="/ai"
                       sx={{ textDecoration: "none", color: "inherit" }}
                     >
                       AiFren
-                    </CustomLink> */}
+                    </CustomLink>
                   </Box>
                   <Typography
                     variant="body2"
@@ -406,6 +406,28 @@ export default function RootLayout({
                       Subscribe for 500 DEGENx/mo
                     </Typography>
                   </Button>
+                  <Typography variant="body2" color="textSecondary">
+                    If you are a subscriber and still cannot see it, try logging
+                    in with other addresses.
+                  </Typography>
+                  <CustomLink
+                    target="_blank"
+                    href="https://gikkifrens.vercel.app/"
+                    sx={{ textDecoration: "none", color: "textSecondary" }}
+                  >
+                    <Typography variant="body2" color="textSecondary">
+                      https://gikkifrens.vercel.app/
+                    </Typography>
+                  </CustomLink>
+                  <CustomLink
+                    target="_blank"
+                    href="https://frens.gikkilab.com/"
+                    sx={{ textDecoration: "none", color: "textSecondary" }}
+                  >
+                    <Typography variant="body2" color="textSecondary">
+                    https://frens.gikkilab.com/
+                    </Typography>
+                  </CustomLink>
                 </Box>
                 <Box
                   sx={{
