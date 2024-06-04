@@ -31,6 +31,7 @@
     "apexcharts": "3.41.1",
     "aws-jwt-verify": "^4.0.1",
     "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "express": "^4.19.2",

@@ -6,6 +6,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import { Stack, Typography, Avatar, Fab } from "@mui/material";
+import cheerio from "cheerio";
 
 import {
   IconArrowDownRight,
@@ -32,19 +33,36 @@ const MonthlyEarnings: React.FC<Props> = ({
   const secondary = theme.palette.secondary.main;
   const secondarylight = "#f5fcff";
   const errorlight = "#fdede8";
+  const [balance, setBalance] = useState("");
 
   // chart
-  const dataDate =
-    userBalanceFuncHistory?.accountTokenSnapshots[0].accountTokenSnapshotLogs
-      .map((log: { timestamp: number }) => {
-        const timestamp = log.timestamp * 1000; // Unix zaman damgasını milisaniyeye çevir
-        const date = new Date(timestamp); // Unix zaman damgasını tarih nesnesine dönüştür
-        // İstenilen formatta tarihi döndür ("1d ago" gibi)
-        const diffTime = Math.abs(Date.now() - date.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return `${diffDays}d ago`;
-      })
-      .reverse();
+
+  let dataDate = []; // dataDate'i boş bir dizi olarak başlatın
+
+  if (
+    userBalanceFuncHistory?.accountTokenSnapshots[0]?.accountTokenSnapshotLogs
+  ) {
+    dataDate =
+      userBalanceFuncHistory.accountTokenSnapshots[0].accountTokenSnapshotLogs.map(
+        (log: { timestamp: number }) => {
+          const timestamp = log.timestamp * 1000; // Unix zaman damgasını milisaniyeye çevir
+          const date = new Date(timestamp); // Unix zaman damgasını tarih nesnesine dönüştür
+          // İstenilen formatta tarihi döndür ("1d ago" gibi)
+          const diffTime = Math.abs(Date.now() - date.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return `${diffDays}d ago`;
+        }
+      );
+  }
+
+  const updatedDataDate = [...dataDate];
+  updatedDataDate.unshift("Live");
+
+  // Sonuçları ters çevirin
+  const reversedDataDate = updatedDataDate.reverse();
+
+  // Güncellenmiş dataDate dizisini kullanarak işlemleri devam ettirin
+  // ...
 
   const optionscolumnchart: any = {
     chart: {
@@ -76,7 +94,7 @@ const MonthlyEarnings: React.FC<Props> = ({
       curve: "smooth",
       width: 2,
     },
-    labels: dataDate,
+    labels: updatedDataDate,
     fill: {
       colors: [secondarylight],
       type: "straight",
@@ -89,19 +107,56 @@ const MonthlyEarnings: React.FC<Props> = ({
       theme: theme.palette.mode === "dark" ? "dark" : "light",
     },
   };
-  const data =
-    userBalanceFuncHistory?.accountTokenSnapshots[0].accountTokenSnapshotLogs
-      .map((log: { balance: number }) =>
-        (log.balance / 1000000000000000000).toFixed(2)
-      )
-      .reverse();
+
+  // Önceden hesaplanmış verileri alın
+  let data = []; // Veriyi başlat
+  let reversedData = [];
+  if (
+    userBalanceFuncHistory &&
+    userBalanceFuncHistory.accountTokenSnapshots &&
+    userBalanceFuncHistory.accountTokenSnapshots[0] &&
+    userBalanceFuncHistory.accountTokenSnapshots[0].accountTokenSnapshotLogs
+  ) {
+    // Veriyi alma işlemlerini gerçekleştir
+    data =
+      userBalanceFuncHistory.accountTokenSnapshots[0].accountTokenSnapshotLogs.map(
+        (log: { balance: number }) =>
+          (log.balance / 1000000000000000000).toFixed(2)
+      );
+
+    // Veri dizisini güncelle
+    const updatedData = [...data];
+    updatedData.unshift(balance); // Her güncellemede en son balance değerini en başa ekle
+
+    // Sonuçları ters çevir
+    reversedData = updatedData.reverse();
+
+    // Devam eden işlemleri yap
+    // ...
+  } else {
+    // Eğer veri yoksa, uygun bir işlem yap
+    console.error("Veri bulunamadı.");
+  }
+
   const seriescolumnchart: any = [
     {
       name: "DEGEN",
       color: secondary,
-      data: data,
+      data: reversedData,
     },
   ];
+
+  useEffect(() => {
+    const getBalanceFromPage = () => {
+      const htmlContent = document.documentElement.innerHTML;
+      const $ = cheerio.load(htmlContent);
+      const balanceContent = $(".flowing-balance").text();
+      setBalance(balanceContent);
+    };
+    const interval = setInterval(getBalanceFromPage, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <DashboardCard
       title={`Balance | Degen = $${degenPrice}`}
