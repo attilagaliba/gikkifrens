@@ -649,6 +649,7 @@ const AiPage = () => {
         <>
           <Grid container style={{ width: "100%", justifyContent: "center" }}>
             <Grid item xs={12} sm={8} md={10}>
+            <div style={{ textAlign: "right" }}>
               <Box
                 id="user"
                 bgcolor="white"
@@ -656,9 +657,10 @@ const AiPage = () => {
                 boxShadow={3}
                 p={3}
                 mt={4}
+                style={{ marginBottom: "10px" }}
               >
                 <Grid container alignItems="center" spacing={1}>
-                  <Grid item>
+                  <Grid item style={{ marginLeft: "auto" }}>
                     <Avatar
                       alt="Profile Picture"
                       src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
@@ -672,7 +674,7 @@ const AiPage = () => {
                   <Typography variant="body1">Can you say something</Typography>
                 </Box>
               </Box>
-
+              </div>
               <Box
                 id="ai"
                 bgcolor="white"
@@ -699,35 +701,42 @@ const AiPage = () => {
 
               {aiContent ? (
                 <>
-                  <Box
-                    id="user"
-                    bgcolor="white"
-                    borderRadius={8}
-                    boxShadow={3}
-                    p={3}
-                    mt={4}
-                  >
-                    <Grid container alignItems="center" spacing={1}>
-                      <Grid item>
-                        <Avatar
-                          alt="Profile Picture"
-                          src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
-                        />
+                  <div style={{ textAlign: "right" }}>
+                    {/* User kutusu */}
+                    <Box
+                      id="user"
+                      bgcolor="white"
+                      borderRadius={8}
+                      boxShadow={3}
+                      p={3}
+                      mt={4}
+                      style={{ marginBottom: "10px" }}
+                    >
+                      <Grid container alignItems="center" spacing={1}>
+                        <Grid item style={{ marginLeft: "auto" }}>
+                          <Avatar
+                            alt="Profile Picture"
+                            src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
+                          />
+                        </Grid>
+                        <Grid item>
+                          <Typography variant="h5">{displayName}</Typography>
+                        </Grid>
                       </Grid>
-                      <Grid item>
-                        <Typography variant="h5">{displayName}</Typography>
-                      </Grid>
-                    </Grid>
-                    <Box mt={2}>
-                      <Typography variant="body1">
-                        {`I've ${sendUserdata.userDegenBalance} and ${sendUserdata.userChannelSubs} subs.
- I'm paying ${sendUserdata.userPaidForSubscriptions} for ${sendUserdata.userSubscriptions} subscriptions.
- My daily Alfa Amount is ${sendUserdata.userDailyAlfa}. My Stake Cashback is ${sendUserdata.userStakeCashback}.`}
-   Now Can you say something about my data? And Elephants are so fun! 
-                      </Typography>
-                    </Box>
-                  </Box>
 
+                      <Box mt={2}>
+                        <Typography variant="body1">
+                          {`I've ${sendUserdata.userDegenBalance} and ${sendUserdata.userChannelSubs} subs.
+        I'm paying ${sendUserdata.userPaidForSubscriptions} for ${sendUserdata.userSubscriptions} subscriptions.
+        My daily Alfa Amount is ${sendUserdata.userDailyAlfa}. My Stake Cashback is ${sendUserdata.userStakeCashback}.`}
+                          Now Can you say something about my data? And Elephants
+                          are so fun!
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </div>
+
+                  {/* AI kutusu */}
                   <Box
                     id="ai"
                     bgcolor="white"
