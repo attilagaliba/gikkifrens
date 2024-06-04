@@ -55,16 +55,16 @@ const Menuitems = [
     icon: IconMoodHappy,
     href: "/details",
   },
-  // {
-  //   navlabel: true,
-  //   subheader: "idk",
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: "Ai Fren",
-  //   icon: IconMoodHappy,
-  //   href: "/ai",
-  // },
+  {
+     navlabel: true,
+     subheader: "idk",
+   },
+   {
+     id: uniqueId(),
+     title: "Ai Fren",
+     icon: IconMoodHappy,
+     href: "/ai",
+   },
 ];
 
 export default Menuitems;

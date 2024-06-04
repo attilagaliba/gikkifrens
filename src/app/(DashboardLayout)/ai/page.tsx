@@ -34,16 +34,14 @@ const AiPage = () => {
 
   const [aiContent, setAiContent] = useState<string | null>(null);
   const [sendUserdata, setSendUserdata] = useState<any>({
-    userDegenBalance: "278.27 Degen",
-    userDailyAlfa: "58.27 Alfa",
-    userStakeCashback: "6930 Degen",
-    userChannelSubs: 38,
-    userChannelEarnings: "4750 Degen",
-    userBleuBalance: "125448413 Bleu",
-    userDeposit: "9316 Degen",
-    userWithraw: "1610 Degen",
-    userSubscriptions: 8,
-    userPaidForSubscriptions: "6500 Degen",
+    userDegenBalance: "0 Degen",
+    userDailyAlfa: "0 Alfa",
+    userStakeCashback: "0 Degen",
+    userChannelSubs: 0,
+    userChannelEarnings: "0 Degen",
+    userBleuBalance: "0 Bleu",
+    userSubscriptions: 0,
+    userPaidForSubscriptions: "0 Degen",
   });
 
   //LanguageFunc
@@ -237,6 +235,8 @@ const AiPage = () => {
   // Get User Stats
   const [userMinData, setUserMinData] = useState<any>([]);
   const [userBalanceFunc, setUserBalanceFunc] = useState<any>(null);
+  const [userBalanceFuncHistory, setUserBalanceHistoryFunc] =
+    useState<any>(null);
   const [updatedUserStakedList, setUpdatedUserStakedList] = useState<any[]>([]);
 
   const [userSubsAlfafrens, setUserSubsAlfafrens] = useState<any[]>([]);
@@ -250,18 +250,437 @@ const AiPage = () => {
     []
   );
   const [userSelfStake, setUserSelfStake] = useState<any>(0);
-
+  const [channelData, setChannelData] = useState<any>(null);
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalSubEarnings, setTotalSubEarnings] = useState(0);
 
+  const [userData, setUserData] = useState<any>({
+    userFid: null,
+    userDisplayName: null,
+    userBalance: null,
+    userSubscriptions: 0,
+    userDailyAlfa: 0,
+    userStakeCashback: 0,
+    userChannelEarnings: 0,
+  });
 
+  //UserStats Func
+  ///User Stake
+  const getUserStakeFunc = async (
+    userAddress: any,
+    userChannel: any,
+    toConvertNumber: number
+  ) => {
+    try {
+      if (
+        !userSelfStake &&
+        userAddress !== undefined &&
+        userChannel !== undefined
+      ) {
+        const responseBalance = await getUserStake(userAddress, userChannel);
+        if (responseBalance) {
+          return Number(
+            (responseBalance.result.balance / 100000000000000) * toConvertNumber
+          ).toFixed(2);
+        }
+      } else {
+        return 0;
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (userMinData) {
+      const fetchData = async () => {
+        try {
+          const userSelfStakeFunc = await getUserStakeFunc(
+            userMinData.userAddress,
+            userMinData.channeladdress,
+            1
+          );
+          setUserSelfStake(userSelfStakeFunc);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [userMinData]);
+
+  ///ChannelData
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchChannelData(userMinData.channeladdress);
+        setChannelData(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userMinData && userMinData.channeladdress) {
+      fetchData();
+    }
+  }, [userMinData]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchChannelData(userMinData.channeladdress);
+        const channelCost = calculateChannelCost(response);
+        setTotalSubEarnings(
+          response?.numberOfSubscribers * ((Number(channelCost) * 25) / 100)
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (userMinData && userMinData.channeladdress) {
+      fetchData();
+    }
+  }, [userMinData]);
+
+  ///User Balance
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userMinData && userMinData.userAddress) {
+        const userBalance = await getUserBalance(userMinData.userAddress);
+        const userBalanceHistory = await getUserBalanceHistory(
+          userMinData.userAddress
+        );
+        setUserBalanceFunc(userBalance);
+        setUserBalanceHistoryFunc(userBalanceHistory);
+      }
+    };
+
+    fetchData();
+  }, [userMinData]);
+
+  useEffect(() => {
+    if (fid && userMinData && userMinData.userAddress) {
+      const fetchData = async () => {
+        try {
+          setUserData({
+            userFid: fid,
+            userDisplayName: displayName,
+            userBalance: userBalanceFunc
+              ? (userBalanceFunc.balance / 1000000000000000000).toFixed(4)
+              : null,
+            userSubscriptions: updatedUserSubsAlfafrens.length,
+            userTotalSubsCost: totalSubEarnings,
+            userDailyAlfa: (totalAlfaAllocationPerMo / 30).toFixed(2),
+            userStakeCashback: (totalEarnings - totalSubEarnings).toFixed(2),
+            userChannelEarnings: totalSubEarnings,
+          });
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [
+    fid,
+    displayName,
+    custody,
+    userMinData,
+    userBalanceFunc,
+    totalAlfaAllocationPerMo,
+    totalSubEarnings,
+    updatedUserSubsAlfafrens,
+    totalEarnings,
+    updatedUserStakedList,
+    userSubsAlfafrens,
+  ]);
+
+  ///User Min Data
+  useEffect(() => {
+    const fetchData = async (fid: number) => {
+      const userData = await getUserByFid(fid);
+
+      setUserMinData(userData);
+    };
+
+    if (fid && fid > 0) {
+      fetchData(fid);
+    }
+  }, [fid]);
+
+  ///Transfers
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userMinData && userMinData.userAddress) {
+        const userTransfers = await getUserTrasfers(userMinData.userAddress);
+        const accountData = userTransfers.data.account;
+        const mergedTransfers = [
+          ...accountData.receivedTransferEvents.map(
+            (event: { value: string; timestamp: any }) => ({
+              action: "deposit",
+              value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+              date: event.timestamp || null, // Eğer timestamp yoksa null
+            })
+          ),
+          ...accountData.sentTransferEvents
+            .filter(
+              (event: { to: { id: string } }) =>
+                event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852" ||
+                event.to.id === "0x0000000000000000000000000000000000000000"
+            )
+            .map(
+              (event: {
+                to: { id: string };
+                value: string;
+                timestamp: any;
+              }) => ({
+                action:
+                  event.to.id === "0xf3aaefee7ec04fe3757733290b318f1748bb0852"
+                    ? "gas"
+                    : "withdraw",
+                value: parseFloat(event.value) / 10 ** 18, // Ethereum'da değeri ETH'ye çevirmek için
+                date: event.timestamp || null, // Eğer timestamp yoksa null
+              })
+            ),
+        ];
+        const sortedTransfers = mergedTransfers.sort(
+          (a, b) => (b.date || 0) - (a.date || 0)
+        );
+
+        setUserRecentTransactions(sortedTransfers);
+      }
+    };
+
+    fetchData();
+  }, [userMinData]);
+
+  //User SubsChannels
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const allChannelsAlfaFrens = await getUserSubscribedChannels(fid);
+        setUserSubsAlfafrens(allChannelsAlfaFrens);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (fid && fid > 0) {
+      fetchData();
+    }
+  }, [fid]);
+  useEffect(() => {
+    const fetchAllData = async () => {
+      const allChannelsDegenFans = await getSubsRew(fid);
+      setUserSubsDegenfans(allChannelsDegenFans);
+    };
+
+    if (fid && fid > 0) {
+      fetchAllData();
+    }
+  }, [fid]);
+
+  useEffect(() => {
+    const updatedSubs = userSubsAlfafrens.map((alfaFren) => {
+      const matchedDegenFan = userSubsDegenFans.find(
+        (degenFan) => degenFan.channelId === alfaFren.channelId
+      );
+
+      if (matchedDegenFan) {
+        return {
+          ...alfaFren,
+          userChannelAlfa: matchedDegenFan.userChannelAlfa,
+          lastUpdated: matchedDegenFan.lastUpdated,
+        };
+      } else {
+        return {
+          ...alfaFren,
+          userChannelAlfa: 999999,
+          lastUpdated: 31313131,
+        };
+      }
+    });
+    setUpdatedUserSubsAlfafrens(updatedSubs);
+  }, [userSubsAlfafrens, userSubsDegenFans]);
+
+  useEffect(() => {
+    const total = updatedUserSubsAlfafrens
+      .filter(
+        (sub) => sub.userChannelAlfa !== 999999 && !isNaN(sub.userChannelAlfa)
+      )
+      .reduce((sum, sub) => sum + parseFloat(sub.userChannelAlfa), 0);
+
+    setTotalAlfaAllocationPerMo(total);
+  }, [updatedUserSubsAlfafrens]);
+
+  ///User Staked List
+  useEffect(() => {
+    const getUserStakedListFetchData = async (userAddress: string) => {
+      if (userAddress && userSelfStake > 0 && userMinData) {
+        try {
+          const stakedListResponse = await getUserStakedList(userAddress);
+          const updatedList = await Promise.all(
+            stakedListResponse.account.poolMemberships.map(
+              async (poolMembership: { pool: { admin: { id: any } } }) => {
+                const poolAdminId = poolMembership.pool.admin.id;
+                let channelData;
+                try {
+                  channelData = await fetchChannelData(poolAdminId);
+                } catch (error) {
+                  console.error("Error fetching channel data:", error);
+                  channelData = {
+                    id: `${userAddress}`,
+                    lastUpdatedTimestamp: "unknown",
+                    numberOfSubscribers: 0,
+                    numberOfStakers: 0,
+                    totalSubscriptionFlowRate: "1",
+                    totalSubscriptionInflowAmount: "1",
+                    totalClaimed: "1",
+                    owner: `${userAddress}`,
+                    currentStaked: "1",
+                    estimatedEarningsPerSecond: "1",
+                    incomeToStakeRatio: "1",
+                    stakeToIncomeRatio: "1",
+                    totalSubscriptionCashbackFlowRate: "1",
+                    totalSubscriptionCashbackFlowAmount: "1",
+                    title: "unknown",
+                    bio: "unknown",
+                  };
+                }
+                const updatedPoolMembership = {
+                  ...poolMembership,
+                  channelData,
+                };
+                return updatedPoolMembership;
+              }
+            )
+          );
+          setUpdatedUserStakedList(updatedList);
+          const calculateEarnings = (item: {
+            channelData: { owner: string; estimatedEarningsPerSecond: number };
+            pool: { poolMembers: { units: number }[] };
+          }) => {
+            if (
+              item.channelData.owner.toLowerCase() === userAddress.toLowerCase()
+            ) {
+              const result: number =
+                ((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                userSelfStake;
+              const resultPlusOnePercent: number = result * 1.01;
+
+              return resultPlusOnePercent;
+            } else {
+              return (
+                (((((item.channelData.estimatedEarningsPerSecond *
+                  60 *
+                  60 *
+                  24 *
+                  30) /
+                  10000000000) *
+                  (item.pool.poolMembers[0].units * 100)) /
+                  69.069 /
+                  1000000) *
+                  100) /
+                100
+              );
+            }
+          };
+
+          let total = 0;
+          updatedList.forEach((item) => {
+            const earnings = calculateEarnings(item);
+            total += earnings;
+          });
+
+          setTotalEarnings(total);
+          setUpdatedUserStakedList(updatedList);
+        } catch (error) {
+          console.error("Error fetching user staked list:", error);
+        }
+      }
+    };
+
+    if (userMinData && userMinData.userAddress) {
+      getUserStakedListFetchData(userMinData.userAddress);
+    }
+  }, [userMinData, userSelfStake]);
+
+  ///Channel cost
+  const calculateChannelCost = (response: {
+    totalSubscriptionFlowRate: any;
+    numberOfSubscribers: any;
+  }) => {
+    if (!response) return "N/A";
+    const cost =
+      response.totalSubscriptionFlowRate /
+      380517503805.174 /
+      response.numberOfSubscribers;
+    return cost.toFixed(0);
+  };
+
+  ///Set User Stats For AI
+  useEffect(() => {
+    setSendUserdata({
+      userDegenBalance:
+        (userBalanceFunc?.balance / 1000000000000000000).toFixed(2) + " Degen",
+      userDailyAlfa: (totalAlfaAllocationPerMo / 30).toFixed(2) + " Alfa",
+      userStakeCashback: totalEarnings.toFixed(2) + " Degen",
+      userChannelSubs: channelData?.numberOfSubscribers,
+      userChannelEarnings: totalSubEarnings + " Degen",
+      userBleuBalance: bleuBalance + " Bleu",
+      userSubscriptions: updatedUserSubsAlfafrens?.length,
+      userPaidForSubscriptions:
+        (userBalanceFunc?.totalOutflowRate / 380517503050).toFixed(0) +
+        " Degen",
+    });
+  }, [
+    userBalanceFunc,
+    totalAlfaAllocationPerMo,
+    totalEarnings,
+    bleuBalance,
+    channelData,
+    totalSubEarnings,
+    updatedUserSubsAlfafrens,
+  ]);
+  console.log(sendUserdata);
   return (
     <PageContainer title="Bleu AI" description="GikkiFrens Ai">
       <DashboardCard>
         <>
           <Grid container style={{ width: "100%", justifyContent: "center" }}>
             <Grid item xs={12} sm={8} md={10}>
-              <Box bgcolor="white" borderRadius={8} boxShadow={3} p={3} mt={4}>
+              <Box
+                id="user"
+                bgcolor="white"
+                borderRadius={8}
+                boxShadow={3}
+                p={3}
+                mt={4}
+              >
+                <Grid container alignItems="center" spacing={1}>
+                  <Grid item>
+                    <Avatar
+                      alt="Profile Picture"
+                      src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="h5">{displayName}</Typography>
+                  </Grid>
+                </Grid>
+                <Box mt={2}>
+                  <Typography variant="body1">Can you say something</Typography>
+                </Box>
+              </Box>
+
+              <Box
+                id="ai"
+                bgcolor="white"
+                borderRadius={8}
+                boxShadow={3}
+                p={3}
+                mt={4}
+              >
                 <Grid container alignItems="center" spacing={1}>
                   <Grid item>
                     <Avatar
@@ -274,23 +693,76 @@ const AiPage = () => {
                   </Grid>
                 </Grid>
                 <Box mt={2}>
-                  <Typography variant="body1">
-                    {aiContent ? (
-                      <div dangerouslySetInnerHTML={{ __html: aiContent }} />
-                    ) : (
-                      getRandomEntry()
-                    )}
-                    {!aiContent && "\u00A0"} {/* non-breaking space */}
-                  </Typography>
+                  <Typography variant="body1">{getRandomEntry()}</Typography>
                 </Box>
               </Box>
+
+              {aiContent ? (
+                <>
+                  <Box
+                    id="user"
+                    bgcolor="white"
+                    borderRadius={8}
+                    boxShadow={3}
+                    p={3}
+                    mt={4}
+                  >
+                    <Grid container alignItems="center" spacing={1}>
+                      <Grid item>
+                        <Avatar
+                          alt="Profile Picture"
+                          src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
+                        />
+                      </Grid>
+                      <Grid item>
+                        <Typography variant="h5">{displayName}</Typography>
+                      </Grid>
+                    </Grid>
+                    <Box mt={2}>
+                      <Typography variant="body1">
+                        {`I've ${sendUserdata.userDegenBalance} and ${sendUserdata.userChannelSubs} subs.
+ I'm paying ${sendUserdata.userPaidForSubscriptions} for ${sendUserdata.userSubscriptions} subscriptions.
+ My daily Alfa Amount is ${sendUserdata.userDailyAlfa}. My Stake Cashback is ${sendUserdata.userStakeCashback}.`}
+   Now Can you say something about my data? And Elephants are so fun! 
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    id="ai"
+                    bgcolor="white"
+                    borderRadius={8}
+                    boxShadow={3}
+                    p={3}
+                    mt={4}
+                  >
+                    <Grid container alignItems="center" spacing={1}>
+                      <Grid item>
+                        <Avatar
+                          alt="Profile Picture"
+                          src="/images/profile/pccat.gif"
+                        />
+                      </Grid>
+                      <Grid item>
+                        <Typography variant="h5">AiFren</Typography>
+                      </Grid>
+                    </Grid>
+                    <Box mt={2}>
+                      <Typography variant="body1">
+                        <div dangerouslySetInnerHTML={{ __html: aiContent }} />
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              ) : null}
+
               <Box mt={2} display="flex">
                 <TextField
                   variant="outlined"
                   fullWidth
-                  value={
-                    "Hey bud! Can you analyse my Alfafrens data, I hope you do well. I pay for every request tho!"
-                  }
+                  value={`I've ${sendUserdata.userDegenBalance} and ${sendUserdata.userChannelSubs} subs.
+ I'm paying ${sendUserdata.userPaidForSubscriptions} for ${sendUserdata.userSubscriptions} subscriptions.
+ My daily Alfa Amount is ${sendUserdata.userDailyAlfa}. My Stake Cashback is ${sendUserdata.userStakeCashback}`}
                   disabled
                 />
               </Box>
