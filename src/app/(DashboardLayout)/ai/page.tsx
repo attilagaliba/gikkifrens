@@ -649,64 +649,77 @@ const AiPage = () => {
         <>
           <Grid container style={{ width: "100%", justifyContent: "center" }}>
             <Grid item xs={12} sm={8} md={10}>
-            <div style={{ textAlign: "right" }}>
-              <Box
-                id="user"
-                bgcolor="white"
-                borderRadius={8}
-                boxShadow={3}
-                p={3}
-                mt={4}
-                style={{ marginBottom: "10px" }}
+              <div
+                style={{ textAlign: "right", width: "50%", marginLeft: "auto" }}
               >
-                <Grid container alignItems="center" spacing={1}>
-                  <Grid item style={{ marginLeft: "auto" }}>
-                    <Avatar
-                      alt="Profile Picture"
-                      src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
-                    />
+                <Box
+                  id="user"
+                  bgcolor="white"
+                  borderRadius={12}
+                  boxShadow={3}
+                  p={3}
+                  mt={4}
+                  style={{ marginBottom: "10px" }}
+                >
+                  <Grid container alignItems="center" spacing={1}>
+                    <Grid item style={{ marginLeft: "auto" }}>
+                      <Avatar
+                        alt="Profile Picture"
+                        src="https://media.tenor.com/E_NB8O85ZQkAAAAM/elephant.gif"
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h5">{displayName}</Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Typography variant="h5">{displayName}</Typography>
-                  </Grid>
-                </Grid>
-                <Box mt={2}>
-                  <Typography variant="body1">Can you say something</Typography>
+                  <Box mt={2}>
+                    <Typography variant="body1">
+                      Can you say something
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
               </div>
-              <Box
-                id="ai"
-                bgcolor="white"
-                borderRadius={8}
-                boxShadow={3}
-                p={3}
-                mt={4}
-              >
-                <Grid container alignItems="center" spacing={1}>
-                  <Grid item>
-                    <Avatar
-                      alt="Profile Picture"
-                      src="/images/profile/pccat.gif"
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography variant="h5">AiFren</Typography>
-                  </Grid>
-                </Grid>
-                <Box mt={2}>
-                  <Typography variant="body1">{getRandomEntry()}</Typography>
-                </Box>
-              </Box>
 
+              <div
+                style={{ textAlign: "left", width: "80%", marginRight: "auto" }}
+              >
+                <Box
+                  id="ai"
+                  bgcolor="white"
+                  borderRadius={8}
+                  boxShadow={3}
+                  p={3}
+                  mt={4}
+                >
+                  <Grid container alignItems="center" spacing={1}>
+                    <Grid item>
+                      <Avatar
+                        alt="Profile Picture"
+                        src="/images/profile/pccat.gif"
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h5">AiFren</Typography>
+                    </Grid>
+                  </Grid>
+                  <Box mt={2}>
+                    <Typography variant="body1">{getRandomEntry()}</Typography>
+                  </Box>
+                </Box>
+              </div>
               {aiContent ? (
                 <>
-                  <div style={{ textAlign: "right" }}>
-                    {/* User kutusu */}
+                  <div
+                    style={{
+                      textAlign: "right",
+                      width: "50%",
+                      marginLeft: "auto",
+                    }}
+                  >
                     <Box
                       id="user"
                       bgcolor="white"
-                      borderRadius={8}
+                      borderRadius={12}
                       boxShadow={3}
                       p={3}
                       mt={4}
@@ -737,31 +750,41 @@ const AiPage = () => {
                   </div>
 
                   {/* AI kutusu */}
-                  <Box
-                    id="ai"
-                    bgcolor="white"
-                    borderRadius={8}
-                    boxShadow={3}
-                    p={3}
-                    mt={4}
+                  <div
+                    style={{
+                      textAlign: "left",
+                      width: "80%",
+                      marginRight: "auto",
+                    }}
                   >
-                    <Grid container alignItems="center" spacing={1}>
-                      <Grid item>
-                        <Avatar
-                          alt="Profile Picture"
-                          src="/images/profile/pccat.gif"
-                        />
+                    <Box
+                      id="ai"
+                      bgcolor="white"
+                      borderRadius={8}
+                      boxShadow={3}
+                      p={3}
+                      mt={4}
+                    >
+                      <Grid container alignItems="center" spacing={1}>
+                        <Grid item>
+                          <Avatar
+                            alt="Profile Picture"
+                            src="/images/profile/pccat.gif"
+                          />
+                        </Grid>
+                        <Grid item>
+                          <Typography variant="h5">AiFren</Typography>
+                        </Grid>
                       </Grid>
-                      <Grid item>
-                        <Typography variant="h5">AiFren</Typography>
-                      </Grid>
-                    </Grid>
-                    <Box mt={2}>
-                      <Typography variant="body1">
-                        <div dangerouslySetInnerHTML={{ __html: aiContent }} />
-                      </Typography>
+                      <Box mt={2}>
+                        <Typography variant="body1">
+                          <div
+                            dangerouslySetInnerHTML={{ __html: aiContent }}
+                          />
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
+                  </div>
                 </>
               ) : null}
 
