@@ -37,7 +37,7 @@ const MonthlyEarnings: React.FC<Props> = ({
 
   // chart
 
-  let dataDate = []; // dataDate'i boş bir dizi olarak başlatın
+  let dataDate = []; //
 
   if (
     userBalanceFuncHistory?.accountTokenSnapshots[0]?.accountTokenSnapshotLogs
@@ -56,13 +56,6 @@ const MonthlyEarnings: React.FC<Props> = ({
   }
 
   const updatedDataDate = [...dataDate];
-  updatedDataDate.unshift("Live");
-
-  // Sonuçları ters çevirin
-  const reversedDataDate = updatedDataDate.reverse();
-
-  // Güncellenmiş dataDate dizisini kullanarak işlemleri devam ettirin
-  // ...
 
   const optionscolumnchart: any = {
     chart: {
@@ -94,7 +87,7 @@ const MonthlyEarnings: React.FC<Props> = ({
       curve: "smooth",
       width: 2,
     },
-    labels: updatedDataDate,
+    labels: [...updatedDataDate, "Live"],
     fill: {
       colors: [secondarylight],
       type: "straight",
@@ -124,15 +117,9 @@ const MonthlyEarnings: React.FC<Props> = ({
           (log.balance / 1000000000000000000).toFixed(2)
       );
 
-    // Veri dizisini güncelle
     const updatedData = [...data];
-    updatedData.unshift(balance); // Her güncellemede en son balance değerini en başa ekle
 
-    // Sonuçları ters çevir
     reversedData = updatedData.reverse();
-
-    // Devam eden işlemleri yap
-    // ...
   } else {
     // Eğer veri yoksa, uygun bir işlem yap
     console.error("Veri bulunamadı.");
@@ -142,7 +129,7 @@ const MonthlyEarnings: React.FC<Props> = ({
     {
       name: "DEGEN",
       color: secondary,
-      data: reversedData,
+      data: [...reversedData, balance],
     },
   ];
 
@@ -153,7 +140,7 @@ const MonthlyEarnings: React.FC<Props> = ({
       const balanceContent = $(".flowing-balance").text();
       setBalance(balanceContent);
     };
-    const interval = setInterval(getBalanceFromPage, 5000);
+    const interval = setInterval(getBalanceFromPage, 15000);
     return () => clearInterval(interval);
   }, []);
 

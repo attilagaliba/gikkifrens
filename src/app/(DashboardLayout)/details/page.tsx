@@ -523,13 +523,13 @@ const Dashboard = () => {
   }
   
   return (
-    <PageContainer title="Dashboard GikkiFrens" description="this is Dashboard">
+    <PageContainer title="Details GikkiFrens" description="this is Dashboard">
       <Box>
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
           open={open}
           onClick={handleClose}
-          message={`I know there are some bugs. -------  You are currently in early access, so some of your data may be delayed. ------- Additionally, lists will arrive with a delay depending on the size of the number. -------  If you are subscribed to @Degenfans and 'Alfa Allocation' still does not appear, there may be a delay in the data processing. ------- AI sees your data after the home page is completely loaded. ------- Go to my Alfafrens chat for bugs and feedback `}
+          message={`Go to my Alfafrens chat for bugs and feedback || Much love <3 :3`}
           key={vertical + horizontal}
         />
         <Grid container spacing={3}>
