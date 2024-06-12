@@ -9,7 +9,6 @@ import YearlyBreakup from "@/app/(DashboardLayout)/components/dashboard/YearlyBr
 import RecentTransactions from "@/app/(DashboardLayout)/components/dashboard/RecentTransactions";
 import SubsTable from "@/app/(DashboardLayout)/components/dashboard/SubsTable";
 import StakersTable from "@/app/(DashboardLayout)/components/dashboard/StakersTable";
-import Blog from "@/app/(DashboardLayout)/components/dashboard/Blog";
 import MonthlyEarnings from "@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings";
 import ChannelStats from "@/app/(DashboardLayout)/components/dashboard/ChannelStats";
 import { useProfile } from "@farcaster/auth-kit";
