@@ -3,7 +3,8 @@
 export default async function handler(req, res) {
   const { requestData, getRandomMessage } = req.body;
 
-  const apiKey = "AIzaSyAmeJjqu5K5ty7ZyEr2JDg9v30PCna01Us";
+  const apiKey = process.env.OPENAI_API_KEY;
+
   const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
   const makeRequest = async (retryCount = 0) => {

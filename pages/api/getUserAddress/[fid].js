@@ -3,7 +3,7 @@
 import { init, fetchQuery } from "@airstack/node";
 
 // Airstack API anahtarını buraya yerleştirin
-const API_KEY = "1c62934943b654b33ab687f28e5787992";
+const API_KEY = process.env.AIRSTACK_API_KEY;
 
 // Airstack API'yi başlat
 init(API_KEY);
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   // Sorgu değişkenleri
   const variables = {
     _eq: fid,
-    blockchain: "ethereum" // Varsayılan blockchain, isteğinize göre değiştirilebilir
+    blockchain: "ethereum", // Varsayılan blockchain, isteğinize göre değiştirilebilir
   };
 
   try {

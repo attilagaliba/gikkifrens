@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useMediaQuery, Box, Drawer } from "@mui/material";
 import Logo from "../shared/logo/Logo";
 import SidebarItems from "./SidebarItems";

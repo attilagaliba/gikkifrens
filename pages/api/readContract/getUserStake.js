@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const { subscriber, channel } = req.query;
   const contractAddress = "0x8e243a7accd5eb76ab8d1559ff1402c95a0e5399";
   const proxyAddress = "0x905Cf6aDF9510EE12C78dD9c6A5445320db24342";
-  const apiKey = "BFDVH9UXWA12ZGNNZVCNKPA4XRNBYFB642";
+  const apiKey = process.env.BASESCAN_API_KEY;
   const ethereumRpcUrl = "https://mainnet.base.org";
 
   try {

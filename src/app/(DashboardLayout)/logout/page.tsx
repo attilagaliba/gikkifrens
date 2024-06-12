@@ -13,7 +13,7 @@ export default function Logout() {
     localStorage.removeItem("userProfile");
     setTimeout(() => {
       router.push("/");
-    }, 1000); // 1 saniye sonra yönlendirme yap
+    }, 1000); 
   };
 
   return (
