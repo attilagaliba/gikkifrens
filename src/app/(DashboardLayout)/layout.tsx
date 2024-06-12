@@ -39,14 +39,14 @@ export default function RootLayout({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [isSubMe, setIsSubMe] = useState(false);
+  const [isSubMe, setIsSubMe] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userProfile, setUserProfile] = useState({
     fid: 0,
     displayName: "",
     custody: {},
   });
-  const [isInEarlyList, setisInEarlyList] = useState(false);
+  const [isInbannedListt, setisInbannedListt] = useState(false);
 
   const Login = () => {
     return <SignInButton />;
@@ -58,26 +58,16 @@ export default function RootLayout({
     profile: { fid, displayName, custody },
   } = profile;
 
-  const earlyList = {
-    values: [
-      474817, 387731, 447766, 479063, 385955, 253127, 306610, 536200, 9507,
-      438117, 447062, 289702, 1631, 4282, 4865, 8152, 8685, 19129, 196411,489232,
-      323583, 343400, 354894, 366713, 385469, 444517, 446697, 310124, 426875,
-      324115, 369769, 466946, 568047, 427685, 17474, 278653, 4549, 239709,506295,
-      268992, 277700, 281836, 320189, 408746, 237778, 395461, 576740, 253127,
-      403619, 12021, 296785, 269385, 2904, 382254, 449282, 214570, 409852,
-      351282, 263685, 488644, 2904,
-    ],
+  const bannedListt = {
+    values: [0],
   };
-
-  // Check if fid exists in earlyList
 
   useEffect(() => {
     const fetchData = async (fid: number) => {
       const userData = await checkUser(userProfile.fid);
-      const checkEarlyList = earlyList.values.includes(userProfile.fid);
-      setisInEarlyList(checkEarlyList);
-      setIsSubMe(userData);
+      const checkbannedListt = bannedListt.values.includes(userProfile.fid);
+      setisInbannedListt(checkbannedListt);
+      setIsSubMe(true);
     };
 
     if (userProfile && userProfile.fid > 0) {
@@ -121,7 +111,7 @@ export default function RootLayout({
     <MainWrapper className="mainwrapper">
       <Analytics />
       <SpeedInsights />
-      {isAuthenticated && isInEarlyList && (
+      {isAuthenticated && !isInbannedListt && (
         <Sidebar
           isSidebarOpen={isSidebarOpen}
           isMobileSidebarOpen={isMobileSidebarOpen}
@@ -131,7 +121,7 @@ export default function RootLayout({
 
       {isAuthenticated ? (
         isSubMe ? (
-          isInEarlyList ? (
+          !isInbannedListt ? (
             <PageWrapper className="page-wrapper">
               <Header toggleMobileSidebar={() => setMobileSidebarOpen(true)} />
 
@@ -293,7 +283,7 @@ export default function RootLayout({
                       color="textSecondary"
                       gutterBottom
                     >
-                      You are not in the Early Access Lists
+                      you are banned
                     </Typography>
                     <Button
                       variant="contained"
@@ -304,7 +294,7 @@ export default function RootLayout({
                       sx={{ backgroundColor: "black", marginTop: "20px" }}
                     >
                       <Typography variant="button" sx={{ color: "green" }}>
-                        Join to early access
+                        ask me why
                       </Typography>
                     </Button>
                   </Box>
@@ -425,7 +415,7 @@ export default function RootLayout({
                     sx={{ textDecoration: "none", color: "textSecondary" }}
                   >
                     <Typography variant="body2" color="textSecondary">
-                    https://frens.gikkilab.com/
+                      https://frens.gikkilab.com/
                     </Typography>
                   </CustomLink>
                 </Box>
