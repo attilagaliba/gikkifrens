@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useState, useEffect, SetStateAction } from "react";
 import { Typography } from "@mui/material";
@@ -17,6 +18,7 @@ import {
   getUserBalance,
   getUserBalanceHistory,
   getSubsRew,
+  checkUser,
   fetchChannelData,
   getUserSubscribedChannels,
 } from "../func/galiba";
@@ -31,6 +33,8 @@ const AiPage = () => {
   const [fid, setFid] = useState<number | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [custody, setCustody] = useState<string | null>(null);
+
+  const [isSubMe, setIsSubMe] = useState(false);
 
   const [aiContent, setAiContent] = useState<string | null>(null);
   const [sendUserdata, setSendUserdata] = useState<any>({
@@ -88,6 +92,18 @@ const AiPage = () => {
       setCustody(profile.custody);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchData = async (fid: number) => {
+      const userData = await checkUser(fid);
+
+      setIsSubMe(userData);
+    };
+
+    if (fid && fid > 0) {
+      fetchData(fid);
+    }
+  }, [fid]);
 
   // Bleu Balance
   useEffect(() => {
@@ -642,7 +658,7 @@ const AiPage = () => {
     totalSubEarnings,
     updatedUserSubsAlfafrens,
   ]);
-  console.log(sendUserdata);
+
   return (
     <PageContainer title="Bleu AI" description="GikkiFrens Ai">
       <DashboardCard>
@@ -836,23 +852,38 @@ const AiPage = () => {
                     </TextField>
                   </Grid>
                   <Grid item>
-                    {isGenerating ? (
-                      <Button
-                        variant="contained"
-                        disableElevation
-                        color="secondary"
-                        disabled
-                      >
-                        Generating...
-                      </Button>
+                    {isSubMe ? (
+                      isGenerating ? (
+                        <Button
+                          variant="contained"
+                          disableElevation
+                          color="secondary"
+                          disabled
+                        >
+                          Generating...
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          disableElevation
+                          color="primary"
+                          onClick={generateContent}
+                        >
+                          Generate Analyse
+                        </Button>
+                      )
                     ) : (
                       <Button
                         variant="contained"
-                        disableElevation
                         color="primary"
-                        onClick={generateContent}
+                        href="https://www.alfafrens.com/channel/0x27bf87dcaf7121715ac6b8addf2085a62be7ea0d"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ backgroundColor: "black", marginTop: "20px" }}
                       >
-                        Generate Analyse
+                        <Typography variant="button" sx={{ color: "green" }}>
+                          AI is Only for Subs | Subscribe for 500 DEGENx/mo
+                        </Typography>
                       </Button>
                     )}
                   </Grid>
