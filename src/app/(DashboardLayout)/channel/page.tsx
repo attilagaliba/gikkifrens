@@ -16,6 +16,7 @@ import axios from "axios";
 import {
   getUserByFid,
   getUserByFidFFC,
+  getUserAddress,
   getChaRew,
   getUserByAddress,
   fetchChannelData,
