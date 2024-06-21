@@ -3,7 +3,7 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { Grid, Box } from "@mui/material";
+import { Grid, Box, Chip } from "@mui/material";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 
 import YearlyBreakup from "@/app/(DashboardLayout)/components/dashboard/YearlyBreakup";
@@ -521,7 +521,11 @@ const Dashboard = () => {
     const isoDateString = date.toISOString();
     return isoDateString;
   }
-  
+
+  const baseUrlFrame = 'https://warpcast.com/~/compose?embeds%5B%5D=https://link.alfafrens.com/channel/';
+  const channelAddressFrame = userMinData?.channeladdress || '';
+  const url = `${baseUrlFrame}${channelAddressFrame}`;
+
   return (
     <PageContainer title="Details GikkiFrens" description="this is Dashboard">
       <Box>
@@ -626,6 +630,9 @@ const Dashboard = () => {
 
           <Grid item xs={4} lg={3}>
             <DetailsTotals channelData={channelData} />
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              <Chip label="Share Your Channel as Frame" variant="outlined" />
+            </a>
           </Grid>
 
           {userRecentTransactions.length > 0 ? (

@@ -45,7 +45,6 @@ const getColorAndLabel = (action: any): ColorAndLabel => {
 
 const RecentTransactions: React.FC<Props> = ({ channelData }) => {
   const theme = useTheme();
-  console.log(channelData);
   return (
     <DashboardCard title="Your Channel">
       <>
